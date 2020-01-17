@@ -60,6 +60,7 @@ public class ResourcePlugin extends Plugin {
     @Override
     public void init(Application app, PluginListener listener) {
         super.init(app, listener);
+        //不支持 api 14 以下
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             MatrixLog.e(TAG, "API is low Build.VERSION_CODES.ICE_CREAM_SANDWICH(14), ResourcePlugin is not supported");
             unSupportPlugin();
