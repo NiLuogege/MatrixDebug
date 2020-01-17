@@ -31,7 +31,7 @@ import org.json.JSONObject;
 /**
  * Created by zhangshaowen on 17/5/17.
  */
-
+//所有的 plugin 都继承了 IAppForeground
 public abstract class Plugin implements IPlugin, IssuePublisher.OnIssueDetectListener, IAppForeground {
     private static final String TAG = "Matrix.Plugin";
 
@@ -48,6 +48,7 @@ public abstract class Plugin implements IPlugin, IssuePublisher.OnIssueDetectLis
 
     private int status = PLUGIN_CREATE;
 
+    //在初始化 Matrix 的时候进行初始化
     @Override
     public void init(Application app, PluginListener listener) {
         if (application != null || pluginListener != null) {
@@ -56,9 +57,11 @@ public abstract class Plugin implements IPlugin, IssuePublisher.OnIssueDetectLis
         status = PLUGIN_INITED;
         this.application = app;
         this.pluginListener = listener;
+        //将自己注册到  AppActiveMatrixDelegate 中
         AppActiveMatrixDelegate.INSTANCE.addListener(this);
     }
 
+    //组织 问题的 Json数据 并调用 监听的 onReportIssue 方法
     @Override
     public void onDetectIssue(Issue issue) {
         if (issue.getTag() == null) {

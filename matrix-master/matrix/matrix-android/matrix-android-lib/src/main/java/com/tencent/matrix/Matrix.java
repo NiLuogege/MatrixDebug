@@ -39,6 +39,7 @@ public class Matrix {
     private final Application application;
     private final PluginListener pluginListener;
 
+
     private Matrix(Application app, PluginListener listener, HashSet<Plugin> plugins) {
         this.application = app;
         this.pluginListener = listener;

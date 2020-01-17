@@ -54,6 +54,7 @@ public class MatrixHandlerThread {
         return defaultMainHandler;
     }
 
+    //获取 HandlerThread（子线程 handler）
     public static HandlerThread getDefaultHandlerThread() {
 
         synchronized (MatrixHandlerThread.class) {

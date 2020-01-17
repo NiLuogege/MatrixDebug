@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
+//通过枚举的方式 实现的单例模式（奇技淫巧啊）
 public enum AppActiveMatrixDelegate {
 
     INSTANCE;
@@ -40,8 +40,11 @@ public enum AppActiveMatrixDelegate {
             return;
         }
         this.isInit = true;
+        //创建一个handler
         this.handler = new Handler(MatrixHandlerThread.getDefaultHandlerThread().getLooper());
+        //监听 onConfigurationChanged 和 onLowMemory
         application.registerComponentCallbacks(controller);
+        //监听activity生命周期
         application.registerActivityLifecycleCallbacks(controller);
     }
 
@@ -194,6 +197,7 @@ public enum AppActiveMatrixDelegate {
         visibleScene = ss.toString();
     }
 
+    //通过反射获得 topActivity
     public static String getTopActivityName() {
         long start = System.currentTimeMillis();
         try {
