@@ -81,6 +81,8 @@ public class MatrixTraceTransform extends Transform {
                 FD_OUTPUTS,
                 "traceClassOut",
                 variantScope.getVariantConfiguration().getDirName());
+
+        //收集配置信息
         Configuration config = new Configuration.Builder()
                 .setPackageName(variant.getApplicationId())
                 .setBaseMethodMap(extension.getBaseMethodMapFile())
@@ -92,14 +94,19 @@ public class MatrixTraceTransform extends Transform {
                 .build();
 
         try {
+            // 获取 TransformTask.. 具体名称 如：transformClassesWithDexBuilderForDebug 和 transformClassesWithDexForDebug
+            // 在该 task之前  proguard 操作 已经完成
             String[] hardTask = getTransformTaskName(extension.getCustomDexTransformName(), variant.getName());
             for (Task task : project.getTasks()) {
                 for (String str : hardTask) {
+                    // 找到 task 并进行 hook
                     if (task.getName().equalsIgnoreCase(str) && task instanceof TransformTask) {
                         TransformTask transformTask = (TransformTask) task;
                         Log.i(TAG, "successfully inject task:" + transformTask.getName());
                         Field field = TransformTask.class.getDeclaredField("transform");
                         field.setAccessible(true);
+                        // 将 系统的  "transformClassesWithDexBuilderFor.."和"transformClassesWithDexFor.."
+                        // 中的 transform 替换为 MatrixTraceTransform(也就是当前类)
                         field.set(task, new MatrixTraceTransform(config, transformTask.getTransform()));
                         break;
                     }
@@ -160,6 +167,7 @@ public class MatrixTraceTransform extends Transform {
         }
         long cost = System.currentTimeMillis() - start;
         long begin = System.currentTimeMillis();
+        //执行原来应该执行的 Transform 的 transform 方法
         origTransform.transform(transformInvocation);
         long origTransformCost = System.currentTimeMillis() - begin;
         Log.i("Matrix." + getName(), "[transform] cost time: %dms %s:%sms MatrixTraceTransform:%sms", System.currentTimeMillis() - start, origTransform.getClass().getSimpleName(), origTransformCost, cost);
@@ -216,6 +224,7 @@ public class MatrixTraceTransform extends Transform {
          * step 3
          */
         start = System.currentTimeMillis();
+        //注入 字节码
         MethodTracer methodTracer = new MethodTracer(executor, mappingCollector, config, methodCollector.getCollectedMethodMap(), methodCollector.getCollectedClassExtendMap());
         methodTracer.trace(dirInputOutMap, jarInputOutMap);
         Log.i(TAG, "[doTransform] Step(3)[Trace]... cost:%sms", System.currentTimeMillis() - start);
