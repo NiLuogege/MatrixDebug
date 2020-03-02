@@ -195,6 +195,8 @@ public class MatrixTraceTransform extends Transform {
         futures.add(executor.submit(new ParseMappingTask(mappingCollector, collectedMethodMap, methodId)));
 
         Map<File, File> dirInputOutMap = new ConcurrentHashMap<>();
+
+        //存放原始jar文件和 输出jar文件 对应关系
         Map<File, File> jarInputOutMap = new ConcurrentHashMap<>();
         Collection<TransformInput> inputs = transformInvocation.getInputs();
 
@@ -432,9 +434,11 @@ public class MatrixTraceTransform extends Transform {
         }
 
         private void handle() throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException, IOException {
+            // traceClassOut 文件夹地址
             String traceClassOut = config.traceClassOut;
 
             final File jarInput = inputJar.getFile();
+            //创建唯一的 文件
             final File jarOutput = new File(traceClassOut, getUniqueJarName(jarInput));
             if (jarOutput.exists()) {
                 jarOutput.delete();
@@ -444,18 +448,20 @@ public class MatrixTraceTransform extends Transform {
             }
 
             if (IOUtil.isRealZipOrJar(jarInput)) {
-                if (isIncremental) {
+                if (isIncremental) {//是增量
                     if (inputJar.getStatus() == Status.ADDED || inputJar.getStatus() == Status.CHANGED) {
+                        //存放到 jarInputOutMap 中
                         jarInputOutMap.put(jarInput, jarOutput);
                     } else if (inputJar.getStatus() == Status.REMOVED) {
                         jarOutput.delete();
                     }
 
                 } else {
+                    //存放到 jarInputOutMap 中
                     jarInputOutMap.put(jarInput, jarOutput);
                 }
 
-            } else {
+            } else {// 专门用于 处理 WeChat AutoDex.jar 文件
                 Log.i(TAG, "Special case for WeChat AutoDex. Its rootInput jar file is actually a txt file contains path list.");
                 // Special case for WeChat AutoDex. Its rootInput jar file is actually
                 // a txt file contains path list.
@@ -498,6 +504,7 @@ public class MatrixTraceTransform extends Transform {
                 jarInput.delete(); // delete raw inputList
             }
 
+            //将 inputJar 的 file 属性替换为 jarOutput
             replaceFile(inputJar, jarOutput);
 
         }
@@ -516,6 +523,7 @@ public class MatrixTraceTransform extends Transform {
         }
     }
 
+    // 替换 file成员变量
     private void replaceFile(QualifiedContent input, File newFile) throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
         final Field fileField = ReflectUtil.getDeclaredFieldRecursive(input.getClass(), "file");
         fileField.set(input, newFile);
