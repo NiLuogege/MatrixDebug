@@ -98,7 +98,7 @@ public class MappingReader {
         String className = line.substring(0, leftIndex).trim();
         String newClassName = line.substring(leftIndex + offset, rightIndex).trim();
 
-        // Process this class name mapping.
+        // 保存到 MappingCollector 中
         boolean ret = mappingProcessor.processClassMapping(className, newClassName);
 
         return ret ? className : null;
@@ -141,9 +141,9 @@ public class MappingReader {
             name = name.substring(dotIndex + 1);
         }
 
-        // parse class member mapping.
         if (type.length() > 0 && name.length() > 0 && newName.length() > 0 && argIndex2 >= 0) {
             String arguments = line.substring(argIndex1 + 1, argIndex2).trim();
+            //保存到 MappingCollector 中
             mappingProcessor.processMethodMapping(className, type, name, arguments, newClassName, newName);
         }
     }

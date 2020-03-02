@@ -70,12 +70,14 @@ public class MatrixTraceTransform extends Transform {
 
         GlobalScope globalScope = variantScope.getGlobalScope();
         BaseVariantData variant = variantScope.getVariantData();
+        //创建 mapping文件的输出位置 app\build\outputs\mapping\debug
         String mappingOut = Joiner.on(File.separatorChar).join(
                 String.valueOf(globalScope.getBuildDir()),
                 FD_OUTPUTS,
                 "mapping",
                 variantScope.getVariantConfiguration().getDirName());
 
+        //创建 traceClass文件的输出位置 app\build\outputs\mapping\debug
         String traceClassOut = Joiner.on(File.separatorChar).join(
                 String.valueOf(globalScope.getBuildDir()),
                 FD_OUTPUTS,
@@ -89,7 +91,7 @@ public class MatrixTraceTransform extends Transform {
                 .setBlackListFile(extension.getBlackListFile())
                 .setMethodMapFilePath(mappingOut + "/methodMapping.txt")
                 .setIgnoreMethodMapFilePath(mappingOut + "/ignoreMethodMapping.txt")
-                .setMappingPath(mappingOut)
+                .setMappingPath(mappingOut) //保存 mapping.txt 文件夹路径 (app\build\outputs\mapping\debug)
                 .setTraceClassOut(traceClassOut)
                 .build();
 
@@ -184,8 +186,10 @@ public class MatrixTraceTransform extends Transform {
 
         List<Future> futures = new LinkedList<>();
 
+        // 存储 混淆前方法、混淆后方法的映射关系
         final MappingCollector mappingCollector = new MappingCollector();
         final AtomicInteger methodId = new AtomicInteger(0);
+        // 存储 需要插桩的 方法名 和 方法的封装对象TraceMethod
         final ConcurrentHashMap<String, TraceMethod> collectedMethodMap = new ConcurrentHashMap<>();
 
         futures.add(executor.submit(new ParseMappingTask(mappingCollector, collectedMethodMap, methodId)));
@@ -234,6 +238,7 @@ public class MatrixTraceTransform extends Transform {
     }
 
 
+    //    解析 app\build\outputs\mapping\debug\mapping.txt 文件
     private class ParseMappingTask implements Runnable {
 
         final MappingCollector mappingCollector;
@@ -251,16 +256,21 @@ public class MatrixTraceTransform extends Transform {
             try {
                 long start = System.currentTimeMillis();
 
+                //获取mapping文件对象
                 File mappingFile = new File(config.mappingDir, "mapping.txt");
                 if (mappingFile.exists() && mappingFile.isFile()) {
                     MappingReader mappingReader = new MappingReader(mappingFile);
+                    // 解析 mapping.txt 文件
                     mappingReader.read(mappingCollector);
                 }
+                // 解析 黑名单 文件 并保存到 Configuration.blackSet 中
                 int size = config.parseBlackFile(mappingCollector);
 
+                // 获取用户配置的 methodMapping 文件（里面包含 用户自定义的需要 插桩的方法）
                 File baseMethodMapFile = new File(config.baseMethodMapPath);
+                // 解析 methodMapping 文件 并将内容保存在 collectedMethodMap中
                 getMethodFromBaseMethod(baseMethodMapFile, collectedMethodMap);
-                //转换为混淆后的方法名
+                //转换为混淆后的方法名 并保存到 TraceMethod
                 retraceMethodMap(mappingCollector, collectedMethodMap);
 
                 Log.i(TAG, "[ParseMappingTask#run] cost:%sms, black size:%s, collect %s method from %s", System.currentTimeMillis() - start, size, collectedMethodMap.size(), config.baseMethodMapPath);
