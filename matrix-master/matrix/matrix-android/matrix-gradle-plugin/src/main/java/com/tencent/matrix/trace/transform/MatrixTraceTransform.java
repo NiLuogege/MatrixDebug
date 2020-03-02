@@ -174,6 +174,7 @@ public class MatrixTraceTransform extends Transform {
     }
 
     private void doTransform(TransformInvocation transformInvocation) throws ExecutionException, InterruptedException {
+        //是否增量编译
         final boolean isIncremental = transformInvocation.isIncremental() && this.isIncremental();
 
         /**
@@ -216,6 +217,7 @@ public class MatrixTraceTransform extends Transform {
          * step 2
          */
         start = System.currentTimeMillis();
+        //收集需要插桩的方法信息，每个插桩信息封装成TraceMethod对象
         MethodCollector methodCollector = new MethodCollector(executor, mappingCollector, methodId, config, collectedMethodMap);
         methodCollector.collect(dirInputOutMap.keySet(), jarInputOutMap.keySet());
         Log.i(TAG, "[doTransform] Step(2)[Collection]... cost:%sms", System.currentTimeMillis() - start);
@@ -224,7 +226,7 @@ public class MatrixTraceTransform extends Transform {
          * step 3
          */
         start = System.currentTimeMillis();
-        //注入 字节码
+        //执行插桩逻辑，在需要插桩方法的入口、出口添加MethodBeat的i/o逻辑
         MethodTracer methodTracer = new MethodTracer(executor, mappingCollector, config, methodCollector.getCollectedMethodMap(), methodCollector.getCollectedClassExtendMap());
         methodTracer.trace(dirInputOutMap, jarInputOutMap);
         Log.i(TAG, "[doTransform] Step(3)[Trace]... cost:%sms", System.currentTimeMillis() - start);
@@ -258,6 +260,7 @@ public class MatrixTraceTransform extends Transform {
 
                 File baseMethodMapFile = new File(config.baseMethodMapPath);
                 getMethodFromBaseMethod(baseMethodMapFile, collectedMethodMap);
+                //转换为混淆后的方法名
                 retraceMethodMap(mappingCollector, collectedMethodMap);
 
                 Log.i(TAG, "[ParseMappingTask#run] cost:%sms, black size:%s, collect %s method from %s", System.currentTimeMillis() - start, size, collectedMethodMap.size(), config.baseMethodMapPath);
