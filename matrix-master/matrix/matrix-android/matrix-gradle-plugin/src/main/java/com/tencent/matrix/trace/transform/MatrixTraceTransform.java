@@ -194,6 +194,7 @@ public class MatrixTraceTransform extends Transform {
 
         futures.add(executor.submit(new ParseMappingTask(mappingCollector, collectedMethodMap, methodId)));
 
+        //存放原始 源文件 和 输出 源文件的 对应关系
         Map<File, File> dirInputOutMap = new ConcurrentHashMap<>();
 
         //存放原始jar文件和 输出jar文件 对应关系
@@ -366,7 +367,9 @@ public class MatrixTraceTransform extends Transform {
         }
 
         private void handle() throws IOException, IllegalAccessException, NoSuchFieldException, ClassNotFoundException {
+            //原始文件
             final File dirInput = directoryInput.getFile();
+            //输出文件
             final File dirOutput = new File(traceClassOut, dirInput.getName());
             final String inputFullPath = dirInput.getAbsolutePath();
             final String outputFullPath = dirOutput.getAbsolutePath();
@@ -392,11 +395,14 @@ public class MatrixTraceTransform extends Transform {
                     final File changedFileInput = entry.getKey();
 
                     final String changedFileInputFullPath = changedFileInput.getAbsolutePath();
+                    //增量编译模式下之前的build输出已经重定向到dirOutput；替换成output的目录
                     final File changedFileOutput = new File(changedFileInputFullPath.replace(inputFullPath, outputFullPath));
 
                     if (status == Status.ADDED || status == Status.CHANGED) {
+                        //新增、修改的Class文件，此次需要扫描
                         dirInputOutMap.put(changedFileInput, changedFileOutput);
                     } else if (status == Status.REMOVED) {
+                        //删除的Class文件，将文件直接删除
                         changedFileOutput.delete();
                     }
                     outChangedFiles.put(changedFileOutput, status);
@@ -404,8 +410,10 @@ public class MatrixTraceTransform extends Transform {
                 replaceChangedFile(directoryInput, outChangedFiles);
 
             } else {
+                //全量编译模式下，所有的Class文件都需要扫描
                 dirInputOutMap.put(dirInput, dirOutput);
             }
+            //反射input，将dirOutput设置为其输出目录
             replaceFile(directoryInput, dirOutput);
         }
     }
@@ -523,7 +531,7 @@ public class MatrixTraceTransform extends Transform {
         }
     }
 
-    // 替换 file成员变量
+    // //反射input，将dirOutput设置为其输出目录
     private void replaceFile(QualifiedContent input, File newFile) throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
         final Field fileField = ReflectUtil.getDeclaredFieldRecursive(input.getClass(), "file");
         fileField.set(input, newFile);

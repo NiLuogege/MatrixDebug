@@ -73,6 +73,7 @@ public class MethodCollector {
         List<Future> futures = new LinkedList<>();
 
         for (File srcFile : srcFolderList) {
+            //将所有源文件添加到 classFileList 中
             ArrayList<File> classFileList = new ArrayList<>();
             if (srcFile.isDirectory()) {
                 listClassFiles(classFileList, srcFile);
@@ -97,6 +98,7 @@ public class MethodCollector {
         futures.add(executor.submit(new Runnable() {
             @Override
             public void run() {
+                //存储不需要插桩的方法信息到文件（包括黑名单中的方法）
                 saveIgnoreCollectedMethod(mappingCollector);
             }
         }));
@@ -104,6 +106,7 @@ public class MethodCollector {
         futures.add(executor.submit(new Runnable() {
             @Override
             public void run() {
+                //存储待插桩的方法信息到文件
                 saveCollectedMethod(mappingCollector);
             }
         }));
@@ -131,6 +134,7 @@ public class MethodCollector {
                 is = new FileInputStream(classFile);
                 ClassReader classReader = new ClassReader(is);
                 ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                //收集Method信息
                 ClassVisitor visitor = new TraceClassAdapter(Opcodes.ASM5, classWriter);
                 classReader.accept(visitor, 0);
 
@@ -281,6 +285,7 @@ public class MethodCollector {
             if ((access & Opcodes.ACC_ABSTRACT) > 0 || (access & Opcodes.ACC_INTERFACE) > 0) {
                 this.isABSClass = true;
             }
+            //存储一个 类->父类 的map（用于查找Activity的子类）
             collectedClassExtendMap.put(className, superName);
         }
 
@@ -291,8 +296,11 @@ public class MethodCollector {
                 return super.visitMethod(access, name, desc, signature, exceptions);
             } else {
                 if (!hasWindowFocusMethod) {
+                    //该方法是否与onWindowFocusChange方法的签名一致
+                    // （该类中是否复写了onWindowFocusChange方法，Activity不用考虑Class混淆)
                     hasWindowFocusMethod = isWindowFocusChangeMethod(name, desc);
                 }
+                //CollectMethodNode中执行method收集操作
                 return new CollectMethodNode(className, access, name, desc, signature, exceptions);
             }
         }
@@ -319,7 +327,7 @@ public class MethodCollector {
             }
 
             boolean isNeedTrace = isNeedTrace(configuration, traceMethod.className, mappingCollector);
-            // filter simple methods
+            //忽略空方法、get/set方法、没有局部变量的简单方法
             if ((isEmptyMethod() || isGetSetMethod() || isSingleMethod())
                     && isNeedTrace) {
                 ignoreCount.incrementAndGet();
@@ -327,6 +335,7 @@ public class MethodCollector {
                 return;
             }
 
+            //不在黑名单中的方法加入待插桩的集合；在黑名单中的方法加入ignore插桩的集合
             if (isNeedTrace && !collectedMethodMap.containsKey(traceMethod.getMethodName())) {
                 traceMethod.id = methodId.incrementAndGet();
                 collectedMethodMap.put(traceMethod.getMethodName(), traceMethod);

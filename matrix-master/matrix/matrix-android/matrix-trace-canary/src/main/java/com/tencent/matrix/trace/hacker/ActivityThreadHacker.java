@@ -42,6 +42,7 @@ public class ActivityThreadHacker {
 
     public static void hackSysHandlerCallback() {
         try {
+            //这个类被加载的时间，认为是整个App的启动开始时间
             sApplicationCreateBeginTime = SystemClock.uptimeMillis();
             sApplicationCreateBeginMethodIndex = AppMethodBeat.getInstance().maskIndex("ApplicationCreateBeginMethodIndex");
             Class<?> forName = Class.forName("android.app.ActivityThread");
@@ -109,6 +110,7 @@ public class ActivityThreadHacker {
 
             if (!isCreated) {
                 if (isLaunchActivity || msg.what == CREATE_SERVICE || msg.what == RECEIVER) { // todo for provider
+                    //发送启动Activity等消息，认为是Application onCreate的结束时间
                     ActivityThreadHacker.sApplicationCreateEndTime = SystemClock.uptimeMillis();
                     ActivityThreadHacker.sApplicationCreateScene = msg.what;
                     isCreated = true;

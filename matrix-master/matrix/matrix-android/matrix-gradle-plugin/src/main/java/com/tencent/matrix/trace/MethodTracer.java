@@ -255,6 +255,7 @@ public class MethodTracer {
             this.className = name;
             this.isActivityOrSubClass = isActivityOrSubClass(className, collectedClassExtendMap);
             this.isNeedTrace = MethodCollector.isNeedTrace(configuration, className, mappingCollector);
+            //是否是抽象类、接口
             if ((access & Opcodes.ACC_ABSTRACT) > 0 || (access & Opcodes.ACC_INTERFACE) > 0) {
                 this.isABSClass = true;
             }
@@ -264,10 +265,13 @@ public class MethodTracer {
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
                                          String signature, String[] exceptions) {
+
+            //抽象类、接口不插桩
             if (isABSClass) {
                 return super.visitMethod(access, name, desc, signature, exceptions);
             } else {
                 if (!hasWindowFocusMethod) {
+                    //是否是onWindowFocusChange方法
                     hasWindowFocusMethod = MethodCollector.isWindowFocusChangeMethod(name, desc);
                 }
                 MethodVisitor methodVisitor = cv.visitMethod(access, name, desc, signature, exceptions);
@@ -279,6 +283,7 @@ public class MethodTracer {
 
         @Override
         public void visitEnd() {
+            //如果Activity的子类没有onWindowFocusChange方法，插入一个onWindowFocusChange方法
             if (!hasWindowFocusMethod && isActivityOrSubClass && isNeedTrace) {
                 insertWindowFocusChangeMethod(cv, className);
             }
@@ -312,6 +317,7 @@ public class MethodTracer {
         protected void onMethodEnter() {
             TraceMethod traceMethod = collectedMethodMap.get(methodName);
             if (traceMethod != null) {
+                //函数入口处添加逻辑；
                 traceMethodCount.incrementAndGet();
                 mv.visitLdcInsn(traceMethod.id);
                 mv.visitMethodInsn(INVOKESTATIC, TraceBuildConstants.MATRIX_TRACE_CLASS, "i", "(I)V", false);
@@ -348,6 +354,7 @@ public class MethodTracer {
                     }
                 }
 
+                //函数出口处添加逻辑
                 traceMethodCount.incrementAndGet();
                 mv.visitLdcInsn(traceMethod.id);
                 mv.visitMethodInsn(INVOKESTATIC, TraceBuildConstants.MATRIX_TRACE_CLASS, "o", "(I)V", false);
