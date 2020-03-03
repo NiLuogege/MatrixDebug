@@ -273,7 +273,7 @@ public class MatrixTraceTransform extends Transform {
                 //如果混淆文件存在
                 if (mappingFile.exists() && mappingFile.isFile()) {
                     MappingReader mappingReader = new MappingReader(mappingFile);
-                    // 解析 mapping.txt 文件
+                    // 解析 mapping.txt 文件 并将解析出来的 数据保存到 MappingCollector中
                     mappingReader.read(mappingCollector);
                 }
                 // 解析 黑名单 文件 并保存到 Configuration.blackSet 中
@@ -283,7 +283,8 @@ public class MatrixTraceTransform extends Transform {
                 File baseMethodMapFile = new File(config.baseMethodMapPath);
                 // 解析 methodMapping 文件 并将内容保存在 collectedMethodMap中
                 getMethodFromBaseMethod(baseMethodMapFile, collectedMethodMap);
-                //转换为混淆后的方法名 并保存到 TraceMethod
+
+                //将collectedMethodMap中的原始内容 转换为混淆后的内容 并重新保存到 collectedMethodMap
                 retraceMethodMap(mappingCollector, collectedMethodMap);
 
                 Log.i(TAG, "[ParseMappingTask#run] cost:%sms, black size:%s, collect %s method from %s", System.currentTimeMillis() - start, size, collectedMethodMap.size(), config.baseMethodMapPath);
@@ -334,8 +335,10 @@ public class MatrixTraceTransform extends Transform {
                         if (methodField.length > 2) {
                             traceMethod.desc = methodField[2].replace("/", ".");
                         }
+                        //将 baseMethodMapFile 中配置的 内容解析并 添加到 collectedMethodMap中
                         collectedMethodMap.put(traceMethod.getMethodName(), traceMethod);
                         if (methodId.get() < traceMethod.id && traceMethod.id != TraceBuildConstants.METHOD_ID_DISPATCH) {
+                            //设置 methodId 计数器
                             methodId.set(traceMethod.id);
                         }
 

@@ -161,23 +161,27 @@ public class MappingCollector implements MappingProcessor {
     /**
      * get obfuscated method info
      *
-     * @param originalClassName
-     * @param originalMethodName
-     * @param originalMethodDesc
+     * @param originalClassName 原始类名
+     * @param originalMethodName 原始方法名
+     * @param originalMethodDesc 原始方法签名
      * @return
      */
     public MethodInfo obfuscatedMethodInfo(String originalClassName, String originalMethodName, String originalMethodDesc) {
+        //原始 方法签名
         DescInfo descInfo = parseMethodDesc(originalMethodDesc, true);
 
-        // Class name -> obfuscated method names.
+        // 通过原始类名 找到 methodMap
         Map<String, Set<MethodInfo>> methodMap = mOriginalClassMethodMap.get(originalClassName);
         if (methodMap != null) {
+            //通过原始方法名找到 混淆后的MethodInfo
             Set<MethodInfo> methodSet = methodMap.get(originalMethodName);
             if (null != methodSet) {
                 // Find all matching methods.
                 Iterator<MethodInfo> methodInfoIterator = methodSet.iterator();
                 while (methodInfoIterator.hasNext()) {
                     MethodInfo methodInfo = methodInfoIterator.next();
+
+                    //创建新的对象 以至于不污染 Set中的对象
                     MethodInfo newMethodInfo = new MethodInfo(methodInfo);
                     obfuscatedMethodInfo(newMethodInfo);
                     if (newMethodInfo.matches(descInfo.returnType, descInfo.arguments)) {
@@ -221,8 +225,8 @@ public class MappingCollector implements MappingProcessor {
     /**
      * parse method desc
      *
-     * @param desc
-     * @param isRawToObfuscated
+     * @param desc 方法签名
+     * @param isRawToObfuscated 是否是原始到混淆
      * @return
      */
     private DescInfo parseMethodDesc(String desc, boolean isRawToObfuscated) {

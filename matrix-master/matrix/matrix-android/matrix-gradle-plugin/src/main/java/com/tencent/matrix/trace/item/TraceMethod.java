@@ -71,12 +71,15 @@ public class TraceMethod {
     /**
      * original -> proguard
      *
+     * 将 原始数据 转换为 混淆过的数据
+     *
      * @param processor
      */
     public void proguard(MappingCollector processor) {
         if (null == processor) {
             return;
         }
+        //转换为混淆过的数据，并记录
         MethodInfo methodInfo = processor.obfuscatedMethodInfo(className, methodName, desc);
         this.methodName = methodInfo.originalName;
         this.desc = methodInfo.desc;
