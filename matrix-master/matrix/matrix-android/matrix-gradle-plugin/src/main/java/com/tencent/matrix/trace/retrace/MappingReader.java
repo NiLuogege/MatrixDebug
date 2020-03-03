@@ -35,7 +35,7 @@ public class MappingReader {
     private final static String LEFT_PUNC = "(";
     private final static String RIGHT_PUNC = ")";
     private final static String DOT = ".";
-    private final File proguardMappingFile;
+    private final File proguardMappingFile;//mapping.txt 文件
 
     public MappingReader(File proguardMappingFile) {
         this.proguardMappingFile = proguardMappingFile;
@@ -55,11 +55,11 @@ public class MappingReader {
                     break;
                 }
                 line = line.trim();
-                if (!line.startsWith("#")) {
-                    // a class mapping
-                    if (line.endsWith(SPLIT)) {
+                if (!line.startsWith("#")) {//不是注释
+                    if (line.endsWith(SPLIT)) {//类
+                        //className ： 原始类名
                         className = parseClassMapping(line, mappingProcessor);
-                    } else if (className != null) { // a class member mapping
+                    } else if (className != null) { // 类成员
                         parseClassMemberMapping(className, line, mappingProcessor);
                     }
                 } else {
@@ -94,11 +94,12 @@ public class MappingReader {
             return null;
         }
 
-        // trim the elements.
+        //原始类名
         String className = line.substring(0, leftIndex).trim();
+        //混淆后类名
         String newClassName = line.substring(leftIndex + offset, rightIndex).trim();
 
-        // 保存到 MappingCollector 中
+        // 解析 原始类名 和 混淆后类名 并保存到 MappingCollector 中 的三个集合中
         boolean ret = mappingProcessor.processClassMapping(className, newClassName);
 
         return ret ? className : null;
@@ -116,22 +117,24 @@ public class MappingReader {
      *                         ___:___:___ ___(___):___:___ -> ___
      */
     private void parseClassMemberMapping(String className, String line, MappingProcessor mappingProcessor) {
-        int leftIndex1 = line.indexOf(SPLIT);
-        int leftIndex2 = leftIndex1 < 0 ? -1 : line.indexOf(SPLIT, leftIndex1 + 1);
-        int spaceIndex = line.indexOf(SPACE, leftIndex2 + 2);
-        int argIndex1 = line.indexOf(LEFT_PUNC, spaceIndex + 1);
-        int argIndex2 = argIndex1 < 0 ? -1 : line.indexOf(RIGHT_PUNC, argIndex1 + 1);
-        int leftIndex3 = argIndex2 < 0 ? -1 : line.indexOf(SPLIT, argIndex2 + 1);
-        int leftIndex4 = leftIndex3 < 0 ? -1 : line.indexOf(SPLIT, leftIndex3 + 1);
-        int rightIndex = line.indexOf(ARROW, (leftIndex4 >= 0 ? leftIndex4 : leftIndex3 >= 0
+        int leftIndex1 = line.indexOf(SPLIT);//第一个 : 的角标
+        int leftIndex2 = leftIndex1 < 0 ? -1 : line.indexOf(SPLIT, leftIndex1 + 1);//第二个 : 的角标
+        int spaceIndex = line.indexOf(SPACE, leftIndex2 + 2);//第一个空格的角标
+        int argIndex1 = line.indexOf(LEFT_PUNC, spaceIndex + 1);//第一个左括号的角标
+        int argIndex2 = argIndex1 < 0 ? -1 : line.indexOf(RIGHT_PUNC, argIndex1 + 1);//第一个 有括号的角标
+        int leftIndex3 = argIndex2 < 0 ? -1 : line.indexOf(SPLIT, argIndex2 + 1);//第三个 : 的角标
+        int leftIndex4 = leftIndex3 < 0 ? -1 : line.indexOf(SPLIT, leftIndex3 + 1);//第四个 : 的角标
+        int rightIndex = line.indexOf(ARROW, (leftIndex4 >= 0 ? leftIndex4 : leftIndex3 >= 0//第一个 -> 的角标
                 ? leftIndex3 : argIndex2 >= 0 ? argIndex2 : spaceIndex) + 1);
         if (spaceIndex < 0 || rightIndex < 0) {
             return;
         }
 
-        // trim the elements.
+        //获取返回类型
         String type = line.substring(leftIndex2 + 1, spaceIndex).trim();
+        //获取混淆前方法名
         String name = line.substring(spaceIndex + 1, argIndex1 >= 0 ? argIndex1 : rightIndex).trim();
+        //获取混淆后方法名
         String newName = line.substring(rightIndex + 2).trim();
 
         String newClassName = className;
@@ -142,6 +145,7 @@ public class MappingReader {
         }
 
         if (type.length() > 0 && name.length() > 0 && newName.length() > 0 && argIndex2 >= 0) {
+            //解析出参数
             String arguments = line.substring(argIndex1 + 1, argIndex2).trim();
             //保存到 MappingCollector 中
             mappingProcessor.processMethodMapping(className, type, name, arguments, newClassName, newName);

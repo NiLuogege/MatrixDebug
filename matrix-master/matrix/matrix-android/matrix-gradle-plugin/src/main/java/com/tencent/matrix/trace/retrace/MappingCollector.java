@@ -30,10 +30,15 @@ import java.util.Set;
 public class MappingCollector implements MappingProcessor {
     private final static String TAG = "MappingCollector";
     private final static int DEFAULT_CAPACITY = 2000;
+    //混淆后类名 为key 原始类名为 value 的map
     public HashMap<String, String> mObfuscatedRawClassMap = new HashMap<>(DEFAULT_CAPACITY);
+    //原始类名 为key 混淆后类名为 value 的map
     public HashMap<String, String> mRawObfuscatedClassMap = new HashMap<>(DEFAULT_CAPACITY);
+    //原始包名 为key 混淆后包名为 value 的map
     public HashMap<String, String> mRawObfuscatedPackageMap = new HashMap<>(DEFAULT_CAPACITY);
+    // 混淆后类名为key  和 (混淆后方法名为key 和 原始方法的封装 MethodInfo为 value的map ) 的map
     private final Map<String, Map<String, Set<MethodInfo>>> mObfuscatedClassMethodMap = new HashMap<>();
+    // 原始类名为key  和 (原始方法名为key 和 混淆后方法的封装 MethodInfo为 value的map ) 的map
     private final Map<String, Map<String, Set<MethodInfo>>> mOriginalClassMethodMap = new HashMap<>();
 
     @Override
@@ -44,32 +49,52 @@ public class MappingCollector implements MappingProcessor {
         return true;
     }
 
+    /**
+     * @param className        原始类名
+     * @param methodReturnType 返回类型
+     * @param methodName       方法名
+     * @param methodArguments  方法参数
+     * @param newClassName     混淆后类名
+     * @param newMethodName    混淆后方法名
+     */
     @Override
     public void processMethodMapping(String className, String methodReturnType, String methodName, String methodArguments, String newClassName, String newMethodName) {
+        //获取混淆后 类名
         newClassName = mRawObfuscatedClassMap.get(className);
+
+        //取出 混淆后类名 对应 的value
         Map<String, Set<MethodInfo>> methodMap = mObfuscatedClassMethodMap.get(newClassName);
         if (methodMap == null) {
             methodMap = new HashMap<>();
             mObfuscatedClassMethodMap.put(newClassName, methodMap);
         }
+
+        //取出 混淆后方法名 对应 的value
         Set<MethodInfo> methodSet = methodMap.get(newMethodName);
         if (methodSet == null) {
             methodSet = new LinkedHashSet<>();
+            //混淆后方法名
             methodMap.put(newMethodName, methodSet);
         }
+
+        //方法原始方法的描述
         methodSet.add(new MethodInfo(className, methodReturnType, methodName, methodArguments));
 
 
+        //取出 原始类名 对应 的value
         Map<String, Set<MethodInfo>> methodMap2 = mOriginalClassMethodMap.get(className);
         if (methodMap2 == null) {
             methodMap2 = new HashMap<>();
             mOriginalClassMethodMap.put(className, methodMap2);
         }
+
+        //取出 原始方法名 对应 的value
         Set<MethodInfo> methodSet2 = methodMap2.get(methodName);
         if (methodSet2 == null) {
             methodSet2 = new LinkedHashSet<>();
             methodMap2.put(methodName, methodSet2);
         }
+        //存放 混淆后方法的描述
         methodSet2.add(new MethodInfo(newClassName, methodReturnType, newMethodName, methodArguments));
 
     }

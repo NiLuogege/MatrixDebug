@@ -64,6 +64,7 @@ public class MatrixTraceTransform extends Transform {
     private static final String TAG = "MatrixTraceTransform";
     private Configuration config;
     private Transform origTransform;
+    //创建大小为16的线程池
     private ExecutorService executor = Executors.newFixedThreadPool(16);
 
     public static void inject(Project project, MatrixTraceExtension extension, VariantScope variantScope) {
@@ -98,6 +99,7 @@ public class MatrixTraceTransform extends Transform {
 
         try {
             // 获取 TransformTask.. 具体名称 如：transformClassesWithDexBuilderForDebug 和 transformClassesWithDexForDebug
+            // 具体是哪一个 应该和 gradle的版本有关
             // 在该 task之前  proguard 操作 已经完成
             String[] hardTask = getTransformTaskName(extension.getCustomDexTransformName(), variant.getName());
             for (Task task : project.getTasks()) {
@@ -189,10 +191,12 @@ public class MatrixTraceTransform extends Transform {
 
         // 存储 混淆前方法、混淆后方法的映射关系
         final MappingCollector mappingCollector = new MappingCollector();
+        // methodId 计数器
         final AtomicInteger methodId = new AtomicInteger(0);
         // 存储 需要插桩的 方法名 和 方法的封装对象TraceMethod
         final ConcurrentHashMap<String, TraceMethod> collectedMethodMap = new ConcurrentHashMap<>();
 
+        // 将 ParseMappingTask 放入线程池
         futures.add(executor.submit(new ParseMappingTask(mappingCollector, collectedMethodMap, methodId)));
 
         //存放原始 源文件 和 输出 源文件的 对应关系
@@ -214,6 +218,7 @@ public class MatrixTraceTransform extends Transform {
         }
 
         for (Future future : futures) {
+            // 等待所有线程 运行完毕
             future.get();
         }
         futures.clear();
@@ -245,8 +250,11 @@ public class MatrixTraceTransform extends Transform {
     //    解析 app\build\outputs\mapping\debug\mapping.txt 文件
     private class ParseMappingTask implements Runnable {
 
+        //存储 混淆前方法、混淆后方法的映射关系
         final MappingCollector mappingCollector;
+        // 存储 需要插桩的 方法名 和 方法的封装对象TraceMethod
         final ConcurrentHashMap<String, TraceMethod> collectedMethodMap;
+        // methodId 计数器
         private final AtomicInteger methodId;
 
         ParseMappingTask(MappingCollector mappingCollector, ConcurrentHashMap<String, TraceMethod> collectedMethodMap, AtomicInteger methodId) {
@@ -260,8 +268,9 @@ public class MatrixTraceTransform extends Transform {
             try {
                 long start = System.currentTimeMillis();
 
-                //获取mapping文件对象
+                //获取 mapping.txt 文件对象(混淆后的 记录混淆后前后关系的文件)
                 File mappingFile = new File(config.mappingDir, "mapping.txt");
+                //如果混淆文件存在
                 if (mappingFile.exists() && mappingFile.isFile()) {
                     MappingReader mappingReader = new MappingReader(mappingFile);
                     // 解析 mapping.txt 文件
