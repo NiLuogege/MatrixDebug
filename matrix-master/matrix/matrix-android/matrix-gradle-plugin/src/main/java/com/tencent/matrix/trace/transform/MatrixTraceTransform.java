@@ -70,14 +70,15 @@ public class MatrixTraceTransform extends Transform {
 
         GlobalScope globalScope = variantScope.getGlobalScope();
         BaseVariantData variant = variantScope.getVariantData();
-        //创建 mapping文件的输出位置 app\build\outputs\mapping\debug
+        //mapping文件存储目录 如： app\build\outputs\mapping\debug
+        //在该目录下 Trace 会生成两个 mapping文件 一个是 methodMapping.txt，一个是 ignoreMethodMapping.txt
         String mappingOut = Joiner.on(File.separatorChar).join(
                 String.valueOf(globalScope.getBuildDir()),
                 FD_OUTPUTS,
                 "mapping",
                 variantScope.getVariantConfiguration().getDirName());
 
-        //创建 traceClass文件的输出位置 app\build\outputs\mapping\debug
+        //插桩后的 class存储目录 如： app\build\outputs\mapping\debug\traceClass
         String traceClassOut = Joiner.on(File.separatorChar).join(
                 String.valueOf(globalScope.getBuildDir()),
                 FD_OUTPUTS,
@@ -86,13 +87,13 @@ public class MatrixTraceTransform extends Transform {
 
         //收集配置信息
         Configuration config = new Configuration.Builder()
-                .setPackageName(variant.getApplicationId())
-                .setBaseMethodMap(extension.getBaseMethodMapFile())
-                .setBlackListFile(extension.getBlackListFile())
-                .setMethodMapFilePath(mappingOut + "/methodMapping.txt")
-                .setIgnoreMethodMapFilePath(mappingOut + "/ignoreMethodMapping.txt")
-                .setMappingPath(mappingOut) //保存 mapping.txt 文件夹路径 (app\build\outputs\mapping\debug)
-                .setTraceClassOut(traceClassOut)
+                .setPackageName(variant.getApplicationId())//包名
+                .setBaseMethodMap(extension.getBaseMethodMapFile())//build.gradle 中配置的 baseMethodMapFile
+                .setBlackListFile(extension.getBlackListFile())//build.gradle 中配置的 blackListFile ，保存的是 不需要插桩的文件
+                .setMethodMapFilePath(mappingOut + "/methodMapping.txt")// 记录插桩 methodId 和 method的 关系
+                .setIgnoreMethodMapFilePath(mappingOut + "/ignoreMethodMapping.txt")// 记录 没有被 插桩的方法
+                .setMappingPath(mappingOut) //mapping文件存储目录
+                .setTraceClassOut(traceClassOut)//插桩后的 class存储目录
                 .build();
 
         try {
