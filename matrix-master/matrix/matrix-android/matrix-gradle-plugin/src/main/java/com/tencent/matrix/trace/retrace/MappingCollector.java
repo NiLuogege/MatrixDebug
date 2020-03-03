@@ -236,8 +236,10 @@ public class MappingCollector implements MappingProcessor {
         StringBuffer descBuffer = new StringBuffer();
         descBuffer.append('(');
         for (Type type : argsObj) {
+            //获取类名
             String key = type.getClassName().replace("[", "").replace("]", "");
             if (isRawToObfuscated) {
+                //将原始的替换成混淆的
                 if (mRawObfuscatedClassMap.containsKey(key)) {
                     argumentsBuffer.append(type.getClassName().replace(key, mRawObfuscatedClassMap.get(key)));
                     descBuffer.append(type.toString().replace(key, mRawObfuscatedClassMap.get(key)));
@@ -246,6 +248,7 @@ public class MappingCollector implements MappingProcessor {
                     descBuffer.append(type.toString());
                 }
             } else {
+                //将混淆的转换成 原始的
                 if (mObfuscatedRawClassMap.containsKey(key)) {
                     argumentsBuffer.append(type.getClassName().replace(key, mObfuscatedRawClassMap.get(key)));
                     descBuffer.append(type.toString().replace(key, mObfuscatedRawClassMap.get(key)));
@@ -260,12 +263,14 @@ public class MappingCollector implements MappingProcessor {
 
         Type returnObj;
         try {
+            // 获取返回值
             returnObj = Type.getReturnType(desc);
         } catch (ArrayIndexOutOfBoundsException e) {
             returnObj = Type.getReturnType(desc + ";");
         }
         if (isRawToObfuscated) {
             String key = returnObj.getClassName().replace("[", "").replace("]", "");
+            //原始的替换成混淆的
             if (mRawObfuscatedClassMap.containsKey(key)) {
                 descInfo.setReturnType(returnObj.getClassName().replace(key, mRawObfuscatedClassMap.get(key)));
                 descBuffer.append(returnObj.toString().replace(key, mRawObfuscatedClassMap.get(key)));
@@ -274,6 +279,7 @@ public class MappingCollector implements MappingProcessor {
                 descBuffer.append(returnObj.toString());
             }
         } else {
+            //将混淆的转换成 原始的
             String key = returnObj.getClassName().replace("[", "").replace("]", "");
             if (mObfuscatedRawClassMap.containsKey(key)) {
                 descInfo.setReturnType(returnObj.getClassName().replace(key, mObfuscatedRawClassMap.get(key)));

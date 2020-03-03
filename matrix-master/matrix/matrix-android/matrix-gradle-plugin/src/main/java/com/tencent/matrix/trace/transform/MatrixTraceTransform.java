@@ -281,7 +281,7 @@ public class MatrixTraceTransform extends Transform {
 
                 // 获取用户配置的 methodMapping 文件（里面包含 用户自定义的需要 插桩的方法）
                 File baseMethodMapFile = new File(config.baseMethodMapPath);
-                // 解析 methodMapping 文件 并将内容保存在 collectedMethodMap中
+                // 解析 用户配置的 methodMapping 文件 并将内容保存在 collectedMethodMap中
                 getMethodFromBaseMethod(baseMethodMapFile, collectedMethodMap);
 
                 //将collectedMethodMap中的原始内容 转换为混淆后的内容 并重新保存到 collectedMethodMap
