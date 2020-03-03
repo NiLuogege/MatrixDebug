@@ -37,7 +37,7 @@ public class TraceBuildConstants {
     public final static String DEFAULT_BLACK_TRACE =
                     "[package]\n"
                     + "-keeppackage android/\n"
-                    + "-keeppackage com/tencent/matrix/\n";
+                    + "-keeppackage com/tencent/matrix/\n";//android 包 和 com/tencent/matrix 下的类 不需要插桩
 
     private static final int METHOD_ID_MAX = 0xFFFFF;
     public static final int METHOD_ID_DISPATCH = METHOD_ID_MAX - 1;

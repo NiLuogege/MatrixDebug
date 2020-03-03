@@ -8,13 +8,14 @@ import java.util.HashSet;
 
 public class Configuration {
 
-    public String packageName;
-    public String mappingDir;
-    public String baseMethodMapPath;
-    public String methodMapFilePath;
-    public String ignoreMethodMapFilePath;
-    public String blackListFilePath;
-    public String traceClassOut;
+    public String packageName;//包名
+    public String mappingDir;//mapping文件存储目录
+    public String baseMethodMapPath;//build.gradle 中配置的 baseMethodMapFile
+    public String methodMapFilePath;//methodMapping.txt 文件路径
+    public String ignoreMethodMapFilePath;//ignoreMethodMapping.txt 文件路径
+    public String blackListFilePath;//blackListFile文件路径
+    public String traceClassOut;//插桩后的 class存储目录
+    //保存具体的 混淆后的黑名单 类名 或者 包名
     public HashSet<String> blackSet = new HashSet<>();
 
     Configuration(String packageName, String mappingDir, String baseMethodMapPath, String methodMapFilePath,
@@ -31,6 +32,7 @@ public class Configuration {
     public int parseBlackFile(MappingCollector processor) {
         String blackStr = TraceBuildConstants.DEFAULT_BLACK_TRACE + FileUtil.readFileAsString(blackListFilePath);
 
+        // /转为 . 然后通过回车分隔
         String[] blackArray = blackStr.trim().replace("/", ".").split("\n");
 
         if (blackArray != null) {
@@ -38,16 +40,16 @@ public class Configuration {
                 if (black.length() == 0) {
                     continue;
                 }
-                if (black.startsWith("#")) {
+                if (black.startsWith("#")) {//去除注释
                     continue;
                 }
-                if (black.startsWith("[")) {
+                if (black.startsWith("[")) {//去除 package，  class 等标识
                     continue;
                 }
 
                 if (black.startsWith("-keepclass ")) {
                     black = black.replace("-keepclass ", "");
-                    blackSet.add(processor.proguardClassName(black, black));
+                    blackSet.add(processor.proguardClassName(black, black));// 获取并保存 混淆后的 class名 到 blackSet
                 } else if (black.startsWith("-keeppackage ")) {
                     black = black.replace("-keeppackage ", "");
                     blackSet.add(processor.proguardPackageName(black, black));
