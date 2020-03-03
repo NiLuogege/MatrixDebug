@@ -69,6 +69,13 @@ public class MethodCollector {
         return collectedMethodMap;
     }
 
+    /**
+     *
+     * @param srcFolderList 原始文件集合
+     * @param dependencyJarList 原始 jar 集合
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public void collect(Set<File> srcFolderList, Set<File> dependencyJarList) throws ExecutionException, InterruptedException {
         List<Future> futures = new LinkedList<>();
 

@@ -357,8 +357,8 @@ public class MatrixTraceTransform extends Transform {
 
     private class CollectDirectoryInputTask implements Runnable {
 
-        Map<File, File> dirInputOutMap;
-        DirectoryInput directoryInput;
+        Map<File, File> dirInputOutMap;//存放原始 源文件 和 输出 源文件的 对应关系
+        DirectoryInput directoryInput;// 输入文件
         boolean isIncremental;
         String traceClassOut;
 
@@ -380,9 +380,9 @@ public class MatrixTraceTransform extends Transform {
         }
 
         private void handle() throws IOException, IllegalAccessException, NoSuchFieldException, ClassNotFoundException {
-            //原始文件
+            //获取原始文件
             final File dirInput = directoryInput.getFile();
-            //输出文件
+            //创建输出文件
             final File dirOutput = new File(traceClassOut, dirInput.getName());
             final String inputFullPath = dirInput.getAbsolutePath();
             final String outputFullPath = dirOutput.getAbsolutePath();
@@ -399,8 +399,10 @@ public class MatrixTraceTransform extends Transform {
                 }
             }
 
-            if (isIncremental) {
+            if (isIncremental) {//增量更新，只 操作有改动的文件
                 Map<File, Status> fileStatusMap = directoryInput.getChangedFiles();
+
+                //保存输出文件和其状态的 map
                 final Map<File, Status> outChangedFiles = new HashMap<>();
 
                 for (Map.Entry<File, Status> entry : fileStatusMap.entrySet()) {
@@ -420,6 +422,8 @@ public class MatrixTraceTransform extends Transform {
                     }
                     outChangedFiles.put(changedFileOutput, status);
                 }
+
+                //使用反射 替换directoryInput的  改动文件目录
                 replaceChangedFile(directoryInput, outChangedFiles);
 
             } else {
@@ -482,7 +486,7 @@ public class MatrixTraceTransform extends Transform {
                     jarInputOutMap.put(jarInput, jarOutput);
                 }
 
-            } else {// 专门用于 处理 WeChat AutoDex.jar 文件
+            } else {// 专门用于 处理 WeChat AutoDex.jar 文件 可以略过，意义不大
                 Log.i(TAG, "Special case for WeChat AutoDex. Its rootInput jar file is actually a txt file contains path list.");
                 // Special case for WeChat AutoDex. Its rootInput jar file is actually
                 // a txt file contains path list.
@@ -550,6 +554,7 @@ public class MatrixTraceTransform extends Transform {
         fileField.set(input, newFile);
     }
 
+    //使用反射 替换directoryInput的  改动文件目录
     private void replaceChangedFile(DirectoryInput dirInput, Map<File, Status> changedFiles) throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
         final Field changedFilesField = ReflectUtil.getDeclaredFieldRecursive(dirInput.getClass(), "changedFiles");
         changedFilesField.set(dirInput, changedFiles);
