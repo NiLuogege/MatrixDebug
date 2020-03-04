@@ -114,6 +114,7 @@ public class MethodTracer {
     private void innerTraceMethodFromSrc(File input, File output) {
 
         ArrayList<File> classFileList = new ArrayList<>();
+        //所有input文件到存放到 classFileList
         if (input.isDirectory()) {
             listClassFiles(classFileList, input);
         } else {
@@ -124,17 +125,20 @@ public class MethodTracer {
             InputStream is = null;
             FileOutputStream os = null;
             try {
+                //原始文件全路径
                 final String changedFileInputFullPath = classFile.getAbsolutePath();
+                //插桩后文件
                 final File changedFileOutput = new File(changedFileInputFullPath.replace(input.getAbsolutePath(), output.getAbsolutePath()));
                 if (!changedFileOutput.exists()) {
                     changedFileOutput.getParentFile().mkdirs();
                 }
                 changedFileOutput.createNewFile();
 
-                if (MethodCollector.isNeedTraceFile(classFile.getName())) {
+                if (MethodCollector.isNeedTraceFile(classFile.getName())) {//需要插桩
                     is = new FileInputStream(classFile);
                     ClassReader classReader = new ClassReader(is);
                     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                    // TraceClassAdapter 进行插桩
                     ClassVisitor classVisitor = new TraceClassAdapter(Opcodes.ASM5, classWriter);
                     classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
                     is.close();
@@ -146,7 +150,7 @@ public class MethodTracer {
                     }
                     os.write(classWriter.toByteArray());
                     os.close();
-                } else {
+                } else {//不需要插桩，直接copy
                     FileUtil.copyFileUsingStream(classFile, changedFileOutput);
                 }
             } catch (Exception e) {
@@ -253,7 +257,9 @@ public class MethodTracer {
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
             this.className = name;
+            //是否是 activity 或者其 子类
             this.isActivityOrSubClass = isActivityOrSubClass(className, collectedClassExtendMap);
+            //是否需要被插桩
             this.isNeedTrace = MethodCollector.isNeedTrace(configuration, className, mappingCollector);
             //是否是抽象类、接口
             if ((access & Opcodes.ACC_ABSTRACT) > 0 || (access & Opcodes.ACC_INTERFACE) > 0) {
@@ -313,11 +319,12 @@ public class MethodTracer {
 
         }
 
+        //函数入口处添加 AppMethodBeat.i（）方法
         @Override
         protected void onMethodEnter() {
             TraceMethod traceMethod = collectedMethodMap.get(methodName);
             if (traceMethod != null) {
-                //函数入口处添加逻辑；
+                //traceMethodCount +1
                 traceMethodCount.incrementAndGet();
                 mv.visitLdcInsn(traceMethod.id);
                 mv.visitMethodInsn(INVOKESTATIC, TraceBuildConstants.MATRIX_TRACE_CLASS, "i", "(I)V", false);
@@ -342,10 +349,12 @@ public class MethodTracer {
             }
         }*/
 
+        //函数出口处添加 AppMethodBeat.O（）方法
         @Override
         protected void onMethodExit(int opcode) {
             TraceMethod traceMethod = collectedMethodMap.get(methodName);
             if (traceMethod != null) {
+                //是 onWindowFocusChanged 方法 则在出口添加 AppMethodBeat.at()
                 if (hasWindowFocusMethod && isActivityOrSubClass && isNeedTrace) {
                     TraceMethod windowFocusChangeMethod = TraceMethod.create(-1, Opcodes.ACC_PUBLIC, className,
                             TraceBuildConstants.MATRIX_TRACE_ON_WINDOW_FOCUS_METHOD, TraceBuildConstants.MATRIX_TRACE_ON_WINDOW_FOCUS_METHOD_ARGS);
@@ -354,7 +363,7 @@ public class MethodTracer {
                     }
                 }
 
-                //函数出口处添加逻辑
+                //traceMethodCount +1
                 traceMethodCount.incrementAndGet();
                 mv.visitLdcInsn(traceMethod.id);
                 mv.visitMethodInsn(INVOKESTATIC, TraceBuildConstants.MATRIX_TRACE_CLASS, "o", "(I)V", false);
