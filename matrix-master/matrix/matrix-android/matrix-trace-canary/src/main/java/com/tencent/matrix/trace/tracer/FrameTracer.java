@@ -32,7 +32,7 @@ public class FrameTracer extends Tracer {
 
     private static final String TAG = "Matrix.FrameTracer";
     private final HashSet<IDoFrameListener> listeners = new HashSet<>();
-    private final long frameIntervalMs; //固定值 17ms
+    private final long frameIntervalMs; //每帧间隔时间
     private final TraceConfig config; //配置
     private long timeSliceMs;// fps 裁剪时间？用来干啥的还不太知道
     private boolean isFPSEnable;//FPS 监控是否开启

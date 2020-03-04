@@ -14,6 +14,9 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 
+/**
+ * 主线程监控
+ */
 public class UIThreadMonitor implements BeatLifecycle, Runnable {
 
     private static final String TAG = "Matrix.UIThreadMonitor";
@@ -79,19 +82,32 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     }
 
     public void init(TraceConfig config) {
+        //不是主线程 就抛出异常
         if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
             throw new AssertionError("must be init in main thread!");
         }
         this.config = config;
+        //从当前线程中获取到 Choreographer 对象
         choreographer = Choreographer.getInstance();
+        // 获得 Choreographer 里的 mLock锁 对象
         callbackQueueLock = reflectObject(choreographer, "mLock");
+        // 获得 Choreographer 里的 mCallbackQueues 对象
         callbackQueues = reflectObject(choreographer, "mCallbackQueues");
 
+        //反射获得 callbackQueues 中第一个 CallbackQueue对象的 addCallbackLocked 的方法
+        // 第一个 CallbackQueue 是处理 input事件的？
         addInputQueue = reflectChoreographerMethod(callbackQueues[CALLBACK_INPUT], ADD_CALLBACK, long.class, Object.class, Object.class);
+        //反射获得 callbackQueues 中第二个 CallbackQueue对象的 addCallbackLocked 的方法
+        // 第二个 CallbackQueue 是处理 动画的？
         addAnimationQueue = reflectChoreographerMethod(callbackQueues[CALLBACK_ANIMATION], ADD_CALLBACK, long.class, Object.class, Object.class);
+        //反射获得 callbackQueues 中第三个 CallbackQueue对象的 addCallbackLocked 的方法
+        // 第三个 CallbackQueue 是绘制完 用于回调的？
         addTraversalQueue = reflectChoreographerMethod(callbackQueues[CALLBACK_TRAVERSAL], ADD_CALLBACK, long.class, Object.class, Object.class);
+
+        // 获取 choreographer 中mFrameIntervalNanos 的值 并赋值给 frameIntervalNanos
         frameIntervalNanos = reflectObject(choreographer, "mFrameIntervalNanos");
 
+        //注册一个 LooperDispatchListener
         LooperMonitor.register(new LooperMonitor.LooperDispatchListener() {
             @Override
             public boolean isValid() {
@@ -114,6 +130,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
         this.isInit = true;
         MatrixLog.i(TAG, "[UIThreadMonitor] %s %s %s %s %s frameIntervalNanos:%s", callbackQueueLock == null, callbackQueues == null, addInputQueue == null, addTraversalQueue == null, addAnimationQueue == null, frameIntervalNanos);
 
+        //如果是开发环境 就立即启动 ，而且在添加一个 LooperObserver 用于打印log
         if (config.isDevEnv()) {
             addObserver(new LooperObserver() {
                 @Override

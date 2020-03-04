@@ -53,6 +53,7 @@ public class TracePlugin extends Plugin {
     public void init(Application app, PluginListener listener) {
         super.init(app, listener);
         MatrixLog.i(TAG, "trace plugin init, trace config: %s", traceConfig.toString());
+        //APi小于16 不支持
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             MatrixLog.e(TAG, "[FrameBeat] API is low Build.VERSION_CODES.JELLY_BEAN(16), TracePlugin is not supported");
             unSupportPlugin();
@@ -80,6 +81,7 @@ public class TracePlugin extends Plugin {
             @Override
             public void run() {
 
+                //初始化 UIThreadMonitor
                 if (!UIThreadMonitor.getMonitor().isInit()) {
                     try {
                         UIThreadMonitor.getMonitor().init(traceConfig);
@@ -89,8 +91,10 @@ public class TracePlugin extends Plugin {
                     }
                 }
 
+                //启动 AppMethodBeat
                 AppMethodBeat.getInstance().onStart();
 
+                //启动 UIThreadMonitor
                 UIThreadMonitor.getMonitor().onStart();
 
                 anrTracer.onStartTrace();
@@ -106,7 +110,10 @@ public class TracePlugin extends Plugin {
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
             runnable.run();
         } else {
+            //提示 warning TracePlugin 应该在 主线程启动
             MatrixLog.w(TAG, "start TracePlugin in Thread[%s] but not in mainThread!", Thread.currentThread().getId());
+
+            //post到主线程启动
             MatrixHandlerThread.getDefaultMainHandler().post(runnable);
         }
 
