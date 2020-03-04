@@ -42,14 +42,17 @@ public class MethodCollector {
     private final ExecutorService executor;
     private final MappingCollector mappingCollector;
 
-
+    //存储 类->父类 的map（用于查找Activity的子类）
     private final ConcurrentHashMap<String, String> collectedClassExtendMap = new ConcurrentHashMap<>();
-
+    //存储 被忽略方法名 -> 该方法TraceMethod 的映射关系
     private final ConcurrentHashMap<String, TraceMethod> collectedIgnoreMethodMap = new ConcurrentHashMap<>();
+    //存储 需要插桩方法名 -> 该方法TraceMethod 的映射关系
     private final ConcurrentHashMap<String, TraceMethod> collectedMethodMap;
     private final Configuration configuration;
     private final AtomicInteger methodId;
+    // 被忽略方法计数器
     private final AtomicInteger ignoreCount = new AtomicInteger();
+    //需要插桩方法 计数器
     private final AtomicInteger incrementCount = new AtomicInteger();
 
     public MethodCollector(ExecutorService executor, MappingCollector mappingCollector, AtomicInteger methodId,
@@ -89,11 +92,13 @@ public class MethodCollector {
             }
 
             for (File classFile : classFileList) {
+                // 每个源文件执行 CollectSrcTask
                 futures.add(executor.submit(new CollectSrcTask(classFile)));
             }
         }
 
         for (File jarFile : dependencyJarList) {
+            // 每个jar 文件执行 CollectJarTask
             futures.add(executor.submit(new CollectJarTask(jarFile)));
         }
 
@@ -289,17 +294,18 @@ public class MethodCollector {
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
             this.className = name;
+            //如果是虚拟类或者接口 isABSClass =true
             if ((access & Opcodes.ACC_ABSTRACT) > 0 || (access & Opcodes.ACC_INTERFACE) > 0) {
                 this.isABSClass = true;
             }
-            //存储一个 类->父类 的map（用于查找Activity的子类）
+            //存到 collectedClassExtendMap 中
             collectedClassExtendMap.put(className, superName);
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
                                          String signature, String[] exceptions) {
-            if (isABSClass) {
+            if (isABSClass) {//如果是虚拟类或者接口 就不管
                 return super.visitMethod(access, name, desc, signature, exceptions);
             } else {
                 if (!hasWindowFocusMethod) {
@@ -327,33 +333,42 @@ public class MethodCollector {
         @Override
         public void visitEnd() {
             super.visitEnd();
+            //创建TraceMethod
             TraceMethod traceMethod = TraceMethod.create(0, access, className, name, desc);
 
+            //如果是构造方法
             if ("<init>".equals(name)) {
                 isConstructor = true;
             }
 
+            //判断类是否 被配置在了 黑名单中
             boolean isNeedTrace = isNeedTrace(configuration, traceMethod.className, mappingCollector);
             //忽略空方法、get/set方法、没有局部变量的简单方法
             if ((isEmptyMethod() || isGetSetMethod() || isSingleMethod())
                     && isNeedTrace) {
+                //忽略方法递增
                 ignoreCount.incrementAndGet();
+                //加入到被忽略方法 map
                 collectedIgnoreMethodMap.put(traceMethod.getMethodName(), traceMethod);
                 return;
             }
 
-            //不在黑名单中的方法加入待插桩的集合；在黑名单中的方法加入ignore插桩的集合
+            //不在黑名单中而且没在在methodMapping中配置过的方法加入待插桩的集合；
             if (isNeedTrace && !collectedMethodMap.containsKey(traceMethod.getMethodName())) {
                 traceMethod.id = methodId.incrementAndGet();
                 collectedMethodMap.put(traceMethod.getMethodName(), traceMethod);
                 incrementCount.incrementAndGet();
-            } else if (!isNeedTrace && !collectedIgnoreMethodMap.containsKey(traceMethod.className)) {
+            } else if (!isNeedTrace && !collectedIgnoreMethodMap.containsKey(traceMethod.className)) {//在黑名单中而且没在在methodMapping中配置过的方法加入ignore插桩的集合
                 ignoreCount.incrementAndGet();
                 collectedIgnoreMethodMap.put(traceMethod.getMethodName(), traceMethod);
             }
 
         }
 
+        /**
+         * 判断是否是 get方法
+         * @return
+         */
         private boolean isGetSetMethod() {
             int ignoreCount = 0;
             ListIterator<AbstractInsnNode> iterator = instructions.iterator();
@@ -428,16 +443,26 @@ public class MethodCollector {
         return null != name && null != desc && name.equals(TraceBuildConstants.MATRIX_TRACE_ON_WINDOW_FOCUS_METHOD) && desc.equals(TraceBuildConstants.MATRIX_TRACE_ON_WINDOW_FOCUS_METHOD_ARGS);
     }
 
+    /**
+     * 是否需要 被插桩代码
+     * @param configuration
+     * @param clsName
+     * @param mappingCollector
+     * @return
+     */
     public static boolean isNeedTrace(Configuration configuration, String clsName, MappingCollector mappingCollector) {
         boolean isNeed = true;
+        //该类是否在黑名单中
         if (configuration.blackSet.contains(clsName)) {
             isNeed = false;
         } else {
             if (null != mappingCollector) {
+                //通过混淆过的 类型 获取原始类名
                 clsName = mappingCollector.originalClassName(clsName, clsName);
             }
             clsName = clsName.replaceAll("/", ".");
             for (String packageName : configuration.blackSet) {
+                //是否属于黑名单中的配置
                 if (clsName.startsWith(packageName.replaceAll("/", "."))) {
                     isNeed = false;
                     break;
