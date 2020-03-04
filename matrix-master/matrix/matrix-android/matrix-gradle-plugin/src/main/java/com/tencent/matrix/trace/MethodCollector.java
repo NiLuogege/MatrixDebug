@@ -248,6 +248,10 @@ public class MethodCollector {
     }
 
 
+    /**
+     * 将被忽略的 方法名 存入 methodMapping.txt 中
+     * @param mappingCollector
+     */
     private void saveCollectedMethod(MappingCollector mappingCollector) {
         File methodMapFile = new File(configuration.methodMapFilePath);
         if (!methodMapFile.getParentFile().exists()) {
@@ -263,6 +267,7 @@ public class MethodCollector {
 
         Log.i(TAG, "[saveCollectedMethod] size:%s incrementCount:%s path:%s", collectedMethodMap.size(), incrementCount.get(), methodMapFile.getAbsolutePath());
 
+        //通过ID 进行排序
         Collections.sort(methodList, new Comparator<TraceMethod>() {
             @Override
             public int compare(TraceMethod o1, TraceMethod o2) {
