@@ -14,6 +14,9 @@ import com.tencent.matrix.util.ReflectUtils;
 import java.util.HashSet;
 import java.util.Objects;
 
+/**
+ * LooperMonitor 是一个 空闲时执行的handler
+ */
 public class LooperMonitor implements MessageQueue.IdleHandler {
 
     private final HashSet<LooperDispatchListener> listeners = new HashSet<>();

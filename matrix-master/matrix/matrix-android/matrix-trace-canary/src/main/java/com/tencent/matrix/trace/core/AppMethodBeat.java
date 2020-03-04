@@ -109,12 +109,14 @@ public class AppMethodBeat implements BeatLifecycle {
     @Override
     public void onStart() {
         synchronized (statusLock) {
+            //如果没有启动 或者已经过期 则进行启动
             if (status < STATUS_STARTED && status >= STATUS_EXPIRED_START) {
                 sHandler.removeCallbacks(checkStartExpiredRunnable);
                 if (sBuffer == null) {
                     throw new RuntimeException(TAG + " sBuffer == null");
                 }
                 MatrixLog.i(TAG, "[onStart] preStatus:%s", status, Utils.getStack());
+                //标示已将 启动
                 status = STATUS_STARTED;
             } else {
                 MatrixLog.w(TAG, "[onStart] current status:%s", status);
@@ -125,6 +127,7 @@ public class AppMethodBeat implements BeatLifecycle {
     @Override
     public void onStop() {
         synchronized (statusLock) {
+            //进行关闭
             if (status == STATUS_STARTED) {
                 MatrixLog.i(TAG, "[onStop] %s", Utils.getStack());
                 status = STATUS_STOPPED;
@@ -217,10 +220,12 @@ public class AppMethodBeat implements BeatLifecycle {
         }
 
         long threadId = Thread.currentThread().getId();
+        //方法开始执行回调
         if (sMethodEnterListener != null) {
             sMethodEnterListener.enter(methodId, threadId);
         }
 
+        //如果是主线程
         if (threadId == sMainThreadId) {
             if (assertIn) {
                 android.util.Log.e(TAG, "ERROR!!! AppMethodBeat.i Recursive calls!!!");
@@ -292,14 +297,19 @@ public class AppMethodBeat implements BeatLifecycle {
     /**
      * merge trace info as a long data
      *
+     * 合并数据
+     *
      * @param methodId
      * @param index
      * @param isIn
      */
     private static void mergeData(int methodId, int index, boolean isIn) {
-        if (methodId == AppMethodBeat.METHOD_ID_DISPATCH) {
+        if (methodId == AppMethodBeat.METHOD_ID_DISPATCH) {//如果是 UIThreadMonitor 的 dispatchBegin 或者 dispatchEnd 方法
             sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
         }
+
+
+        // 合并后的数据存到 trueId中
         long trueId = 0L;
         if (isIn) {
             trueId |= 1L << 63;
