@@ -98,7 +98,7 @@ public class MethodCollector {
         }
 
         for (File jarFile : dependencyJarList) {
-            // 每个jar 文件执行 CollectJarTask
+            // 每个jar 源文件执行 CollectJarTask
             futures.add(executor.submit(new CollectJarTask(jarFile)));
         }
 
@@ -179,10 +179,11 @@ public class MethodCollector {
                 while (enumeration.hasMoreElements()) {
                     ZipEntry zipEntry = enumeration.nextElement();
                     String zipEntryName = zipEntry.getName();
-                    if (isNeedTraceFile(zipEntryName)) {
+                    if (isNeedTraceFile(zipEntryName)) {//是需要被插桩的文件
                         InputStream inputStream = zipFile.getInputStream(zipEntry);
                         ClassReader classReader = new ClassReader(inputStream);
                         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                        //进行扫描
                         ClassVisitor visitor = new TraceClassAdapter(Opcodes.ASM5, classWriter);
                         classReader.accept(visitor, 0);
                     }
@@ -199,10 +200,15 @@ public class MethodCollector {
         }
     }
 
-
+    /**
+     * 将被忽略的 方法名 存入 ignoreMethodMapping.txt 中
+     * @param mappingCollector
+     */
     private void saveIgnoreCollectedMethod(MappingCollector mappingCollector) {
 
+        //创建 ignoreMethodMapping.txt 文件对象
         File methodMapFile = new File(configuration.ignoreMethodMapFilePath);
+        //如果他爸不存在就创建
         if (!methodMapFile.getParentFile().exists()) {
             methodMapFile.getParentFile().mkdirs();
         }
@@ -210,6 +216,7 @@ public class MethodCollector {
         ignoreMethodList.addAll(collectedIgnoreMethodMap.values());
         Log.i(TAG, "[saveIgnoreCollectedMethod] size:%s path:%s", collectedIgnoreMethodMap.size(), methodMapFile.getAbsolutePath());
 
+        //通过class名字进行排序
         Collections.sort(ignoreMethodList, new Comparator<TraceMethod>() {
             @Override
             public int compare(TraceMethod o1, TraceMethod o2) {
@@ -491,6 +498,11 @@ public class MethodCollector {
         }
     }
 
+    /**
+     * 判断是否是需要被插桩的文件
+     * @param fileName
+     * @return
+     */
     public static boolean isNeedTraceFile(String fileName) {
         if (fileName.endsWith(".class")) {
             for (String unTraceCls : TraceBuildConstants.UN_TRACE_CLASS) {
