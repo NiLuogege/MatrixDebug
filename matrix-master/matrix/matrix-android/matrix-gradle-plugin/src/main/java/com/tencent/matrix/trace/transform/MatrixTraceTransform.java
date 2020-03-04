@@ -183,7 +183,7 @@ public class MatrixTraceTransform extends Transform {
         final boolean isIncremental = transformInvocation.isIncremental() && this.isIncremental();
 
         /**
-         * step 1
+         * step 1 解析mapping 文件，及记录 原始方法 -》 混淆后方法对应关系
          */
         long start = System.currentTimeMillis();
 
@@ -236,7 +236,7 @@ public class MatrixTraceTransform extends Transform {
         Log.i(TAG, "[doTransform] Step(2)[Collection]... cost:%sms", System.currentTimeMillis() - start);
 
         /**
-         * step 3
+         * step 3 插桩字节码
          */
         start = System.currentTimeMillis();
         //执行插桩逻辑，在需要插桩方法的入口、出口添加MethodBeat的i/o逻辑
