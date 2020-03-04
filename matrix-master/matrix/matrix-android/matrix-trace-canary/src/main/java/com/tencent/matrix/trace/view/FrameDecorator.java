@@ -31,6 +31,9 @@ import com.tencent.matrix.util.MatrixLog;
 
 import java.util.concurrent.Executor;
 
+/**
+ * 帧装饰器 用于显示当前帧数
+ * */
 public class FrameDecorator extends IDoFrameListener implements IAppForeground {
     private static final String TAG = "Matrix.FrameDecorator";
     private WindowManager windowManager;
@@ -222,6 +225,7 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
 
     public static FrameDecorator getInstance(final Context context) {
         if (instance == null) {
+            //是主线程
             if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
                 instance = new FrameDecorator(context, new FloatFrameView(context));
             } else {

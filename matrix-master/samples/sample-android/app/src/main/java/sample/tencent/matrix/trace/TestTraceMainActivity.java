@@ -57,6 +57,8 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
             MatrixLog.i(TAG, "plugin-trace start");
             plugin.start();
         }
+
+        //启动帧装饰器
         decorator = FrameDecorator.getInstance(this);
         if (!canDrawOverlays()) {
             requestWindowPermission();

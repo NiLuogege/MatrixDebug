@@ -38,7 +38,7 @@ import com.tencent.matrix.util.MatrixLog;
  */
 public class TracePlugin extends Plugin {
     private static final String TAG = "Matrix.TracePlugin";
-
+    //Trace模块的 配置
     private final TraceConfig traceConfig;
     private EvilMethodTracer evilMethodTracer;
     private StartupTracer startupTracer;

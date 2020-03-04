@@ -17,6 +17,9 @@ import com.tencent.matrix.trace.R;
 
 import java.util.LinkedList;
 
+/**
+ *一个悬浮窗口 用于显示 帧数
+ */
 public class FloatFrameView extends LinearLayout {
 
     public TextView fpsView;
