@@ -166,7 +166,8 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
                         break;
                 }
                 if (null != method) {
-                    //执行 addCallbackLocked 方法
+                    //反射执行 CallbackQueue 的 addCallbackLocked 方法 ，并将我们自己的 callback 添加到回到队列中,在一帧绘制完毕后
+                    // 会回调当前类的run（）方法
                     method.invoke(callbackQueues[type], !isAddHeader ? SystemClock.uptimeMillis() : -1, callback, null);
                     callbackExist[type] = true;
                 }
