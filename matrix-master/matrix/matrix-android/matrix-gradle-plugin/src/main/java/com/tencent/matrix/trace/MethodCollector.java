@@ -249,7 +249,7 @@ public class MethodCollector {
 
 
     /**
-     * 将被忽略的 方法名 存入 methodMapping.txt 中
+     * 将被插桩的 方法名 存入 methodMapping.txt 中
      * @param mappingCollector
      */
     private void saveCollectedMethod(MappingCollector mappingCollector) {
