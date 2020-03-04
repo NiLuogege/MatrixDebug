@@ -56,6 +56,8 @@ public class TraceMethod {
     /**
      * proguard -> original
      *
+     * 将 混淆过的数据 转换为 原始数据
+     *
      * @param processor
      */
     public void revert(MappingCollector processor) {

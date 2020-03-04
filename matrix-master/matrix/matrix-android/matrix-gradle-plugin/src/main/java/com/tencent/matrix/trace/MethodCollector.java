@@ -231,7 +231,9 @@ public class MethodCollector {
             pw = new PrintWriter(w);
             pw.println("ignore methods:");
             for (TraceMethod traceMethod : ignoreMethodList) {
+                //将 混淆过的数据 转换为 原始数据
                 traceMethod.revert(mappingCollector);
+                //输出忽略信息到 文件中
                 pw.println(traceMethod.toIgnoreString());
             }
         } catch (Exception e) {
