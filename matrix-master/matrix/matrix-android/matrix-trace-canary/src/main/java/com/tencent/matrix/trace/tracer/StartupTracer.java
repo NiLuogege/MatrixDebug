@@ -44,6 +44,9 @@ import static android.os.SystemClock.uptimeMillis;
  * </p>
  */
 
+/**
+ * 监测 APP启动 及 Activity启动
+ */
 public class StartupTracer extends Tracer implements IAppMethodBeatListener, Application.ActivityLifecycleCallbacks {
 
     private static final String TAG = "Matrix.StartupTracer";

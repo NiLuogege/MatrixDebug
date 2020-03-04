@@ -24,6 +24,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * 监测 耗时函数
+ */
 public class EvilMethodTracer extends Tracer {
 
     private static final String TAG = "Matrix.EvilMethodTracer";

@@ -27,6 +27,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * 监测 ANR
+ */
 public class AnrTracer extends Tracer {
 
     private static final String TAG = "Matrix.AnrTracer";

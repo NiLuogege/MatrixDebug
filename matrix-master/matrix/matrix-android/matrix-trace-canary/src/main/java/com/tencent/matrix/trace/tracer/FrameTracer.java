@@ -25,6 +25,9 @@ import java.util.HashSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 用于监测 帧率 FPS
+ */
 public class FrameTracer extends Tracer {
 
     private static final String TAG = "Matrix.FrameTracer";
