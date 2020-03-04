@@ -142,7 +142,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     }
 
     private synchronized void addFrameCallback(int type, Runnable callback, boolean isAddHeader) {
-        if (callbackExist[type]) {
+        if (callbackExist[type]) {//type 类型的 callback已经存在 不重复添加
             MatrixLog.w(TAG, "[addFrameCallback] this type %s callback has exist! isAddHeader:%s", type, isAddHeader);
             return;
         }
@@ -152,7 +152,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
             return;
         }
         try {
-            synchronized (callbackQueueLock) {
+            synchronized (callbackQueueLock) {//和 Choreographer 中使用相同的 锁对象 都是 mLock
                 Method method = null;
                 switch (type) {
                     case CALLBACK_INPUT:
@@ -166,6 +166,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
                         break;
                 }
                 if (null != method) {
+                    //执行 addCallbackLocked 方法
                     method.invoke(callbackQueues[type], !isAddHeader ? SystemClock.uptimeMillis() : -1, callback, null);
                     callbackExist[type] = true;
                 }

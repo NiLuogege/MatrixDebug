@@ -74,6 +74,7 @@ public class FrameTracer extends Tracer {
     @Override
     public void onAlive() {
         super.onAlive();
+        //添加 Observer 到 UIThreadMonitor 会在 dispatchBegin 和 dispatchEnd  中回调
         UIThreadMonitor.getMonitor().addObserver(this);
     }
 
