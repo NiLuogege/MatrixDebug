@@ -33,10 +33,10 @@ public class Constants {
     public static final int DEFAULT_ANR = 5 * 1000;
     public static final int DEFAULT_ANR_INVALID = 6 * 1000;
 
-    public static final int DEFAULT_DROPPED_NORMAL = 3;
-    public static final int DEFAULT_DROPPED_MIDDLE = 9;
-    public static final int DEFAULT_DROPPED_HIGH = 24;
-    public static final int DEFAULT_DROPPED_FROZEN = 42;
+    public static final int DEFAULT_DROPPED_NORMAL = 3;//一秒钟 掉帧 3帧 为 NORMAL
+    public static final int DEFAULT_DROPPED_MIDDLE = 9;//一秒钟 掉帧 9帧 为 MIDDLE
+    public static final int DEFAULT_DROPPED_HIGH = 24;//一秒钟 掉帧 24帧 为 HIGH
+    public static final int DEFAULT_DROPPED_FROZEN = 42;//一秒钟 掉帧 42帧 为 FROZEN
 
     public static final int DEFAULT_STARTUP_THRESHOLD_MS_WARM = 4 * 1000;
     public static final int DEFAULT_STARTUP_THRESHOLD_MS_COLD = 10 * 1000;

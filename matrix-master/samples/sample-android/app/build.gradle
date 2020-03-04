@@ -39,7 +39,7 @@ android {
         }
         debug {
             debuggable true
-            minifyEnabled true
+            minifyEnabled false
             signingConfig signingConfigs.debug
         }
     }

@@ -32,17 +32,18 @@ public class FrameTracer extends Tracer {
 
     private static final String TAG = "Matrix.FrameTracer";
     private final HashSet<IDoFrameListener> listeners = new HashSet<>();
-    private final long frameIntervalMs;
-    private final TraceConfig config;
-    private long timeSliceMs;
-    private boolean isFPSEnable;
-    private long frozenThreshold;
-    private long highThreshold;
-    private long middleThreshold;
-    private long normalThreshold;
+    private final long frameIntervalMs; //固定值 17ms
+    private final TraceConfig config; //配置
+    private long timeSliceMs;// fps 裁剪时间？用来干啥的还不太知道
+    private boolean isFPSEnable;//FPS 监控是否开启
+    private long frozenThreshold; //一秒钟 掉帧 42帧 为 FROZEN
+    private long highThreshold; //一秒钟 掉帧 24帧 为 HIGH
+    private long middleThreshold;//一秒钟 掉帧 9帧 为 MIDDLE
+    private long normalThreshold;//一秒钟 掉帧 3帧 为 NORMAL
 
     public FrameTracer(TraceConfig config) {
         this.config = config;
+        //将纳秒转为毫秒
         this.frameIntervalMs = TimeUnit.MILLISECONDS.convert(UIThreadMonitor.getMonitor().getFrameIntervalNanos(), TimeUnit.NANOSECONDS) + 1;
         this.timeSliceMs = config.getTimeSliceMs();
         this.isFPSEnable = config.isFPSEnable();
@@ -53,6 +54,7 @@ public class FrameTracer extends Tracer {
 
         MatrixLog.i(TAG, "[init] frameIntervalMs:%s isFPSEnable:%s", frameIntervalMs, isFPSEnable);
         if (isFPSEnable) {
+            //添加 FPS 收集器
             addListener(new FPSCollector());
         }
     }
