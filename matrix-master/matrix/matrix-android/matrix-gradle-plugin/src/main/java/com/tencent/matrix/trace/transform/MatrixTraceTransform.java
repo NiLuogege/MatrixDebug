@@ -227,7 +227,9 @@ public class MatrixTraceTransform extends Transform {
 
 
         /**
-         * step 2 收集需要插桩和不需要插桩的方法，并记录在 mapping文件中
+         * step 2
+         * 1. 收集需要插桩和不需要插桩的方法，并记录在 mapping文件中
+         * 2. 手机累之间的继承关系
          */
         start = System.currentTimeMillis();
         //收集需要插桩的方法信息，每个插桩信息封装成TraceMethod对象
