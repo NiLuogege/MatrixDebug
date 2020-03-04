@@ -58,11 +58,11 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
 
     private final static UIThreadMonitor sInstance = new UIThreadMonitor();
     private TraceConfig config;
-    private Object callbackQueueLock;
-    private Object[] callbackQueues;
-    private Method addTraversalQueue;
-    private Method addInputQueue;
-    private Method addAnimationQueue;
+    private Object callbackQueueLock; //Choreographer 里的 mLock锁 对象
+    private Object[] callbackQueues; //Choreographer 里的 mCallbackQueues 对象 是个 CallbackQueue数组
+    private Method addTraversalQueue; //处于第三位的 处理 traversal 的CallbackQueue 对象
+    private Method addInputQueue; //处于第一位的 处理 input 的CallbackQueue 对象
+    private Method addAnimationQueue; //处于第二位的 处理 animation 的CallbackQueue 对象
     private Choreographer choreographer;
     private long frameIntervalNanos = 16666666;
     private int[] queueStatus = new int[CALLBACK_LAST + 1];
