@@ -66,8 +66,11 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     private Method addAnimationQueue; //处于第二位的 处理 animation 的CallbackQueue 对象
     private Choreographer choreographer;
     private long frameIntervalNanos = 16666666;
+    //标识对应 type 执行 开始 或者 结束
     private int[] queueStatus = new int[CALLBACK_LAST + 1];
+    //type对应的 callback 是否还存在，因为callback 执行一次就 被回收了
     private boolean[] callbackExist = new boolean[CALLBACK_LAST + 1]; // ABA
+    //type对应的 执行时间
     private long[] queueCost = new long[CALLBACK_LAST + 1];
     private static final int DO_QUEUE_DEFAULT = 0;
     private static final int DO_QUEUE_BEGIN = 1;
@@ -248,6 +251,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
         }
     }
 
+    //记录 帧开始
     private void doFrameBegin(long token) {
         this.isBelongFrame = true;
     }
@@ -310,15 +314,32 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
 
     }
 
+    /**
+     *
+     * 记录不同type 执行的开始时间
+     *
+     * @param type "{@link android.view.Choreographer 中不同的type} "
+     */
     private void doQueueBegin(int type) {
+        //标识当前 type 开始执行
         queueStatus[type] = DO_QUEUE_BEGIN;
+        // 当前type 回调开始时间
         queueCost[type] = System.nanoTime();
     }
 
+    /**
+     *
+     * 记录不同type 执行的结束时间
+     *
+     * @param type "{@link android.view.Choreographer 中不同的type} "
+     */
     private void doQueueEnd(int type) {
+        //标识当前 type 执行结束
         queueStatus[type] = DO_QUEUE_END;
+        // 当前type 执行耗时
         queueCost[type] = System.nanoTime() - queueCost[type];
         synchronized (this) {
+            // 当前type的 callback 是否还存在
             callbackExist[type] = false;
         }
     }
