@@ -16,6 +16,20 @@ import java.util.HashSet;
 
 /**
  * 主线程监控
+ *
+ *
+ * 工作流程如下：
+ * 1. 主线程Looper loop 到一个  target是  Choreographer$FrameHandler  massage 是 Choreographer$FrameDisplayEventReceiver 的消息（要能触发 刷新帧）
+ * 2. 调用 dispatchBegin() 方法
+ * 3. 调用 run方法
+ * 4. 回掉 doQueueBegin type=0（input）
+ * 5. 回掉 doQueueEnd type=0（input）
+ * 6. 回掉 doQueueBegin type=1（animation）
+ * 7. 回掉 doQueueEnd type=1（animation）
+ * 8. 回掉 doQueueBegin type=2（traversal）
+ * 9. message处理完毕
+ * 10. 调用 dispatchEnd() 方法
+ * 11. 回掉 doQueueEnd type=2（traversal）
  */
 public class UIThreadMonitor implements BeatLifecycle, Runnable {
 
@@ -32,7 +46,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     // 存放的 都是 LooperObserver
     private final HashSet<LooperObserver> observers = new HashSet<>();
     private volatile long token = 0L;
-    //是否属于一帧？ 不确定
+    //是否属于 刷新 frame类型， run方法只有是 刷新frame 的message的时候 才会回调。
     private boolean isBelongFrame = false;
 
     /**
