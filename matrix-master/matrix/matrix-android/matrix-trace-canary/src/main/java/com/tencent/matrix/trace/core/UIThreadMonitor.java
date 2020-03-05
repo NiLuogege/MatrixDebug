@@ -145,6 +145,12 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
         }
     }
 
+    /**
+     *
+     * @param type
+     * @param callback
+     * @param isAddHeader 是否添加到 callback 队列的 最前面
+     */
     private synchronized void addFrameCallback(int type, Runnable callback, boolean isAddHeader) {
         if (callbackExist[type]) {//type 类型的 callback已经存在 不重复添加
             MatrixLog.w(TAG, "[addFrameCallback] this type %s callback has exist! isAddHeader:%s", type, isAddHeader);
@@ -256,10 +262,12 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
         this.isBelongFrame = true;
     }
 
+    // 记录 帧结束
     private void doFrameEnd(long token) {
 
-        doQueueEnd(CALLBACK_TRAVERSAL);
+        doQueueEnd(CALLBACK_TRAVERSAL);//traversal 结束
 
+        // 如果有 没有结束的回调 则报错
         for (int i : queueStatus) {
             if (i != DO_QUEUE_END) {
                 queueCost[i] = DO_QUEUE_END_ERROR;
@@ -268,8 +276,11 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
                 }
             }
         }
+
+        //重置 queueStatus
         queueStatus = new int[CALLBACK_LAST + 1];
 
+        //继续添加  input callback
         addFrameCallback(CALLBACK_INPUT, this, true);
 
         this.isBelongFrame = false;
@@ -366,14 +377,14 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
         final long start = System.nanoTime();
         try {
             doFrameBegin(token);
-            doQueueBegin(CALLBACK_INPUT);
+            doQueueBegin(CALLBACK_INPUT);//input开始
 
             addFrameCallback(CALLBACK_ANIMATION, new Runnable() {
 
                 @Override
                 public void run() {
-                    doQueueEnd(CALLBACK_INPUT);
-                    doQueueBegin(CALLBACK_ANIMATION);
+                    doQueueEnd(CALLBACK_INPUT);//input 结束
+                    doQueueBegin(CALLBACK_ANIMATION);//animation 开始
                 }
             }, true);
 
@@ -381,8 +392,8 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
 
                 @Override
                 public void run() {
-                    doQueueEnd(CALLBACK_ANIMATION);
-                    doQueueBegin(CALLBACK_TRAVERSAL);
+                    doQueueEnd(CALLBACK_ANIMATION);//animation 结束
+                    doQueueBegin(CALLBACK_TRAVERSAL);//traversal 开始
                 }
             }, true);
 
