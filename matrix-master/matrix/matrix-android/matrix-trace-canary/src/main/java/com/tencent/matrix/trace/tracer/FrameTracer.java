@@ -94,10 +94,9 @@ public class FrameTracer extends Tracer {
     }
 
     /**
-     *
-     * @param visibleScene 当前Activity名
-     * @param taskCostMs 整个任务耗时
-     * @param frameCostMs 该帧耗时
+     * @param visibleScene    当前Activity名
+     * @param taskCostMs      整个任务耗时
+     * @param frameCostMs     该帧耗时
      * @param isContainsFrame 是否属于一帧
      */
     private void notifyListener(final String visibleScene, final long taskCostMs, final long frameCostMs, final boolean isContainsFrame) {
@@ -174,7 +173,8 @@ public class FrameTracer extends Tracer {
 
             item.collect(droppedFrames, isContainsFrame);
 
-            if (item.sumFrameCost >= timeSliceMs) { // report
+            // 总时间超过 预设阀值 就 进行报告，并重置
+            if (item.sumFrameCost >= timeSliceMs) {
                 map.remove(visibleScene);
                 item.report();
             }
@@ -183,12 +183,13 @@ public class FrameTracer extends Tracer {
 
     private class FrameCollectItem {
         String visibleScene;
-        long sumFrameCost;
-        int sumFrame = 0;
-        int sumTaskFrame = 0;
-        int sumDroppedFrames;
+        long sumFrameCost; //总消耗 总时间
+        int sumFrame = 0;//总帧数
+        int sumTaskFrame = 0;//总任务
+        int sumDroppedFrames;// 总下降帧数
         // record the level of frames dropped each time
         int[] dropLevel = new int[DropStatus.values().length];
+        //记录每种类型的 下降次数
         int[] dropSum = new int[DropStatus.values().length];
 
         FrameCollectItem(String visibleScene) {
@@ -196,12 +197,12 @@ public class FrameTracer extends Tracer {
         }
 
         /**
-         *
-         * @param droppedFrames 下降帧数
+         * @param droppedFrames   下降帧数
          * @param isContainsFrame
          */
         void collect(int droppedFrames, boolean isContainsFrame) {
             long frameIntervalCost = UIThreadMonitor.getMonitor().getFrameIntervalNanos();
+            //该任务所消耗 总时间
             sumFrameCost += (droppedFrames + 1) * frameIntervalCost / Constants.TIME_MILLIS_TO_NANO;
             sumDroppedFrames += droppedFrames;
             sumFrame++;
@@ -209,8 +210,8 @@ public class FrameTracer extends Tracer {
                 sumTaskFrame++;
             }
 
-            if (droppedFrames >= frozenThreshold) {
-                dropLevel[DropStatus.DROPPED_FROZEN.index]++;
+            if (droppedFrames >= frozenThreshold) {//frozen
+                dropLevel[DropStatus.DROPPED_FROZEN.index]++;// 冻结数+1
                 dropSum[DropStatus.DROPPED_FROZEN.index] += droppedFrames;
             } else if (droppedFrames >= highThreshold) {
                 dropLevel[DropStatus.DROPPED_HIGH.index]++;
@@ -227,7 +228,9 @@ public class FrameTracer extends Tracer {
             }
         }
 
+        //组建json 并上报
         void report() {
+            //计算 fps 一秒内的平均帧率
             float fps = Math.min(60.f, 1000.f * sumFrame / sumFrameCost);
             MatrixLog.i(TAG, "[report] FPS:%s %s", fps, toString());
 
@@ -286,7 +289,12 @@ public class FrameTracer extends Tracer {
     }
 
     public enum DropStatus {
-        DROPPED_FROZEN(4), DROPPED_HIGH(3), DROPPED_MIDDLE(2), DROPPED_NORMAL(1), DROPPED_BEST(0);
+        DROPPED_FROZEN(4),
+        DROPPED_HIGH(3),
+        DROPPED_MIDDLE(2),
+        DROPPED_NORMAL(1),
+        DROPPED_BEST(0);
+
         public int index;
 
         DropStatus(int index) {
