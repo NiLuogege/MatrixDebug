@@ -44,9 +44,12 @@ public class Matrix {
         this.application = app;
         this.pluginListener = listener;
         this.plugins = plugins;
+        //添加Activity和APP的生命周期监听
         AppActiveMatrixDelegate.INSTANCE.init(application);
         for (Plugin plugin : plugins) {
+            //调用plugin的init方法
             plugin.init(application, pluginListener);
+            //回调plugin onInit生命周期
             pluginListener.onInit(plugin);
         }
 
@@ -139,6 +142,7 @@ public class Matrix {
             this.application = app;
         }
 
+        //添加plugin
         public Builder plugin(Plugin plugin) {
             String tag = plugin.getTag();
             for (Plugin exist : plugins) {
@@ -156,9 +160,11 @@ public class Matrix {
         }
 
         public Matrix build() {
+            //创建默认 PluginListener
             if (pluginListener == null) {
                 pluginListener = new DefaultPluginListener(application);
             }
+            //创建 Matrix
             return new Matrix(application, pluginListener, plugins);
         }
 
