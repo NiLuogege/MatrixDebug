@@ -23,6 +23,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     private static final String ADD_CALLBACK = "addCallbackLocked";
     private volatile boolean isAlive = false;
     private long[] dispatchTimeMs = new long[4];
+    // 存放的 都是 LooperObserver
     private final HashSet<LooperObserver> observers = new HashSet<>();
     private volatile long token = 0L;
     private boolean isBelongFrame = false;
@@ -230,11 +231,15 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     }
 
     private void dispatchBegin() {
+        //记录 dispatch 的起始时间
         token = dispatchTimeMs[0] = SystemClock.uptimeMillis();
+        // 记录 当前线程时间
         dispatchTimeMs[2] = SystemClock.currentThreadTimeMillis();
+        // 调用 i 方法
         AppMethodBeat.i(AppMethodBeat.METHOD_ID_DISPATCH);
 
         synchronized (observers) {
+            //回调 所有 LooperObserver 的 dispatchBegin 方法
             for (LooperObserver observer : observers) {
                 if (!observer.isDispatchBegin()) {
                     observer.dispatchBegin(dispatchTimeMs[0], dispatchTimeMs[2], token);
@@ -268,14 +273,18 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
 
     private void dispatchEnd() {
 
+        //帧刷新结束
         if (isBelongFrame) {
             doFrameEnd(token);
         }
 
+        //dispatch 起始时间
         long start = token;
+        //dispatch 结束时间
         long end = SystemClock.uptimeMillis();
 
         synchronized (observers) {
+            //回调 所有 LooperObserver 的 doFrame 方法
             for (LooperObserver observer : observers) {
                 if (observer.isDispatchBegin()) {
                     observer.doFrame(AppMethodBeat.getVisibleScene(), token, SystemClock.uptimeMillis(), isBelongFrame ? end - start : 0, queueCost[CALLBACK_INPUT], queueCost[CALLBACK_ANIMATION], queueCost[CALLBACK_TRAVERSAL]);
@@ -283,12 +292,15 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
             }
         }
 
+        //记录 当前线程时间
         dispatchTimeMs[3] = SystemClock.currentThreadTimeMillis();
+        // 记录 dispatch 的结束时间
         dispatchTimeMs[1] = SystemClock.uptimeMillis();
-
+        // 调用 o 方法
         AppMethodBeat.o(AppMethodBeat.METHOD_ID_DISPATCH);
 
         synchronized (observers) {
+            // 回调 所有 LooperObserver的 dispatchEnd 方法
             for (LooperObserver observer : observers) {
                 if (observer.isDispatchBegin()) {
                     observer.dispatchEnd(dispatchTimeMs[0], dispatchTimeMs[2], dispatchTimeMs[1], dispatchTimeMs[3], token, isBelongFrame);
