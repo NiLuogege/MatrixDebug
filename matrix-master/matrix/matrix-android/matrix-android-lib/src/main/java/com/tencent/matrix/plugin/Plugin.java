@@ -30,6 +30,8 @@ import org.json.JSONObject;
 
 /**
  * Created by zhangshaowen on 17/5/17.
+ *
+ * 插件的简单实现
  */
 //所有的 plugin 都继承了 IAppForeground
 public abstract class Plugin implements IPlugin, IssuePublisher.OnIssueDetectListener, IAppForeground {

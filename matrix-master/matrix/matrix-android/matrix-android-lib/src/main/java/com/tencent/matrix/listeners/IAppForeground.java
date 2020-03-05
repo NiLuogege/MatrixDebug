@@ -1,5 +1,8 @@
 package com.tencent.matrix.listeners;
 
+/**
+ * app 是否处于前台的 监听
+ */
 public interface IAppForeground {
 
     /**

@@ -20,6 +20,8 @@ import android.app.Application;
 
 /**
  * Created by zhangshaowen on 17/5/17.
+ *
+ * 生命 插件的生命周期
  */
 
 public interface IPlugin {

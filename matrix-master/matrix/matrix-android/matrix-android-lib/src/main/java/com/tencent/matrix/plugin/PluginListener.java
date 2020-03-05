@@ -20,6 +20,7 @@ import com.tencent.matrix.report.Issue;
 
 /**
  * Created by zhangshaowen on 17/5/17.
+ * 插件生命周期监听
  */
 
 public interface PluginListener {

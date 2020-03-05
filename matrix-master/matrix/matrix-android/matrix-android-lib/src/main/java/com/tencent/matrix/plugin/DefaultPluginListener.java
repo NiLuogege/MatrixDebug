@@ -23,6 +23,8 @@ import com.tencent.matrix.util.MatrixLog;
 
 /**
  * Created by zhangshaowen on 17/5/17.
+ *
+ * 插件生命周期监听 的简单实现
  */
 
 public class DefaultPluginListener implements PluginListener {
