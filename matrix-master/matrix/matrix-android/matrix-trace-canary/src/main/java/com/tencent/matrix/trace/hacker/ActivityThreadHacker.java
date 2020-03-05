@@ -33,18 +33,20 @@ import java.util.List;
  **/
 public class ActivityThreadHacker {
     private static final String TAG = "Matrix.ActivityThreadHacker";
-    private static long sApplicationCreateBeginTime = 0L;
-    private static long sApplicationCreateEndTime = 0L;
-    private static long sLastLaunchActivityTime = 0L;
+    private static long sApplicationCreateBeginTime = 0L;//APP启动时间
+    private static long sApplicationCreateEndTime = 0L;//第一次 启动activity ，service ，brodcast 的时候被认为是 APP启动结束的时间
+    private static long sLastLaunchActivityTime = 0L;//最近一个activity的启动时间
     public static AppMethodBeat.IndexRecord sLastLaunchActivityMethodIndex = new AppMethodBeat.IndexRecord();
     public static AppMethodBeat.IndexRecord sApplicationCreateBeginMethodIndex = new AppMethodBeat.IndexRecord();
-    public static int sApplicationCreateScene = -100;
+    public static int sApplicationCreateScene = -100;//app 启动时的场景（可分为 activity ，service ，brodcast ）
 
     public static void hackSysHandlerCallback() {
         try {
-            //这个类被加载的时间，认为是整个App的启动开始时间
+            //当前方法加载的时间 被认为是 APP启动时间，因为 是static 的方法，应该没有问题
             sApplicationCreateBeginTime = SystemClock.uptimeMillis();
             sApplicationCreateBeginMethodIndex = AppMethodBeat.getInstance().maskIndex("ApplicationCreateBeginMethodIndex");
+
+            //替换 ActivityThread 中handler的 callBack 方法
             Class<?> forName = Class.forName("android.app.ActivityThread");
             Field field = forName.getDeclaredField("sCurrentActivityThread");
             field.setAccessible(true);
@@ -122,6 +124,12 @@ public class ActivityThreadHacker {
 
         private Method method = null;
 
+        /**
+         * 判断 主线程 handle 的信息是否是 要 打开 一个Activity
+         *
+         * @param msg
+         * @return
+         */
         private boolean isLaunchActivity(Message msg) {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) {
                 if (msg.what == EXECUTE_TRANSACTION && msg.obj != null) {

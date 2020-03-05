@@ -30,10 +30,10 @@ public class AppMethodBeat implements BeatLifecycle {
     public static boolean isDev = false;
     private static AppMethodBeat sInstance = new AppMethodBeat();
     private static final int STATUS_DEFAULT = Integer.MAX_VALUE;
-    private static final int STATUS_STARTED = 2;
-    private static final int STATUS_READY = 1;
-    private static final int STATUS_STOPPED = -1;
-    private static final int STATUS_EXPIRED_START = -2;
+    private static final int STATUS_STARTED = 2; //启动
+    private static final int STATUS_READY = 1; // 准备好
+    private static final int STATUS_STOPPED = -1; //停止
+    private static final int STATUS_EXPIRED_START = -2;// 已过期
     private static final int STATUS_OUT_RELEASE = -3;
 
     private static volatile int status = STATUS_DEFAULT;
@@ -47,6 +47,7 @@ public class AppMethodBeat implements BeatLifecycle {
     private volatile static long sDiffTime = sCurrentDiffTime;
     private static long sMainThreadId = Looper.getMainLooper().getThread().getId();
     private static HandlerThread sTimerUpdateThread = MatrixHandlerThread.getNewHandlerThread("matrix_time_update_thread");
+    //子线程 handler
     private static Handler sHandler = new Handler(sTimerUpdateThread.getLooper());
     private static final int METHOD_ID_MAX = 0xFFFFF;
     public static final int METHOD_ID_DISPATCH = METHOD_ID_MAX - 1;
@@ -168,8 +169,11 @@ public class AppMethodBeat implements BeatLifecycle {
 
         sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
 
+        //清空 sHandler 所有消息
         sHandler.removeCallbacksAndMessages(null);
+        //
         sHandler.postDelayed(sUpdateDiffTimeRunnable, Constants.TIME_UPDATE_CYCLE_MS);
+        //
         sHandler.postDelayed(checkStartExpiredRunnable = new Runnable() {
             @Override
             public void run() {
@@ -216,7 +220,9 @@ public class AppMethodBeat implements BeatLifecycle {
         if (status == STATUS_DEFAULT) {
             synchronized (statusLock) {
                 if (status == STATUS_DEFAULT) {
+                    //当 当前类 没有被启动时 执行该方法
                     realExecute();
+                    //切换状态 为 STATUS_READY
                     status = STATUS_READY;
                 }
             }
@@ -299,7 +305,7 @@ public class AppMethodBeat implements BeatLifecycle {
 
     /**
      * merge trace info as a long data
-     *
+     * <p>
      * 合并数据
      *
      * @param methodId
@@ -339,11 +345,13 @@ public class AppMethodBeat implements BeatLifecycle {
     private static IndexRecord sIndexRecordHead = null;
 
     public IndexRecord maskIndex(String source) {
+        //创建 IndexRecord 的 header
         if (sIndexRecordHead == null) {
             sIndexRecordHead = new IndexRecord(sIndex - 1);
             sIndexRecordHead.source = source;
             return sIndexRecordHead;
         } else {
+            //创建一个 IndexRecord 并插入链表
             IndexRecord indexRecord = new IndexRecord(sIndex - 1);
             indexRecord.source = source;
             IndexRecord record = sIndexRecordHead;
@@ -386,6 +394,7 @@ public class AppMethodBeat implements BeatLifecycle {
         }
     }
 
+    //这玩意儿 是个链表
     public static final class IndexRecord {
         public IndexRecord(int index) {
             this.index = index;
