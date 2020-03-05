@@ -39,6 +39,7 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
 
         }
 
+        //该注解，是告诉子类，必须 要调用 super.XXX方法
         @CallSuper
         public void onDispatchStart(String x) {
             this.isHasDispatchStart = true;
@@ -85,8 +86,9 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
     public LooperMonitor(Looper looper) {
         Objects.requireNonNull(looper);
         this.looper = looper;
-        //给
+        //添加 自定义的 Printer
         resetPrinter();
+        //添加 IdleHandler
         addIdleHandler(looper);
     }
 
@@ -96,6 +98,8 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
 
     @Override
     public boolean queueIdle() {
+        // 这里是怕 printer 被其他 组件覆盖，所以要一直检查
+        // 1分钟检查一次
         if (SystemClock.uptimeMillis() - lastCheckPrinterTime >= CHECK_TIME) {
             resetPrinter();
             lastCheckPrinterTime = SystemClock.uptimeMillis();
@@ -104,6 +108,9 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
         return true;
     }
 
+    /**
+     * 释放资源，回归原始状态
+     */
     public synchronized void onRelease() {
         if (printer != null) {
             synchronized (listeners) {
@@ -120,16 +127,17 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
     private static boolean isReflectLoggingError = false;
 
     /**
-     * 反射添加 自定义的 Printer，也会执行 原来的printer的 println 方法
-     *
-     * 这里之所以 不使用 暴露出来的 setMessageLogging 方法设置 printer，应该是
-     * 因为 想要在 之前的printer继续工作， 大厂的程序员 还是细啊！！
+     * 添加 自定义的 Printer
      */
     private synchronized void resetPrinter() {
         Printer originPrinter = null;
         try {
             if (!isReflectLoggingError) {
+                //获取之前的 Printer ,防止项目其他功能在 设置了 这个 Printer， 如果直接设置
+                //那其他 工具就不能正常运行了 大厂的程序员 还是细啊！！
                 originPrinter = ReflectUtils.get(looper.getClass(), "mLogging", looper);
+
+                //如果已经 hook过 就直接返回
                 if (originPrinter == printer && null != printer) {
                     return;
                 }
@@ -143,6 +151,7 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
             MatrixLog.w(TAG, "maybe thread:%s printer[%s] was replace other[%s]!",
                     looper.getThread().getName(), printer, originPrinter);
         }
+        //设置自己的Printer
         looper.setMessageLogging(printer = new LooperPrinter(originPrinter));
         if (null != originPrinter) {
             MatrixLog.i(TAG, "reset printer, originPrinter[%s] in %s", originPrinter, looper.getThread().getName());
@@ -163,6 +172,12 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
         }
     }
 
+    /**
+     *  添加 IdleHandler
+     *  6.0以上是用api， 6.0以下 是用反射添加
+     *
+     * @param looper
+     */
     private synchronized void addIdleHandler(Looper looper) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             looper.getQueue().addIdleHandler(this);
@@ -190,12 +205,14 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
         @Override
         public void println(String x) {
             if (null != origin) {
+                //执行原始printer的 println方法
                 origin.println(x);
                 if (origin == this) {
                     throw new RuntimeException(TAG + " origin == this");
                 }
             }
 
+            //检查 输出内容是否有效（有可能 有些系统做了修改，真实蛋疼）
             if (!isHasChecked) {
                 isValid = x.charAt(0) == '>' || x.charAt(0) == '<';
                 isHasChecked = true;
@@ -211,21 +228,27 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
         }
     }
 
-
+    /**
+     * @param isBegin 是否是执行 message 开始
+     * @param log
+     */
     private void dispatch(boolean isBegin, String log) {
 
         for (LooperDispatchListener listener : listeners) {
             if (listener.isValid()) {
                 if (isBegin) {
                     if (!listener.isHasDispatchStart) {
+                        //分发开始
                         listener.onDispatchStart(log);
                     }
                 } else {
                     if (listener.isHasDispatchStart) {
+                        //分发结束
                         listener.onDispatchEnd(log);
                     }
                 }
             } else if (!isBegin && listener.isHasDispatchStart) {
+                //分发结束
                 listener.dispatchEnd();
             }
         }
