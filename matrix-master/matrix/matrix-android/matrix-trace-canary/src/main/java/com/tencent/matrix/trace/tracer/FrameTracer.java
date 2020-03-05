@@ -32,7 +32,7 @@ public class FrameTracer extends Tracer {
 
     private static final String TAG = "Matrix.FrameTracer";
     private final HashSet<IDoFrameListener> listeners = new HashSet<>();
-    private final long frameIntervalMs; //每帧间隔时间
+    private final long frameIntervalMs; //每帧间隔时间 一般就是16.7
     private final TraceConfig config; //配置
     private long timeSliceMs;// fps 裁剪时间？用来干啥的还不太知道
     private boolean isFPSEnable;//FPS 监控是否开启
@@ -87,12 +87,19 @@ public class FrameTracer extends Tracer {
 
     @Override
     public void doFrame(String focusedActivityName, long start, long end, long frameCostMs, long inputCostNs, long animationCostNs, long traversalCostNs) {
+        //处于前台
         if (isForeground()) {
             notifyListener(focusedActivityName, end - start, frameCostMs, frameCostMs >= 0);
         }
     }
 
-
+    /**
+     *
+     * @param visibleScene 当前Activity名
+     * @param taskCostMs 整个任务耗时
+     * @param frameCostMs 该帧耗时
+     * @param isContainsFrame 是否属于一帧
+     */
     private void notifyListener(final String visibleScene, final long taskCostMs, final long frameCostMs, final boolean isContainsFrame) {
         long start = System.currentTimeMillis();
         try {
@@ -101,13 +108,15 @@ public class FrameTracer extends Tracer {
                     if (config.isDevEnv()) {
                         listener.time = SystemClock.uptimeMillis();
                     }
+                    //下降帧数帧
                     final int dropFrame = (int) (taskCostMs / frameIntervalMs);
-
+                    //同步 回调 doFrameSync 方法
                     listener.doFrameSync(visibleScene, taskCostMs, frameCostMs, dropFrame, isContainsFrame);
                     if (null != listener.getExecutor()) {
                         listener.getExecutor().execute(new Runnable() {
                             @Override
                             public void run() {
+                                //异步回调 doFrameAsync 方法
                                 listener.doFrameAsync(visibleScene, taskCostMs, frameCostMs, dropFrame, isContainsFrame);
                             }
                         });
