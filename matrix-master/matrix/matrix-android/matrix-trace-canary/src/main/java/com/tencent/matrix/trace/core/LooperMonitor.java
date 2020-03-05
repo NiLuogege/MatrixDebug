@@ -34,25 +34,26 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
             return false;
         }
 
-
+        //message 开始执行
         public void dispatchStart() {
 
         }
 
+        //message 开始执行
         //该注解，是告诉子类，必须 要调用 super.XXX方法
         @CallSuper
         public void onDispatchStart(String x) {
             this.isHasDispatchStart = true;
             dispatchStart();
         }
-
+        //message 执行结束
         @CallSuper
         public void onDispatchEnd(String x) {
             this.isHasDispatchStart = false;
             dispatchEnd();
         }
 
-
+        //message 执行结束
         public void dispatchEnd() {
         }
     }
