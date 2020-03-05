@@ -107,7 +107,7 @@ public class FrameTracer extends Tracer {
                     if (config.isDevEnv()) {
                         listener.time = SystemClock.uptimeMillis();
                     }
-                    //下降帧数帧
+                    //消耗帧数
                     final int dropFrame = (int) (taskCostMs / frameIntervalMs);
                     //同步 回调 doFrameSync 方法
                     listener.doFrameSync(visibleScene, taskCostMs, frameCostMs, dropFrame, isContainsFrame);

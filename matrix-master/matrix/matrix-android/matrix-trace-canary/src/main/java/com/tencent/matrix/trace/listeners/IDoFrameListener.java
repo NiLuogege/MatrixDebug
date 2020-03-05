@@ -39,7 +39,7 @@ public class IDoFrameListener {
      * @param visibleScene 当前Activity名
      * @param taskCost 整个任务耗时
      * @param frameCostMs 该帧耗时
-     * @param droppedFrames 下降帧数
+     * @param droppedFrames 消耗帧数
      * @param isContainsFrame 是否属于一帧
      */
     public void doFrameAsync(String visibleScene, long taskCost, long frameCostMs, int droppedFrames, boolean isContainsFrame) {
@@ -51,7 +51,7 @@ public class IDoFrameListener {
      * @param visibleScene 当前Activity名
      * @param taskCost 整个任务耗时
      * @param frameCostMs 该帧耗时
-     * @param droppedFrames 下降帧数
+     * @param droppedFrames 消耗帧数
      * @param isContainsFrame 是否属于一帧
      */
     public void doFrameSync(String visibleScene, long taskCost, long frameCostMs, int droppedFrames, boolean isContainsFrame) {
