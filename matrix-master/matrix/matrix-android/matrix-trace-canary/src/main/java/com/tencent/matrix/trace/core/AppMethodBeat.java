@@ -17,6 +17,9 @@ import com.tencent.matrix.util.MatrixLog;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 方法监控，查看某个方法 是否 执行时间过长
+ */
 public class AppMethodBeat implements BeatLifecycle {
 
     public interface MethodEnterListener {

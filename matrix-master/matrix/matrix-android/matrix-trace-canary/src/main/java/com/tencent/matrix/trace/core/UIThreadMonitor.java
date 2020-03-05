@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 /**
- * 主线程监控
+ * 主线程监控（查看主线程是否 卡顿）
  *
  *
  * 工作流程如下：
