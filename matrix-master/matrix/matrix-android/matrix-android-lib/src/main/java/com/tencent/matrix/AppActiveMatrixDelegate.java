@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+// 主要功能是 监控APP和Activity生命周期，为 各个模块提供支持
 //通过枚举的方式 实现的单例模式（奇技淫巧啊）
 public enum AppActiveMatrixDelegate {
 
@@ -27,11 +28,14 @@ public enum AppActiveMatrixDelegate {
 
     private static final String TAG = "Matrix.AppActiveDelegate";
     private final Set<IAppForeground> listeners = new HashSet();
+    // 某个 Activity 是否处于前台（基本上可以认为 当前APP是否 可见）
     private boolean isAppForeground = false;
+    //当前Activity 名称
     private String visibleScene = "default";
     private Controller controller = new Controller();
     private boolean isInit = false;
     private String currentFragmentName;
+    //子线程handler
     private Handler handler;
 
     public void init(Application application) {
@@ -40,7 +44,7 @@ public enum AppActiveMatrixDelegate {
             return;
         }
         this.isInit = true;
-        //创建一个handler
+        //获取 子线程 handler
         this.handler = new Handler(MatrixHandlerThread.getDefaultHandlerThread().getLooper());
         //监听 onConfigurationChanged 和 onLowMemory
         application.registerComponentCallbacks(controller);
