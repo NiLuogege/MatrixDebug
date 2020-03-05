@@ -136,6 +136,9 @@ public class FrameTracer extends Tracer {
     }
 
 
+    /**
+     * FPS 的收集器
+     */
     private class FPSCollector extends IDoFrameListener {
 
 
@@ -152,6 +155,7 @@ public class FrameTracer extends Tracer {
 
         @Override
         public Executor getExecutor() {
+            // 设置 executor 说明 FPSCollector 是使用异步处理 FPS的
             return executor;
         }
 
@@ -191,6 +195,11 @@ public class FrameTracer extends Tracer {
             this.visibleScene = visibleScene;
         }
 
+        /**
+         *
+         * @param droppedFrames 下降帧数
+         * @param isContainsFrame
+         */
         void collect(int droppedFrames, boolean isContainsFrame) {
             long frameIntervalCost = UIThreadMonitor.getMonitor().getFrameIntervalNanos();
             sumFrameCost += (droppedFrames + 1) * frameIntervalCost / Constants.TIME_MILLIS_TO_NANO;
