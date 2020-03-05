@@ -85,6 +85,7 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
     public LooperMonitor(Looper looper) {
         Objects.requireNonNull(looper);
         this.looper = looper;
+        //给
         resetPrinter();
         addIdleHandler(looper);
     }
@@ -99,6 +100,7 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
             resetPrinter();
             lastCheckPrinterTime = SystemClock.uptimeMillis();
         }
+        //返回true 表示要重复执行
         return true;
     }
 
@@ -117,6 +119,12 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
 
     private static boolean isReflectLoggingError = false;
 
+    /**
+     * 反射添加 自定义的 Printer，也会执行 原来的printer的 println 方法
+     *
+     * 这里之所以 不使用 暴露出来的 setMessageLogging 方法设置 printer，应该是
+     * 因为 想要在 之前的printer继续工作， 大厂的程序员 还是细啊！！
+     */
     private synchronized void resetPrinter() {
         Printer originPrinter = null;
         try {
@@ -169,6 +177,7 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
     }
 
 
+    //自定义 一个 Printer
     class LooperPrinter implements Printer {
         public Printer origin;
         boolean isHasChecked = false;
