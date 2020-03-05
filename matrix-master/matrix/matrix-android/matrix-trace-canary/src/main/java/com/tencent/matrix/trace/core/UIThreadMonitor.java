@@ -22,10 +22,17 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     private static final String TAG = "Matrix.UIThreadMonitor";
     private static final String ADD_CALLBACK = "addCallbackLocked";
     private volatile boolean isAlive = false;
+    /**
+     * 0: dispatch 的起始时间
+     * 1：dispatch 的结束时间
+     * 2: dispatch 的起始时 当前线程时间
+     * 3: dispatch 的结束时 当前线程时间
+     */
     private long[] dispatchTimeMs = new long[4];
     // 存放的 都是 LooperObserver
     private final HashSet<LooperObserver> observers = new HashSet<>();
     private volatile long token = 0L;
+    //是否属于一帧？ 不确定
     private boolean isBelongFrame = false;
 
     /**
@@ -146,7 +153,6 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     }
 
     /**
-     *
      * @param type
      * @param callback
      * @param isAddHeader 是否添加到 callback 队列的 最前面
@@ -302,6 +308,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
             //回调 所有 LooperObserver 的 doFrame 方法
             for (LooperObserver observer : observers) {
                 if (observer.isDispatchBegin()) {
+                    //参数含义 在 LooperObserver接口中查询
                     observer.doFrame(AppMethodBeat.getVisibleScene(), token, SystemClock.uptimeMillis(), isBelongFrame ? end - start : 0, queueCost[CALLBACK_INPUT], queueCost[CALLBACK_ANIMATION], queueCost[CALLBACK_TRAVERSAL]);
                 }
             }
@@ -326,7 +333,6 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     }
 
     /**
-     *
      * 记录不同type 执行的开始时间
      *
      * @param type "{@link android.view.Choreographer 中不同的type} "
@@ -339,7 +345,6 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     }
 
     /**
-     *
      * 记录不同type 执行的结束时间
      *
      * @param type "{@link android.view.Choreographer 中不同的type} "
