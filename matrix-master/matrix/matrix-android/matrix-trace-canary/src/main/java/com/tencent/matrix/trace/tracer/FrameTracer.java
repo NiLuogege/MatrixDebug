@@ -182,7 +182,7 @@ public class FrameTracer extends Tracer {
     }
 
     private class FrameCollectItem {
-        String visibleScene;
+        String visibleScene; //当前activity
         long sumFrameCost; //总消耗 总时间
         int sumFrame = 0;//总帧数
         int sumTaskFrame = 0;//总任务
