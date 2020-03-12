@@ -148,6 +148,7 @@ public class MethodTracer {
                     } else {
                         os = new FileOutputStream(output);
                     }
+                    //将修改后的内容写入到 插装后的文件中
                     os.write(classWriter.toByteArray());
                     os.close();
                 } else {//不需要插桩，直接copy
