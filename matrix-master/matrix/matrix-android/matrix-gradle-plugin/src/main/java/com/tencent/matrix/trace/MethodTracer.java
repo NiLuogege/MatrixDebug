@@ -157,6 +157,7 @@ public class MethodTracer {
             } catch (Exception e) {
                 Log.e(TAG, "[innerTraceMethodFromSrc] input:%s e:%s", input.getName(), e);
                 try {
+                    //异常后 就将 文件直接拷贝
                     Files.copy(input.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 } catch (Exception e1) {
                     e1.printStackTrace();
