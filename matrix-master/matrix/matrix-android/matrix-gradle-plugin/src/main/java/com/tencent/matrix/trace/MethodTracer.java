@@ -196,6 +196,7 @@ public class MethodTracer {
                 } else {
                     InputStream inputStream = zipFile.getInputStream(zipEntry);
                     ZipEntry newZipEntry = new ZipEntry(zipEntryName);
+                    //直接copy jar 到插装过后的 存放区
                     FileUtil.addZipEntry(zipOutputStream, newZipEntry, inputStream);
                 }
             }
