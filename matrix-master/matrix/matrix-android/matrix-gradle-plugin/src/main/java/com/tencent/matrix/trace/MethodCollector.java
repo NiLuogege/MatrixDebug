@@ -260,6 +260,8 @@ public class MethodCollector {
         }
         List<TraceMethod> methodList = new ArrayList<>();
 
+        //因为Android包下的 都不会被插装，但是我们需要 dispatchMessage 方法的执行时间
+        //所以将这个例外 加进去
         TraceMethod extra = TraceMethod.create(TraceBuildConstants.METHOD_ID_DISPATCH, Opcodes.ACC_PUBLIC, "android.os.Handler",
                 "dispatchMessage", "(Landroid.os.Message;)V");
         collectedMethodMap.put(extra.getMethodName(), extra);

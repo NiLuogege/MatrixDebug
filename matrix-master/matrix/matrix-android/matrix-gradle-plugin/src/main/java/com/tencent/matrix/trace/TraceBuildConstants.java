@@ -34,10 +34,12 @@ public class TraceBuildConstants {
     public final static String MATRIX_TRACE_METHOD_BEAT_CLASS = "com/tencent/matrix/trace/core/AppMethodBeat";
     public final static String MATRIX_TRACE_ON_WINDOW_FOCUS_METHOD_ARGS = "(Z)V";
     public static final String[] UN_TRACE_CLASS = {"R.class", "R$", "Manifest", "BuildConfig"};
+
+    //android 包 和 com/tencent/matrix 下的类 不需要插桩。但是 Handler的 dispatchMessage 这个方法是个例外，会在 代码中 单独加上
     public final static String DEFAULT_BLACK_TRACE =
                     "[package]\n"
                     + "-keeppackage android/\n"
-                    + "-keeppackage com/tencent/matrix/\n";//android 包 和 com/tencent/matrix 下的类 不需要插桩
+                    + "-keeppackage com/tencent/matrix/\n";
 
     private static final int METHOD_ID_MAX = 0xFFFFF;
     public static final int METHOD_ID_DISPATCH = METHOD_ID_MAX - 1;
