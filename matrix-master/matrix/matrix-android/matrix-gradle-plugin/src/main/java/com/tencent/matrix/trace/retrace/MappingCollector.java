@@ -37,8 +37,10 @@ public class MappingCollector implements MappingProcessor {
     //原始包名 为key 混淆后包名为 value 的map
     public HashMap<String, String> mRawObfuscatedPackageMap = new HashMap<>(DEFAULT_CAPACITY);
     // 混淆后类名为key  和 (混淆后方法名为key 和 原始方法的封装 MethodInfo为 value的map ) 的map
+    // 这里之所以使用 set 集合存储 MethodInfo 是为了防止 重载方法的存在
     private final Map<String, Map<String, Set<MethodInfo>>> mObfuscatedClassMethodMap = new HashMap<>();
     // 原始类名为key  和 (原始方法名为key 和 混淆后方法的封装 MethodInfo为 value的map ) 的map
+    // 这里之所以使用 set 集合存储 MethodInfo 是为了防止 重载方法的存在
     private final Map<String, Map<String, Set<MethodInfo>>> mOriginalClassMethodMap = new HashMap<>();
 
     @Override

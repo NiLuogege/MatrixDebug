@@ -221,6 +221,7 @@ public class MatrixTraceTransform extends Transform {
             // 等待所有线程 运行完毕
             future.get();
         }
+        //清空任务
         futures.clear();
 
         Log.i(TAG, "[doTransform] Step(1)[Parse]... cost:%sms", System.currentTimeMillis() - start);
@@ -229,7 +230,7 @@ public class MatrixTraceTransform extends Transform {
         /**
          * step 2
          * 1. 收集需要插桩和不需要插桩的方法，并记录在 mapping文件中
-         * 2. 手机累之间的继承关系
+         * 2. 收集类之间的继承关系
          */
         start = System.currentTimeMillis();
         //收集需要插桩的方法信息，每个插桩信息封装成TraceMethod对象
@@ -537,6 +538,11 @@ public class MatrixTraceTransform extends Transform {
         }
     }
 
+    /**
+     * 对jar包路径进行 hash ,并拼接成 新的 名称， 对路径进行hash，肯定比 整个jar包进行hash 效率高得多
+     * @param jarFile
+     * @return
+     */
     protected String getUniqueJarName(File jarFile) {
         final String origJarName = jarFile.getName();
         final String hashing = Hashing.sha1().hashString(jarFile.getPath(), Charsets.UTF_16LE).toString();
