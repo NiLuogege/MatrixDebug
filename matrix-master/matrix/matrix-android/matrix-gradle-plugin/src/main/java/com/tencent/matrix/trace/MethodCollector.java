@@ -91,6 +91,7 @@ public class MethodCollector {
                 classFileList.add(srcFile);
             }
 
+            //这里应该是个bug，这个for 应该防止撒谎给你吗那个for 的外面
             for (File classFile : classFileList) {
                 // 每个源文件执行 CollectSrcTask
                 futures.add(executor.submit(new CollectSrcTask(classFile)));
