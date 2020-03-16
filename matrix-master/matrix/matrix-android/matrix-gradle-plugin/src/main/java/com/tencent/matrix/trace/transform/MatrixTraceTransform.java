@@ -183,7 +183,9 @@ public class MatrixTraceTransform extends Transform {
         final boolean isIncremental = transformInvocation.isIncremental() && this.isIncremental();
 
         /**
-         * step 1 解析mapping 文件，及记录 原始方法 -》 混淆后方法对应关系
+         * step 1
+         * 1. 解析mapping 文件混淆后方法对应关系
+         * 2. 替换文件目录
          */
         long start = System.currentTimeMillis();
 
