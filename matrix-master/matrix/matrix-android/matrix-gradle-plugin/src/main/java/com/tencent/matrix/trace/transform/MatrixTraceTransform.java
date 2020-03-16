@@ -89,7 +89,7 @@ public class MatrixTraceTransform extends Transform {
         //收集配置信息
         Configuration config = new Configuration.Builder()
                 .setPackageName(variant.getApplicationId())//包名
-                .setBaseMethodMap(extension.getBaseMethodMapFile())//build.gradle 中配置的 baseMethodMapFile
+                .setBaseMethodMap(extension.getBaseMethodMapFile())//build.gradle 中配置的 baseMethodMapFile ,保存的是 我们指定需要被 插桩的方法
                 .setBlackListFile(extension.getBlackListFile())//build.gradle 中配置的 blackListFile ，保存的是 不需要插桩的文件
                 .setMethodMapFilePath(mappingOut + "/methodMapping.txt")// 记录插桩 methodId 和 method的 关系
                 .setIgnoreMethodMapFilePath(mappingOut + "/ignoreMethodMapping.txt")// 记录 没有被 插桩的方法
