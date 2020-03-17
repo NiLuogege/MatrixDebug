@@ -120,13 +120,13 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
         callbackQueues = reflectObject(choreographer, "mCallbackQueues");
 
         //反射获得 callbackQueues 中第一个 CallbackQueue对象的 addCallbackLocked 的方法
-        // 第一个 CallbackQueue 是处理 input事件的？
+        // 第一个 CallbackQueue 是处理 input事件的
         addInputQueue = reflectChoreographerMethod(callbackQueues[CALLBACK_INPUT], ADD_CALLBACK, long.class, Object.class, Object.class);
         //反射获得 callbackQueues 中第二个 CallbackQueue对象的 addCallbackLocked 的方法
-        // 第二个 CallbackQueue 是处理 动画的？
+        // 第二个 CallbackQueue 是处理 动画的
         addAnimationQueue = reflectChoreographerMethod(callbackQueues[CALLBACK_ANIMATION], ADD_CALLBACK, long.class, Object.class, Object.class);
         //反射获得 callbackQueues 中第三个 CallbackQueue对象的 addCallbackLocked 的方法
-        // 第三个 CallbackQueue 是绘制完 用于回调的？
+        // 第三个 CallbackQueue 是绘制完 用于回调的
         addTraversalQueue = reflectChoreographerMethod(callbackQueues[CALLBACK_TRAVERSAL], ADD_CALLBACK, long.class, Object.class, Object.class);
 
         // 获取 choreographer 中mFrameIntervalNanos 的值 并赋值给 frameIntervalNanos
