@@ -107,7 +107,7 @@ public class FrameTracer extends Tracer {
                     if (config.isDevEnv()) {
                         listener.time = SystemClock.uptimeMillis();
                     }
-                    //消耗帧数
+                    //当前事件 消耗的帧数
                     final int dropFrame = (int) (taskCostMs / frameIntervalMs);
                     //同步 回调 doFrameSync 方法
                     listener.doFrameSync(visibleScene, taskCostMs, frameCostMs, dropFrame, isContainsFrame);
@@ -184,8 +184,8 @@ public class FrameTracer extends Tracer {
     private class FrameCollectItem {
         String visibleScene; //当前activity
         long sumFrameCost; //总消耗 总时间
-        int sumFrame = 0;//总帧数
-        int sumTaskFrame = 0;//总任务
+        int sumFrame = 0;//doFrameAsync 回调次数
+        int sumTaskFrame = 0;////除过 刷新帧 事件外，其他 事件 doFrameAsync 回调次数
         int sumDroppedFrames;// 总下降帧数
         // record the level of frames dropped each time
         int[] dropLevel = new int[DropStatus.values().length];
@@ -202,11 +202,14 @@ public class FrameTracer extends Tracer {
          */
         void collect(int droppedFrames, boolean isContainsFrame) {
             long frameIntervalCost = UIThreadMonitor.getMonitor().getFrameIntervalNanos();
-            //该任务所消耗 总时间
+            //积累的 总时间
             sumFrameCost += (droppedFrames + 1) * frameIntervalCost / Constants.TIME_MILLIS_TO_NANO;
+            //下降的总帧数
             sumDroppedFrames += droppedFrames;
+            //doFrameAsync 回调次数
             sumFrame++;
             if (!isContainsFrame) {
+                //除过 刷新帧 事件外，其他 事件数
                 sumTaskFrame++;
             }
 
