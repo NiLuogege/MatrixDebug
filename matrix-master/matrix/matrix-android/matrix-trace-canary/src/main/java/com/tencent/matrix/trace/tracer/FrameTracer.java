@@ -158,6 +158,14 @@ public class FrameTracer extends Tracer {
             return executor;
         }
 
+        /**
+         *
+         * @param visibleScene 当前Activity名
+         * @param taskCost 整个任务耗时
+         * @param frameCostMs 该帧耗时
+         * @param droppedFrames 消耗帧数
+         * @param isContainsFrame 是否属于一帧
+         */
         @Override
         public void doFrameAsync(String visibleScene, long taskCost, long frameCostMs, int droppedFrames, boolean isContainsFrame) {
             super.doFrameAsync(visibleScene, taskCost, frameCostMs, droppedFrames, isContainsFrame);
@@ -173,7 +181,7 @@ public class FrameTracer extends Tracer {
 
             item.collect(droppedFrames, isContainsFrame);
 
-            // 总时间超过 预设阀值 就 进行报告，并重置
+            //每个visibleScene（页面）监控的 总时间超过 预设阀值 就 进行报告，并重置
             if (item.sumFrameCost >= timeSliceMs) {
                 map.remove(visibleScene);
                 item.report();
