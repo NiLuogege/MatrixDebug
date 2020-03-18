@@ -202,7 +202,7 @@ public class FrameTracer extends Tracer {
          */
         void collect(int droppedFrames, boolean isContainsFrame) {
             long frameIntervalCost = UIThreadMonitor.getMonitor().getFrameIntervalNanos();
-            //积累的 总时间
+            //积累的 总时间 ms值
             sumFrameCost += (droppedFrames + 1) * frameIntervalCost / Constants.TIME_MILLIS_TO_NANO;
             //下降的总帧数
             sumDroppedFrames += droppedFrames;

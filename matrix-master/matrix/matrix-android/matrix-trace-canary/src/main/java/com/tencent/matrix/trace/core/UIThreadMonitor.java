@@ -47,6 +47,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     private final HashSet<LooperObserver> observers = new HashSet<>();
     private volatile long token = 0L;
     //是否属于 刷新帧状态 ， run方法只有主线程中Loop到的 message 对象 是 请求刷新 frame 的 时候 才会回调。
+    //应该只是个标志位，对接入方 无感
     private boolean isBelongFrame = false;
 
     /**
