@@ -250,6 +250,7 @@ public class FrameTracer extends Tracer {
                 if (null == plugin) {
                     return;
                 }
+                //记录卡顿级别，及其出现的次数
                 JSONObject dropLevelObject = new JSONObject();
                 dropLevelObject.put(DropStatus.DROPPED_FROZEN.name(), dropLevel[DropStatus.DROPPED_FROZEN.index]);
                 dropLevelObject.put(DropStatus.DROPPED_HIGH.name(), dropLevel[DropStatus.DROPPED_HIGH.index]);
@@ -257,6 +258,7 @@ public class FrameTracer extends Tracer {
                 dropLevelObject.put(DropStatus.DROPPED_NORMAL.name(), dropLevel[DropStatus.DROPPED_NORMAL.index]);
                 dropLevelObject.put(DropStatus.DROPPED_BEST.name(), dropLevel[DropStatus.DROPPED_BEST.index]);
 
+                //记录卡顿级别，及掉帧总次数
                 JSONObject dropSumObject = new JSONObject();
                 dropSumObject.put(DropStatus.DROPPED_FROZEN.name(), dropSum[DropStatus.DROPPED_FROZEN.index]);
                 dropSumObject.put(DropStatus.DROPPED_HIGH.name(), dropSum[DropStatus.DROPPED_HIGH.index]);
