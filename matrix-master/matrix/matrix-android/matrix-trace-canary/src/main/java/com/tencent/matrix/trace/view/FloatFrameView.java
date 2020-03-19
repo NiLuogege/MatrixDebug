@@ -138,7 +138,7 @@ public class FloatFrameView extends LinearLayout {
                 for (LineInfo lineInfo : lines) {
                     sumFps += lineInfo.fps;
                     lineInfo.draw(canvas, index);
-                    if (index % 25 == 0 || index == 0) {
+                    if (index % 25 == 0 || index == 0) {//话辅助线
                         Path path = new Path();
                         float pathY = lineInfo.linePoint[1];
                         path.moveTo(0, pathY);
