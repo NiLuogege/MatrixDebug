@@ -173,7 +173,7 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
     @Override
     public void doFrameAsync(String visibleScene, long taskCost, long frameCostMs, int droppedFrames, boolean isContainsFrame) {
         super.doFrameAsync(visibleScene, taskCost, frameCostMs, droppedFrames, isContainsFrame);
-        //该任务所消耗 总时间
+        //该任务所消耗 总时间 ,这里不够一帧当一帧计算
         sumFrameCost += (droppedFrames + 1) * UIThreadMonitor.getMonitor().getFrameIntervalNanos() / Constants.TIME_MILLIS_TO_NANO;
         //一共多少帧
         sumFrames += 1;
