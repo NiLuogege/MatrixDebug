@@ -51,6 +51,7 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
     @SuppressLint("ClickableViewAccessibility")
     private FrameDecorator(Context context, final FloatFrameView view) {
         this.view = view;
+        //将自己注册到 AppActiveMatrixDelegate 中
         AppActiveMatrixDelegate.INSTANCE.addListener(this);
         view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
             @Override
@@ -60,6 +61,7 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
                     TracePlugin tracePlugin = Matrix.with().getPluginByClass(TracePlugin.class);
                     if (null != tracePlugin) {
                         FrameTracer tracer = tracePlugin.getFrameTracer();
+                        //将自己添加到 FrameTracer 中以便能接收到 帧信息
                         tracer.addListener(FrameDecorator.this);
                     }
                 }
@@ -72,6 +74,7 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
                     TracePlugin tracePlugin = Matrix.with().getPluginByClass(TracePlugin.class);
                     if (null != tracePlugin) {
                         FrameTracer tracer = tracePlugin.getFrameTracer();
+                        //将自己从 FrameTracer 中移除
                         tracer.removeListener(FrameDecorator.this);
                     }
                 }
@@ -100,6 +103,7 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
                         layoutParam.x += (moveX - downX) / 3;
                         layoutParam.y += (moveY - downY) / 3;
                         if (v != null) {
+                            //更新view的位置
                             windowManager.updateViewLayout(v, layoutParam);
                         }
                         break;
@@ -237,11 +241,13 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
                         @Override
                         public void run() {
                             instance = new FrameDecorator(context, new FloatFrameView(context));
+                            //唤醒所有锁
                             synchronized (lock) {
                                 lock.notifyAll();
                             }
                         }
                     });
+                    //添加锁 等待 instance 初始化完毕
                     synchronized (lock) {
                         lock.wait();
                     }
