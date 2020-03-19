@@ -129,6 +129,7 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
 
                         int upOffsetX = layoutParam.x;
                         int upOffsetY = layoutParam.y;
+                        //在这里模拟click事件，因为设置了window不能响应点击事件
                         if (Math.abs(upOffsetX - downOffsetX) <= 20 && Math.abs(upOffsetY - downOffsetY) <= 20) {
                             if (null != clickListener) {
                                 clickListener.onClick(v);
@@ -275,6 +276,8 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
             } else {
                 layoutParam.type = WindowManager.LayoutParams.TYPE_PHONE;
             }
+            //LayoutParams.FLAG_NOT_FOCUSABLE：让window不能获得焦点，这样用户快就不能向该window发送按键事件及按钮事件
+            //LayoutParams.FLAG_NOT_TOUCH_MODAL:即使在该window在可获得焦点情况下，仍然把该window之外的任何event发送到该window之后的其他window.
             layoutParam.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                     | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
             layoutParam.gravity = Gravity.START | Gravity.TOP;
@@ -287,6 +290,7 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
         }
     }
 
+    //显示
     public void show() {
         if (!isEnable) {
             return;
@@ -341,6 +345,7 @@ public class FrameDecorator extends IDoFrameListener implements IAppForeground {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    //控制显示隐藏
                     if (isForeground) {
                         show();
                     } else {
