@@ -134,7 +134,9 @@ public enum AppActiveMatrixDelegate {
 
         @Override
         public void onActivityStarted(Activity activity) {
+            //更新当前页面名称
             updateScene(activity);
+            //广播 APP切换到前台的 事件
             onDispatchForeground(getVisibleScene());
         }
 
@@ -142,6 +144,7 @@ public enum AppActiveMatrixDelegate {
         @Override
         public void onActivityStopped(Activity activity) {
             if (getTopActivityName() == null) {
+                //广播 APP切换到后台的 事件
                 onDispatchBackground(getVisibleScene());
             }
         }
@@ -186,6 +189,7 @@ public enum AppActiveMatrixDelegate {
         public void onTrimMemory(int level) {
             MatrixLog.i(TAG, "[onTrimMemory] level:%s", level);
             if (level == TRIM_MEMORY_UI_HIDDEN && isAppForeground) { // fallback
+                //广播 APP切换到后台的 事件
                 onDispatchBackground(visibleScene);
             }
         }
