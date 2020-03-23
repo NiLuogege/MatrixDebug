@@ -66,14 +66,17 @@ public class ActivityThreadHacker {
         }
     }
 
+    //获取 Application 启动时间
     public static long getApplicationCost() {
         return ActivityThreadHacker.sApplicationCreateEndTime - ActivityThreadHacker.sApplicationCreateBeginTime;
     }
 
+    //记录的应该是 APP进程孵化时间，看到这个方法命令，不得不说大厂程序员文化程度真高啊。
     public static long getEggBrokenTime() {
         return ActivityThreadHacker.sApplicationCreateBeginTime;
     }
 
+    //最近一个activity被启动的时间
     public static long getLastLaunchActivityTime() {
         return ActivityThreadHacker.sLastLaunchActivityTime;
     }

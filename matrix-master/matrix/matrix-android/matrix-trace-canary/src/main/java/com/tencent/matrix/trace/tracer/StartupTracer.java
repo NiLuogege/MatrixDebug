@@ -102,6 +102,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
                 this.firstScreenCost = uptimeMillis() - ActivityThreadHacker.getEggBrokenTime();
             }
             if (hasShowSplashActivity) {
+                //冷启动耗时 = 当前时间-蛋碎时间
                 coldCost = uptimeMillis() - ActivityThreadHacker.getEggBrokenTime();
             } else {
                 if (splashActivities.contains(activity)) {
@@ -119,6 +120,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
 
         } else if (isWarmStartUp()) {
             isWarmStartUp = false;
+            //暖启动时间=当前时间- 最近一个activity被启动的时间
             long warmCost = uptimeMillis() - ActivityThreadHacker.getLastLaunchActivityTime();
             if (warmCost > 0) {
                 analyse(ActivityThreadHacker.getApplicationCost(), firstScreenCost, warmCost, true);
@@ -135,14 +137,20 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         return isWarmStartUp;
     }
 
+    /**
+     * @param applicationCost: application启动用时
+     * @param firstScreenCost: 首屏启动时间
+     * @param allCost          ：冷启动耗时 或者 暖启动耗时
+     * @param isWarmStartUp    ：是冷启动还是暖启动
+     */
     private void analyse(long applicationCost, long firstScreenCost, long allCost, boolean isWarmStartUp) {
         MatrixLog.i(TAG, "[report] applicationCost:%s firstScreenCost:%s allCost:%s isWarmStartUp:%s", applicationCost, firstScreenCost, allCost, isWarmStartUp);
         long[] data = new long[0];
-        if (!isWarmStartUp && allCost >= coldStartupThresholdMs) { // for cold startup
+        if (!isWarmStartUp && allCost >= coldStartupThresholdMs) { //冷启动时间>阈值
             data = AppMethodBeat.getInstance().copyData(ActivityThreadHacker.sApplicationCreateBeginMethodIndex);
             ActivityThreadHacker.sApplicationCreateBeginMethodIndex.release();
 
-        } else if (isWarmStartUp && allCost >= warmStartupThresholdMs) {
+        } else if (isWarmStartUp && allCost >= warmStartupThresholdMs) {//暖启动时间>阈值
             data = AppMethodBeat.getInstance().copyData(ActivityThreadHacker.sLastLaunchActivityMethodIndex);
             ActivityThreadHacker.sLastLaunchActivityMethodIndex.release();
         }
@@ -160,6 +168,14 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         boolean isWarmStartUp;
         int scene;
 
+        /**
+         * @param data:
+         * @param applicationCost: application启动用时
+         * @param firstScreenCost: 首屏启动时间
+         * @param allCost          ：冷启动耗时 或者 暖启动耗时
+         * @param isWarmStartUp    ：是冷启动还是暖启动
+         * @param scene:app        启动时的场景（可分为 activity ，service ，brodcast ）
+         */
         AnalyseTask(long[] data, long applicationCost, long firstScreenCost, long allCost, boolean isWarmStartUp, int scene) {
             this.data = data;
             this.scene = scene;
