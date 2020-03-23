@@ -119,6 +119,7 @@ public class AppMethodBeat implements BeatLifecycle {
         return sInstance;
     }
 
+    //会在 TracePlugin.start 中调用
     @Override
     public void onStart() {
         synchronized (statusLock) {
@@ -137,6 +138,7 @@ public class AppMethodBeat implements BeatLifecycle {
         }
     }
 
+    //会在 TracePlugin.stop 中调用
     @Override
     public void onStop() {
         synchronized (statusLock) {
