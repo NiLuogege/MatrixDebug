@@ -84,7 +84,7 @@ public class ActivityThreadHacker {
         private static final int CREATE_SERVICE = 114;
         private static final int RECEIVER = 113;
         public static final int EXECUTE_TRANSACTION = 159; // for Android 9.0
-        private static boolean isCreated = false;
+        private static boolean isCreated = false; //记录Application是否已经启动
         private static int hasPrint = 10;
 
         private final Handler.Callback mOriginalCallback;
@@ -97,11 +97,13 @@ public class ActivityThreadHacker {
         public boolean handleMessage(Message msg) {
 
             if (!AppMethodBeat.isRealTrace()) {
+                //将 handleMessage 的控制权交还给 mOriginalCallback
                 return null != mOriginalCallback && mOriginalCallback.handleMessage(msg);
             }
 
+            //是否是打开activity的handler信息
             boolean isLaunchActivity = isLaunchActivity(msg);
-            if (hasPrint > 0) {
+            if (hasPrint > 0) {//控制打印十条log?
                 MatrixLog.i(TAG, "[handleMessage] msg.what:%s begin:%s isLaunchActivity:%s", msg.what, SystemClock.uptimeMillis(), isLaunchActivity);
                 hasPrint--;
             }
@@ -111,7 +113,7 @@ public class ActivityThreadHacker {
             }
 
             if (!isCreated) {
-                if (isLaunchActivity || msg.what == CREATE_SERVICE || msg.what == RECEIVER) { // todo for provider
+                if (isLaunchActivity || msg.what == CREATE_SERVICE || msg.what == RECEIVER) { // 如果是启动activity、service，receiver
                     //发送启动Activity等消息，认为是Application onCreate的结束时间
                     ActivityThreadHacker.sApplicationCreateEndTime = SystemClock.uptimeMillis();
                     ActivityThreadHacker.sApplicationCreateScene = msg.what;
@@ -119,6 +121,7 @@ public class ActivityThreadHacker {
                 }
             }
 
+            //将 handleMessage 的控制权交还给 mOriginalCallback
             return null != mOriginalCallback && mOriginalCallback.handleMessage(msg);
         }
 

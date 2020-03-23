@@ -53,18 +53,20 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
     private final TraceConfig config;
     private long firstScreenCost = 0;
     private long coldCost = 0;
-    private int activeActivityCount;
-    private boolean isWarmStartUp;
+    private int activeActivityCount;//存活activity的数量
+    private boolean isWarmStartUp;//是否是暖启动
     private boolean hasShowSplashActivity;
     private boolean isStartupEnable;
     private Set<String> splashActivities;
-    private long coldStartupThresholdMs;
-    private long warmStartupThresholdMs;
+    private long coldStartupThresholdMs;//默认冷启动阈值
+    private long warmStartupThresholdMs;//默认暖启动阈值
 
 
     public StartupTracer(TraceConfig config) {
         this.config = config;
+        //是否可用
         this.isStartupEnable = config.isStartupEnable();
+        //SplashActivities
         this.splashActivities = config.getSplashActivities();
         this.coldStartupThresholdMs = config.getColdStartupThresholdMs();
         this.warmStartupThresholdMs = config.getWarmStartupThresholdMs();
@@ -75,6 +77,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         super.onAlive();
         MatrixLog.i(TAG, "[onAlive] isStartupEnable:%s", isStartupEnable);
         if (isStartupEnable) {
+            //添加监听
             AppMethodBeat.getInstance().addListener(this);
             Matrix.with().getApplication().registerActivityLifecycleCallbacks(this);
         }
@@ -84,15 +87,18 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
     protected void onDead() {
         super.onDead();
         if (isStartupEnable) {
+            //移除监听
             AppMethodBeat.getInstance().removeListener(this);
             Matrix.with().getApplication().unregisterActivityLifecycleCallbacks(this);
         }
     }
 
+    //当有activity可以获取焦点（可操作） 时调用
     @Override
     public void onActivityFocused(String activity) {
         if (isColdStartup()) {
             if (firstScreenCost == 0) {
+                //首屏启动时间=当前时间点-APP启动时间点
                 this.firstScreenCost = uptimeMillis() - ActivityThreadHacker.getEggBrokenTime();
             }
             if (hasShowSplashActivity) {
@@ -100,7 +106,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
             } else {
                 if (splashActivities.contains(activity)) {
                     hasShowSplashActivity = true;
-                } else if (splashActivities.isEmpty()) {
+                } else if (splashActivities.isEmpty()) {//感觉当 splashActivities  为空的时候 coldCost 会被多次赋值，感觉是个bug
                     MatrixLog.i(TAG, "default splash activity[%s]", activity);
                     coldCost = firstScreenCost;
                 } else {
@@ -257,6 +263,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
 
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+        //activeActivityCount == 0 && coldCost > 0 说明曾经已经冷启动过，这是没有activity了，但是进程还在
         if (activeActivityCount == 0 && coldCost > 0) {
             isWarmStartUp = true;
         }
