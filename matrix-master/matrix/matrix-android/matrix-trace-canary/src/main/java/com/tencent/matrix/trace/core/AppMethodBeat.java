@@ -34,11 +34,12 @@ public class AppMethodBeat implements BeatLifecycle {
     private static final int STATUS_READY = 1; // 准备好
     private static final int STATUS_STOPPED = -1; //停止
     private static final int STATUS_EXPIRED_START = -2;// 已过期
-    private static final int STATUS_OUT_RELEASE = -3;//已释放？
+    private static final int STATUS_OUT_RELEASE = -3;//已释放
 
     private static volatile int status = STATUS_DEFAULT;
     private final static Object statusLock = new Object();
     public static MethodEnterListener sMethodEnterListener;
+    //long占用8byte 所以 sBuffer 占用内存大小为 8* BUFFER_SIZE(100 * 10000) =7.6
     private static long[] sBuffer = new long[Constants.BUFFER_SIZE];
     private static int sIndex = 0;
     private static int sLastIndex = -1;
@@ -87,13 +88,18 @@ public class AppMethodBeat implements BeatLifecycle {
 
     /**
      * update time runnable
+     * <p>
+     * https://github.com/Tencent/matrix/wiki/Matrix-Android-TraceCanary 中有介绍
+     * 考虑到每个方法执行前后都获取系统时间（System.nanoTime）会对性能影响比较大，而实际上，单个函数执行耗时小于 5ms 的情况，
+     * 对卡顿来说不是主要原因，可以忽略不计，如果是多次调用的情况，则在它的父级方法中可以反映出来，所以为了减少对性能的影响，
+     * 通过另一条更新时间的线程每 5ms 去更新一个时间变量，而每个方法执行前后只读取该变量来减少性能损耗。
      */
     private static Runnable sUpdateDiffTimeRunnable = new Runnable() {
         @Override
         public void run() {
             try {
+                //无限循环  当isPauseUpdateTime=false（dispatchBegin方法完成）,然后更新 sCurrentDiffTime
                 while (true) {
-                    //无限等待 isPauseUpdateTime=false（dispatchBegin方法完成）,然后更新 sCurrentDiffTime
                     while (!isPauseUpdateTime && status > STATUS_STOPPED) {
                         sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
                         SystemClock.sleep(Constants.TIME_UPDATE_CYCLE_MS);
@@ -153,7 +159,7 @@ public class AppMethodBeat implements BeatLifecycle {
         return status >= STATUS_READY;
     }
 
-    //释放操作？
+    //释放操作
     private static void realRelease() {
         synchronized (statusLock) {
             if (status == STATUS_DEFAULT) {
@@ -170,6 +176,7 @@ public class AppMethodBeat implements BeatLifecycle {
         }
     }
 
+    //这个方法只有 在第一次执行 i方法时才会被调用
     private static void realExecute() {
         MatrixLog.i(TAG, "[realExecute] timestamp:%s", System.currentTimeMillis());
 
@@ -219,6 +226,7 @@ public class AppMethodBeat implements BeatLifecycle {
      */
     public static void i(int methodId) {
 
+        //对 AppMethodBeat 状态进行检查
         if (status <= STATUS_STOPPED) {
             return;
         }
@@ -226,6 +234,7 @@ public class AppMethodBeat implements BeatLifecycle {
             return;
         }
 
+        //第一次执行该方法时 调用 realExecute 方法，并将状态切换为 STATUS_READY
         if (status == STATUS_DEFAULT) {
             synchronized (statusLock) {
                 if (status == STATUS_DEFAULT) {
@@ -238,13 +247,15 @@ public class AppMethodBeat implements BeatLifecycle {
         }
 
         long threadId = Thread.currentThread().getId();
-        //方法开始执行回调
+        //执行回调
         if (sMethodEnterListener != null) {
             sMethodEnterListener.enter(methodId, threadId);
         }
 
         //如果是主线程
         if (threadId == sMainThreadId) {
+
+            //i方法被重复执行的 提醒
             if (assertIn) {
                 android.util.Log.e(TAG, "ERROR!!! AppMethodBeat.i Recursive calls!!!");
                 return;
@@ -317,9 +328,9 @@ public class AppMethodBeat implements BeatLifecycle {
      * <p>
      * 合并数据
      *
-     * @param methodId
-     * @param index
-     * @param isIn
+     * @param methodId ： methodId
+     * @param index ： sBuffer 下标
+     * @param isIn ： 是否是 i 方法
      */
     private static void mergeData(int methodId, int index, boolean isIn) {
         if (methodId == AppMethodBeat.METHOD_ID_DISPATCH) {//如果是 UIThreadMonitor 的 dispatchBegin 或者 dispatchEnd 方法
@@ -329,7 +340,7 @@ public class AppMethodBeat implements BeatLifecycle {
 
         // 合并后的数据存到 trueId中
         long trueId = 0L;
-        if (isIn) {
+        if (isIn) {//如果是 i 方法 则第63位上是1，否则为0 （就是一个标志位）
             trueId |= 1L << 63;
         }
         trueId |= (long) methodId << 43;
