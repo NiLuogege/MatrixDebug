@@ -34,7 +34,7 @@ public class AppMethodBeat implements BeatLifecycle {
     private static final int STATUS_READY = 1; // 准备好
     private static final int STATUS_STOPPED = -1; //停止
     private static final int STATUS_EXPIRED_START = -2;// 已过期
-    private static final int STATUS_OUT_RELEASE = -3;
+    private static final int STATUS_OUT_RELEASE = -3;//已释放？
 
     private static volatile int status = STATUS_DEFAULT;
     private final static Object statusLock = new Object();
@@ -56,6 +56,7 @@ public class AppMethodBeat implements BeatLifecycle {
     private static final Object updateTimeLock = new Object();
     private static boolean isPauseUpdateTime = false;
     private static Runnable checkStartExpiredRunnable = null;
+    //可以监控到 massage的执行
     private static LooperMonitor.LooperDispatchListener looperMonitorListener = new LooperMonitor.LooperDispatchListener() {
         @Override
         public boolean isValid() {
@@ -92,6 +93,7 @@ public class AppMethodBeat implements BeatLifecycle {
         public void run() {
             try {
                 while (true) {
+                    //无限等待 isPauseUpdateTime=false（dispatchBegin方法完成）,然后更新 sCurrentDiffTime
                     while (!isPauseUpdateTime && status > STATUS_STOPPED) {
                         sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
                         SystemClock.sleep(Constants.TIME_UPDATE_CYCLE_MS);
@@ -151,14 +153,18 @@ public class AppMethodBeat implements BeatLifecycle {
         return status >= STATUS_READY;
     }
 
+    //释放操作？
     private static void realRelease() {
         synchronized (statusLock) {
             if (status == STATUS_DEFAULT) {
                 MatrixLog.i(TAG, "[realRelease] timestamp:%s", System.currentTimeMillis());
                 sHandler.removeCallbacksAndMessages(null);
+                //移除 looperMonitorListener 监听
                 LooperMonitor.unregister(looperMonitorListener);
+                //sTimerUpdateThread 退出
                 sTimerUpdateThread.quit();
                 sBuffer = null;
+                //状态改为 STATUS_OUT_RELEASE
                 status = STATUS_OUT_RELEASE;
             }
         }
@@ -167,13 +173,14 @@ public class AppMethodBeat implements BeatLifecycle {
     private static void realExecute() {
         MatrixLog.i(TAG, "[realExecute] timestamp:%s", System.currentTimeMillis());
 
+        //当前时间减去上一个 记录的时间
         sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
 
         //清空 sHandler 所有消息
         sHandler.removeCallbacksAndMessages(null);
-        //
+        //延迟5 ms 后执行 sUpdateDiffTimeRunnable
         sHandler.postDelayed(sUpdateDiffTimeRunnable, Constants.TIME_UPDATE_CYCLE_MS);
-        //
+        //延迟15 ms 后执行 checkStartExpiredRunnable
         sHandler.postDelayed(checkStartExpiredRunnable = new Runnable() {
             @Override
             public void run() {
@@ -186,7 +193,9 @@ public class AppMethodBeat implements BeatLifecycle {
             }
         }, Constants.DEFAULT_RELEASE_BUFFER_DELAY);
 
+        //hook 主线程的 HandlerCallback
         ActivityThreadHacker.hackSysHandlerCallback();
+        //注册 looperMonitorListener 使可以接收到looper分发massage事件
         LooperMonitor.register(looperMonitorListener);
     }
 

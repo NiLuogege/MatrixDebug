@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Objects;
 
 /**
- * LooperMonitor 是一个 空闲时执行的handler
+ * LooperMonitor 是一个 空闲时执行的handler,可以监控到 massage的执行
  */
 public class LooperMonitor implements MessageQueue.IdleHandler {
 
