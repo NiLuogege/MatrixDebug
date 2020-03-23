@@ -42,7 +42,7 @@ public class AppMethodBeat implements BeatLifecycle {
     //long占用8byte 所以 sBuffer 占用内存大小为 8* BUFFER_SIZE(100 * 10000) =7.6
     private static long[] sBuffer = new long[Constants.BUFFER_SIZE];
     private static int sIndex = 0;
-    private static int sLastIndex = -1;
+    private static int sLastIndex = -1;//记录 最后一个 sBuffer 下标的位置
     private static boolean assertIn = false;
     private volatile static long sCurrentDiffTime = SystemClock.uptimeMillis();
     private volatile static long sDiffTime = sCurrentDiffTime;
@@ -52,6 +52,7 @@ public class AppMethodBeat implements BeatLifecycle {
     private static Handler sHandler = new Handler(sTimerUpdateThread.getLooper());
     private static final int METHOD_ID_MAX = 0xFFFFF;
     public static final int METHOD_ID_DISPATCH = METHOD_ID_MAX - 1;
+    //存放着所有 获取焦点 的 activity的名称
     private static Set<String> sFocusActivitySet = new HashSet<>();
     private static final HashSet<IAppMethodBeatListener> listeners = new HashSet<>();
     private static final Object updateTimeLock = new Object();
@@ -230,6 +231,7 @@ public class AppMethodBeat implements BeatLifecycle {
         if (status <= STATUS_STOPPED) {
             return;
         }
+        //对 methodId进行校验
         if (methodId >= METHOD_ID_MAX) {
             return;
         }
@@ -278,12 +280,16 @@ public class AppMethodBeat implements BeatLifecycle {
      * @param methodId
      */
     public static void o(int methodId) {
+        //对 AppMethodBeat 状态进行检查
         if (status <= STATUS_STOPPED) {
             return;
         }
+        //对 methodId进行校验
         if (methodId >= METHOD_ID_MAX) {
             return;
         }
+
+        //如果是主线程
         if (Thread.currentThread().getId() == sMainThreadId) {
             if (sIndex < Constants.BUFFER_SIZE) {
                 mergeData(methodId, sIndex, false);
@@ -298,21 +304,27 @@ public class AppMethodBeat implements BeatLifecycle {
     /**
      * when the special method calls,it's will be called.
      *
+     * 当activity的 onWindowFocusChange（activity可被操作） 被调用时，at 方法就会被调用
+     *
      * @param activity now at which activity
      * @param isFocus  this window if has focus
      */
     public static void at(Activity activity, boolean isFocus) {
         String activityName = activity.getClass().getName();
         if (isFocus) {
+            //获取焦点的activity 添加到 sFocusActivitySet
             if (sFocusActivitySet.add(activityName)) {
                 synchronized (listeners) {
+                    //广播 activityName 获取到焦点
                     for (IAppMethodBeatListener listener : listeners) {
                         listener.onActivityFocused(activityName);
                     }
                 }
+                // activity 不都有了吗 为啥还要通过 getVisibleScene() 获取？
                 MatrixLog.i(TAG, "[at] visibleScene[%s] has %s focus!", getVisibleScene(), "attach");
             }
         } else {
+            //失去焦点的activity 从sFocusActivitySet移除
             if (sFocusActivitySet.remove(activityName)) {
                 MatrixLog.i(TAG, "[at] visibleScene[%s] has %s focus!", getVisibleScene(), "detach");
             }
@@ -343,8 +355,11 @@ public class AppMethodBeat implements BeatLifecycle {
         if (isIn) {//如果是 i 方法 则第63位上是1，否则为0 （就是一个标志位）
             trueId |= 1L << 63;
         }
+        //43-62位 存储 methodId
         trueId |= (long) methodId << 43;
+        //0-42位存储 sCurrentDiffTime
         trueId |= sCurrentDiffTime & 0x7FFFFFFFFFFL;
+        //存放到 sBuffer中
         sBuffer[index] = trueId;
         checkPileup(index);
         sLastIndex = index;
@@ -401,6 +416,7 @@ public class AppMethodBeat implements BeatLifecycle {
         }
     }
 
+    //这是在干啥 ，不太清楚
     private static void checkPileup(int index) {
         IndexRecord indexRecord = sIndexRecordHead;
         while (indexRecord != null) {
