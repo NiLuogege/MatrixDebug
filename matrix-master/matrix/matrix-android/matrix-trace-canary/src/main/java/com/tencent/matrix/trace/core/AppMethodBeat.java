@@ -210,6 +210,7 @@ public class AppMethodBeat implements BeatLifecycle {
     }
 
     private static void dispatchBegin() {
+        //更新 sCurrentDiffTime
         sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
         isPauseUpdateTime = false;
 

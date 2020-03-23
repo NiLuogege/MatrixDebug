@@ -19,6 +19,7 @@ package sample.tencent.matrix;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.tencent.matrix.Matrix;
 import com.tencent.matrix.iocanary.IOCanaryPlugin;
@@ -57,6 +58,12 @@ public class MatrixApplication extends Application {
         } catch (Throwable t) {
             return new SQLiteLintConfig(SQLiteLint.SqlExecutionCallbackMode.HOOK);
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        Log.e(TAG, "attachBaseContext");
     }
 
     @Override

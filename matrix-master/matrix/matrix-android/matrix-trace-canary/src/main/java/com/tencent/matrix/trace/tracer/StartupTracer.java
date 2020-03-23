@@ -77,7 +77,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         super.onAlive();
         MatrixLog.i(TAG, "[onAlive] isStartupEnable:%s", isStartupEnable);
         if (isStartupEnable) {
-            //添加监听
+            //添加监听 可以感知 activity获得焦点 和 activity的生命周期
             AppMethodBeat.getInstance().addListener(this);
             Matrix.with().getApplication().registerActivityLifecycleCallbacks(this);
         }
