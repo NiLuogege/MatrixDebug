@@ -102,12 +102,13 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
                 this.firstScreenCost = uptimeMillis() - ActivityThreadHacker.getEggBrokenTime();
             }
             if (hasShowSplashActivity) {
-                //冷启动耗时 = 当前时间-蛋碎时间
+                //冷启动耗时 = （MainActivity启动的时间）当前时间-蛋碎时间
+                //类注释上画了，coldCost = 第二个activity onWindowFocusChange时的时间，
                 coldCost = uptimeMillis() - ActivityThreadHacker.getEggBrokenTime();
             } else {
                 if (splashActivities.contains(activity)) {
                     hasShowSplashActivity = true;
-                } else if (splashActivities.isEmpty()) {//感觉当 splashActivities  为空的时候 coldCost 会被多次赋值，感觉是个bug
+                } else if (splashActivities.isEmpty()) {//未配置 splashActivities，冷启动时间 == 第一屏时间
                     MatrixLog.i(TAG, "default splash activity[%s]", activity);
                     coldCost = firstScreenCost;
                 } else {
@@ -169,7 +170,8 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         int scene;
 
         /**
-         * @param data:
+         * @param data: ActivityThreadHacker.sApplicationCreateBeginMethodIndex 或者
+         *            ActivityThreadHacker.sLastLaunchActivityMethodIndex 的 AppMethodBeat.IndexRecord 对象
          * @param applicationCost: application启动用时
          * @param firstScreenCost: 首屏启动时间
          * @param allCost          ：冷启动耗时 或者 暖启动耗时
@@ -189,7 +191,9 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         public void run() {
             LinkedList<MethodItem> stack = new LinkedList();
             if (data.length > 0) {
+                //根据之前 data 查到的 methodId ，拿到对应插桩函数的执行时间、执行深度，将每个函数的信息封装成 MethodItem，然后存储到 stack 集合当中
                 TraceDataUtils.structuredDataToStack(data, stack, false, -1);
+                //根据 stack 集合数据，分析出是哪个方法是慢函数，并回调给 fallback 打印出来
                 TraceDataUtils.trimStack(stack, Constants.TARGET_EVIL_METHOD_STACK, new TraceDataUtils.IStructuredDataFilter() {
                     @Override
                     public boolean isFilter(long during, int filterCount) {

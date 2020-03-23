@@ -42,7 +42,7 @@ public class ActivityThreadHacker {
 
     public static void hackSysHandlerCallback() {
         try {
-            //当前方法加载的时间 被认为是 APP启动时间，因为 是static 的方法，应该没有问题
+            //当前方法加载的时间 被认为是 APP启动时间
             sApplicationCreateBeginTime = SystemClock.uptimeMillis();
             sApplicationCreateBeginMethodIndex = AppMethodBeat.getInstance().maskIndex("ApplicationCreateBeginMethodIndex");
 

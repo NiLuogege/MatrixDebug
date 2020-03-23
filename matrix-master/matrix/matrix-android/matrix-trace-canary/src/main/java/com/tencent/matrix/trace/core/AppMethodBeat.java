@@ -394,7 +394,7 @@ public class AppMethodBeat implements BeatLifecycle {
         }
     }
 
-    //这玩意儿 是个链表
+    //这玩意儿 是个链表 就是用来记录  index 和 source的对应关系的
     public static final class IndexRecord {
         public IndexRecord(int index) {
             this.index = index;
