@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.tencent.matrix.AppActiveMatrixDelegate;
 import com.tencent.matrix.trace.constants.Constants;
@@ -308,7 +309,7 @@ public class AppMethodBeat implements BeatLifecycle {
 
     /**
      * when the special method calls,it's will be called.
-     *
+     * <p>
      * 当activity的 onWindowFocusChange（activity可被操作） 被调用时，at 方法就会被调用
      *
      * @param activity now at which activity
@@ -346,8 +347,8 @@ public class AppMethodBeat implements BeatLifecycle {
      * 合并数据
      *
      * @param methodId ： methodId
-     * @param index ： sBuffer 下标
-     * @param isIn ： 是否是 i 方法
+     * @param index    ： sBuffer 下标
+     * @param isIn     ： 是否是 i 方法
      */
     private static void mergeData(int methodId, int index, boolean isIn) {
         if (methodId == AppMethodBeat.METHOD_ID_DISPATCH) {//如果是 UIThreadMonitor 的 dispatchBegin 或者 dispatchEnd 方法
@@ -384,6 +385,11 @@ public class AppMethodBeat implements BeatLifecycle {
 
     private static IndexRecord sIndexRecordHead = null;
 
+    /**
+     * 创建一个链表的头，或者新建一个节点插入到链表的尾部
+     * @param source
+     * @return
+     */
     public IndexRecord maskIndex(String source) {
         //创建 IndexRecord 的 header
         if (sIndexRecordHead == null) {
@@ -391,12 +397,13 @@ public class AppMethodBeat implements BeatLifecycle {
             sIndexRecordHead.source = source;
             return sIndexRecordHead;
         } else {
-            //创建一个 IndexRecord 并插入链表
+            //创建一个 IndexRecord 并插入链表的尾部
             IndexRecord indexRecord = new IndexRecord(sIndex - 1);
             indexRecord.source = source;
             IndexRecord record = sIndexRecordHead;
             IndexRecord last = null;
             while (record != null) {
+                Log.d(TAG, "indexRecord.index:" + indexRecord.index + " record.index= " + record.index);
                 if (indexRecord.index <= record.index) {
                     if (null == last) {
                         IndexRecord tmp = sIndexRecordHead;
@@ -411,10 +418,13 @@ public class AppMethodBeat implements BeatLifecycle {
                     }
                     return indexRecord;
                 }
+                //最后一个是 头
                 last = record;
+                //记录的向后挪以为
                 record = record.next;
             }
 
+            //头后面 的为新创建的
             last.next = indexRecord;
 
             return indexRecord;
