@@ -41,8 +41,10 @@ public class AppMethodBeat implements BeatLifecycle {
     public static MethodEnterListener sMethodEnterListener;
     //long占用8byte 所以 sBuffer 占用内存大小为 8* BUFFER_SIZE(100 * 10000) =7.6
     private static long[] sBuffer = new long[Constants.BUFFER_SIZE];
+    //将要向sBuffer 中插入元素 的下标
     private static int sIndex = 0;
-    private static int sLastIndex = -1;//记录 最后一个 sBuffer 下标的位置
+    //已经向sBuffer 中插入元素 的下标
+    private static int sLastIndex = -1;
     private static boolean assertIn = false;
     private volatile static long sCurrentDiffTime = SystemClock.uptimeMillis();
     private volatile static long sDiffTime = sCurrentDiffTime;
@@ -422,7 +424,9 @@ public class AppMethodBeat implements BeatLifecycle {
     //这是在干啥 ，不太清楚
     private static void checkPileup(int index) {
         IndexRecord indexRecord = sIndexRecordHead;
+        //因为在 hackSysHandlerCallback 中已经创建了一个 ApplicationCreateBeginMethodIndex的 IndexRecord 所以这里刚开始的时候不会为空
         while (indexRecord != null) {
+            //如果  或者 是头indexRecord
             if (indexRecord.index == index || (indexRecord.index == -1 && sLastIndex == Constants.BUFFER_SIZE - 1)) {
                 indexRecord.isValid = false;
                 MatrixLog.w(TAG, "[checkPileup] %s", indexRecord.toString());

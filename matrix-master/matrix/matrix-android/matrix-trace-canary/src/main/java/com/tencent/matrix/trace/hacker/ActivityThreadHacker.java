@@ -42,8 +42,9 @@ public class ActivityThreadHacker {
 
     public static void hackSysHandlerCallback() {
         try {
-            //当前方法加载的时间 被认为是 APP启动时间
+            //当前方法加载的时间 被认为是 APP启动时间，
             sApplicationCreateBeginTime = SystemClock.uptimeMillis();
+            //记录这第一个方法，
             sApplicationCreateBeginMethodIndex = AppMethodBeat.getInstance().maskIndex("ApplicationCreateBeginMethodIndex");
 
             //替换 ActivityThread 中handler的 callBack 方法
