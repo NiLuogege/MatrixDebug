@@ -1,0 +1,564 @@
+-injars 'D:\softCacheData\.gradle\caches\modules-2\files-2.1\com.tencent.matrix\matrix-commons\0.6.5\c35bc1f55636fc26f8b89337b494752616d08485\matrix-commons-0.6.5.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\67bf305370ccf6ff8896a44221a397c1\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\cdf974afa2c160720b456f149af47657\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\12231b21cf778d27bce46a3aba187c8a\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\50853bc40e6d17dd48aea173cc242718\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\a7bf874f3ccc78a4feb2c5eca1a1fbf3\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\379b59419b17e2a22d51ad870a18a62d\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\da7d767115871414e936c82fecdbca3b\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\modules-2\files-2.1\com.tencent.matrix\matrix-resource-canary-common\0.6.5\b170ddcd4982839c89ccd3db733abb535458b7d\matrix-resource-canary-common-0.6.5.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\e106c1a4ff098631007d8f902ce53a89\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.6\815893df5f31da2ece4040fe0a12fd44b577afaf\commons-io-2.6.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\2f6a1fc9cf34e2f52a7092caa7a15b50\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\c07d15770236c0511838de7467af630b\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\1da84e1bd13634d2cdce900bc20e4004\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\697a5a7a91b6fba2d6aa8c9d48cedd21\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\9bee3a8994504b97a84647342fb72d43\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\c9ca8e27a4da3a1ff4eeb0243e994b99\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\6497a72855d0e8270b72a6ae8559850a\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\c6cd73597ce095e3a8817c936d5899f4\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\c65fae7ec6ca370629b22132dddc2186\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\5c24fdb8ecaf7306794b7945305d9cb7\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\1b6d6d97ab2cb8bd811fd58ebce55866\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\d2b75704f0016e366532930784ddbf9a\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\a19a9381dba00033bab8a8c58992ab22\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\c7a2cb960bc5191e36930f9aefcb096b\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\6e39edbeec7a5189656f72d90c351ba0\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\modules-2\files-2.1\com.android.support\collections\28.0.0\c1bcdade4d3cc2836130424a3f3e4182c666a745\collections-28.0.0.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\570f1e171ebcfd622774aacd558e67c1\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\1bd193fff8dd4acbfba4a0953bc90d53\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\e7cb6cb0fdd1288c6b1daa0c3f65a63e\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\478bb5b8fc4bb84defed64e8d723864a\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\a858ca2f134a2c8922a9148b60c8faaf\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\90f61167fd705f9f9466e5197f06595d\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\d0d90b9762038e762b070ca6eb8b35bb\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\6243da0690d9887fb4af5000adf7ee65\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\4e671b29f29b6ffe6e8242c411085847\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\modules-2\files-2.1\android.arch.lifecycle\common\1.1.1\207a6efae6a3555e326de41f76bdadd9a239cbce\common-1.1.1.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\transforms-2\files-2.1\df2c6b1d734545c27ad9990f5b632e73\jars\classes.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\modules-2\files-2.1\android.arch.core\common\1.1.1\e55b70d1f5620db124b3e85a7f4bdc7bd48d9f95\common-1.1.1.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\modules-2\files-2.1\com.android.support\support-annotations\28.0.0\ed73f5337a002d1fd24339d5fb08c2c9d9ca60d8\support-annotations-28.0.0.jar'(**.class)
+-injars 'D:\softCacheData\.gradle\caches\modules-2\files-2.1\com.tencent.tinker\tinker-ziputils\1.9.2\aa54e8d18beac60454b8d299fd372888b8815e12\tinker-ziputils-1.9.2.jar'(**.class)
+-injars 'E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\javac\release\compileReleaseJavaWithJavac\classes'(**.class)
+-injars 'E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\transforms\mergeJavaRes\release\0.jar'(!**.class)
+-outjars 'E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\transforms\proguard\release\0.jar'
+
+-libraryjars 'D:\soft\AndroidSDK\platforms\android-28\android.jar'
+-libraryjars 'D:\soft\AndroidSDK\build-tools\28.0.3\core-lambda-stubs.jar'
+-libraryjars 'D:\soft\AndroidSDK\platforms\android-28\optional\org.apache.http.legacy.jar'
+-libraryjars 'D:\soft\AndroidSDK\platforms\android-28\optional\android.test.mock.jar'
+-libraryjars 'D:\soft\AndroidSDK\platforms\android-28\optional\android.test.base.jar'
+-libraryjars 'D:\soft\AndroidSDK\platforms\android-28\optional\android.test.runner.jar'
+
+-forceprocessing
+-printusage 'E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\outputs\mapping\release\usage.txt'
+-dontoptimize
+-printmapping 'E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\outputs\mapping\release\mapping.txt'
+-dontusemixedcaseclassnames
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable,*Annotation*,*Annotation*
+-verbose
+-dontnote com.android.vending.licensing.ILicensingService,com.google.vending.licensing.ILicensingService,com.google.android.vending.licensing.ILicensingService,android.support.**,androidx.**,org.apache.http.**,android.net.http.**,java.lang.invoke.**
+-dontwarn android.support.**,androidx.**,android.util.FloatMath
+-printconfiguration 'E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\configuration.txt'
+-printseeds 'E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\outputs\mapping\release\seeds.txt'
+
+
+
+-keep public class com.google.vending.licensing.ILicensingService
+
+-keep public class com.android.vending.licensing.ILicensingService
+
+-keep public class com.google.android.vending.licensing.ILicensingService
+
+# For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
+-keepclasseswithmembers,allowshrinking class * {
+    native <methods>;
+}
+
+# Keep setters in Views so that animations can still work.
+-keepclassmembers public class * extends android.view.View {
+    void set*(***);
+    *** get*();
+}
+
+# We want to keep methods in Activity that could be used in the XML attribute onClick.
+-keepclassmembers class * extends android.app.Activity {
+    public void *(android.view.View);
+}
+
+# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+-keepclassmembers enum  * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final ** CREATOR;
+}
+
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+# Preserve annotated Javascript interface methods.
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface
+    <methods>;
+}
+
+# Understand the @Keep support annotation.
+-keep class android.support.annotation.Keep
+
+-keep class androidx.annotation.Keep
+
+-keep @android.support.annotation.Keep class * {
+    <fields>;
+    <methods>;
+}
+
+-keep @androidx.annotation.Keep class * {
+    <fields>;
+    <methods>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <methods>;
+}
+
+-keepclasseswithmembers class * {
+    @androidx.annotation.Keep
+    <methods>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @androidx.annotation.Keep
+    <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <init>(...);
+}
+
+-keepclasseswithmembers class * {
+    @androidx.annotation.Keep
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:69
+-keep class com.tencent.matrix.resource.CanaryResultService {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:63
+-keep class com.tencent.matrix.resource.CanaryWorkerService {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:52
+-keep class com.tencent.sqlitelint.behaviour.alert.CheckResultActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:45
+-keep class com.tencent.sqlitelint.behaviour.alert.CheckedDatabaseListActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:57
+-keep class com.tencent.sqlitelint.behaviour.alert.IssueDetailActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:26
+-keep class sample.tencent.matrix.MainActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:18
+-keep class sample.tencent.matrix.MatrixApplication {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:31
+-keep class sample.tencent.matrix.SplashActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:38
+-keep class sample.tencent.matrix.io.TestIOActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:28
+-keep class sample.tencent.matrix.issue.IssuesListActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:39
+-keep class sample.tencent.matrix.resource.TestLeakActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:44
+-keep class sample.tencent.matrix.sqlitelint.TestSQLiteLintActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:42
+-keep class sample.tencent.matrix.trace.TestEnterActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:43
+-keep class sample.tencent.matrix.trace.TestFpsActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:41
+-keep class sample.tencent.matrix.trace.TestTraceFragmentActivity {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\build\intermediates\merged_manifests\release\processReleaseManifest\merged\AndroidManifest.xml:40
+-keep class sample.tencent.matrix.trace.TestTraceMainActivity {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_alert_dialog_material.xml:41
+-keep class android.support.v4.widget.NestedScrollView {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_select_dialog_material.xml:23
+-keep class android.support.v7.app.AlertController$RecycleListView {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_action_menu_item_layout.xml:17
+-keep class android.support.v7.view.menu.ActionMenuItemView {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_expanded_menu_layout.xml:17
+-keep class android.support.v7.view.menu.ExpandedMenuView {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_popup_menu_item_layout.xml:17
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_list_menu_item_layout.xml:17
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_cascading_menu_item_layout.xml:20
+-keep class android.support.v7.view.menu.ListMenuItemView {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_screen_toolbar.xml:27
+-keep class android.support.v7.widget.ActionBarContainer {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_screen_toolbar.xml:43
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_action_mode_bar.xml:19
+-keep class android.support.v7.widget.ActionBarContextView {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_screen_toolbar.xml:17
+-keep class android.support.v7.widget.ActionBarOverlayLayout {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_action_menu_layout.xml:17
+-keep class android.support.v7.widget.ActionMenuView {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_activity_chooser_view.xml:19
+-keep class android.support.v7.widget.ActivityChooserView$InnerLayout {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_alert_dialog_material.xml:18
+-keep class android.support.v7.widget.AlertDialogLayout {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_alert_dialog_button_bar_material.xml:26
+-keep class android.support.v7.widget.ButtonBarLayout {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_screen_content_include.xml:19
+-keep class android.support.v7.widget.ContentFrameLayout {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_alert_dialog_title_material.xml:45
+-keep class android.support.v7.widget.DialogTitle {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_screen_simple_overlay_action_mode.xml:23
+-keep class android.support.v7.widget.FitWindowsFrameLayout {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_screen_simple.xml:17
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_dialog_title_material.xml:22
+-keep class android.support.v7.widget.FitWindowsLinearLayout {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\activity_issue_list.xml:7
+-keep class android.support.v7.widget.RecyclerView {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_search_view.xml:75
+-keep class android.support.v7.widget.SearchView$SearchAutoComplete {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\cdf974afa2c160720b456f149af47657\res\layout\activity_sqlitelint_base.xml:6
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_screen_toolbar.xml:36
+-keep class android.support.v7.widget.Toolbar {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_screen_simple_overlay_action_mode.xml:32
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_screen_simple.xml:25
+-keep class android.support.v7.widget.ViewStubCompat {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_alert_dialog_title_material.xml:56
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_alert_dialog_material.xml:52
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\909eddcf04596d0ba449a901b63363b3\res\layout\abc_alert_dialog_button_bar_material.xml:43
+-keep class android.widget.Space {
+    <init>(...);
+}
+
+# Referenced at D:\softCacheData\.gradle\caches\transforms-2\files-2.1\a7bf874f3ccc78a4feb2c5eca1a1fbf3\res\layout\float_frame_view.xml:67
+-keep class com.tencent.matrix.trace.view.FloatFrameView$LineChartView {
+    <init>(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\test_sqlite_lint.xml:13
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\test_io.xml:8
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\test_battery.xml:7
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\device.xml:7
+-keepclassmembers class * {
+    *** onClick(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\test_trace.xml:48
+-keepclassmembers class * {
+    *** stopAppMethodBeat(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\test_trace.xml:30
+-keepclassmembers class * {
+    *** testANR(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\test_trace.xml:21
+-keepclassmembers class * {
+    *** testEnter(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\test_trace.xml:12
+-keepclassmembers class * {
+    *** testFps(...);
+}
+
+# Referenced at E:\111work\code\code_me\myGitHub\MatrixDebug\matrix-master\samples\sample-android\app\src\main\res\layout\test_trace.xml:39
+-keepclassmembers class * {
+    *** testJankiess(...);
+}
+
+-keep class com.tencent.matrix.iocanary.core.** {
+    <fields>;
+    <methods>;
+}
+
+-keep class com.tencent.sqlitelint.** {
+    <fields>;
+    <methods>;
+}
+
+-keep class com.tencent.sqlitelint.SQLiteLintNativeBridge {
+    <fields>;
+    <methods>;
+}
+
+-keep class com.tencent.sqlitelint.** {
+    <fields>;
+    <methods>;
+}
+
+-keep class com.tencent.sqlitelint.SQLiteLintNativeBridge {
+    <fields>;
+    <methods>;
+}
+
+-keep class com.tencent.h.interfaces.NativeHook {
+    <fields>;
+    <methods>;
+}
+
+-keep class com.tencent.matrix.trace.core.AppMethodBeat {
+    <fields>;
+    <methods>;
+}
+
+# Add project specific ProGuard rules here.
+# By default, the flags in this file are appended to flags specified
+# in /Users/zhangshaowen/Library/Android/sdk/tools/proguard/proguard-android.txt
+# You can edit the include path and order by changing the proguardFiles
+# directive in build.gradle.
+# 
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+# Add any project specific keep options here:
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+# -keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+# }
+# Uncomment this to preserve the line number information for
+# debugging stack traces.
+# -keepattributes SourceFile,LineNumberTable
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+# -renamesourcefileattribute SourceFile
+-keep class com.tencent.matrix.resource.analyzer.model.DestroyedActivityInfo {
+    <fields>;
+    <methods>;
+}
+
+# Copyright (C) 2018 The Android Open Source Project
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Ensure that reflectively-loaded inflater is not obfuscated. This can be
+# removed when we stop supporting AAPT1 builds.
+-keep,allowshrinking class android.support.v7.app.AppCompatViewInflater
+
+# aapt is not able to read app::actionViewClass and app:actionProviderClass to produce proguard
+# keep rules. Add a commonly used SearchView to the keep list until b/109831488 is resolved.
+-keep class android.support.v7.widget.SearchView {
+    <init>(...);
+}
+
+# Copyright (C) 2015 The Android Open Source Project
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# When layoutManager xml attribute is used, RecyclerView inflates
+# LayoutManagers' constructors using reflection.
+-keep public class * extends android.support.v7.widget.RecyclerView$LayoutManager {
+    public <init>(android.content.Context,android.util.AttributeSet,int,int);
+    public <init>();
+}
+
+# Copyright (C) 2016 The Android Open Source Project
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# keep setters in VectorDrawables so that animations can still work.
+-keepclassmembers class android.support.graphics.drawable.VectorDrawableCompat$* {
+    void set*(***);
+    *** get*();
+}
+
+# Copyright (C) 2016 The Android Open Source Project
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# CoordinatorLayout resolves the behaviors of its child components with reflection.
+-keep public class * extends android.support.design.widget.CoordinatorLayout$Behavior {
+    public <init>(android.content.Context,android.util.AttributeSet);
+    public <init>();
+}
+
+# aapt2 is not (yet) keeping FQCNs defined in the appComponentFactory <application> attribute
+-keep class android.support.v4.app.CoreComponentFactory
+
+-keep public class * extends androidx.versionedparcelable.VersionedParcelable
+
+-keep public class android.support.**Parcelizer {
+    <fields>;
+    <methods>;
+}
+
+-keep public class androidx.**Parcelizer {
+    <fields>;
+    <methods>;
+}
+
+-keep public class androidx.versionedparcelable.ParcelImpl
+
+-keepclassmembers enum  android.arch.lifecycle.Lifecycle$Event {
+    <fields>;
+}
+
+-keep class * extends android.arch.lifecycle.LifecycleObserver
+
+-keep class * extends android.arch.lifecycle.GeneratedAdapter {
+    <init>(...);
+}
+
+-keepclassmembers class ** {
+    @android.arch.lifecycle.OnLifecycleEvent
+    <fields>;
+    @android.arch.lifecycle.OnLifecycleEvent
+    <methods>;
+}
+
+-keep class * extends android.arch.lifecycle.ViewModel {
+    <init>();
+}

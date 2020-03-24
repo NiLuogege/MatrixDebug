@@ -12,6 +12,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.2.1'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'digital.wup:android-maven-publish:3.6.2'
+        classpath ("com.tencent.matrix:matrix-gradle-plugin:${MATRIX_VERSION}") { changing = true }
     }
 
 

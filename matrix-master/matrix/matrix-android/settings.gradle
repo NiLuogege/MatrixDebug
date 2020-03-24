@@ -1,4 +1,4 @@
-include ':matrix-gradle-plugin'
+include ':matrix-gradle-plugin', ':app'
 include ':matrix-android-commons'
 include ':matrix-android-lib'
 include ':matrix-commons'
