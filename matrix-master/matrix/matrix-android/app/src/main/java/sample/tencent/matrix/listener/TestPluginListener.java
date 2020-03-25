@@ -49,6 +49,7 @@ public class TestPluginListener extends DefaultPluginListener {
     public void onReportIssue(Issue issue) {
         super.onReportIssue(issue);
         MatrixLog.e(TAG, issue.toString());
+        MatrixLog.e(TAG, issue.getContent().toString());
 
         IssuesMap.put(IssueFilter.getCurrentFilter(), issue);
         jumpToIssueActivity();
