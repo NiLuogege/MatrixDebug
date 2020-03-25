@@ -56,7 +56,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
     private long coldCost = 0;
     private int activeActivityCount;//存活activity的数量
     private boolean isWarmStartUp;//是否是暖启动
-    private boolean hasShowSplashActivity;
+    private boolean hasShowSplashActivity;//是否已经展示了 splashActivity
     private boolean isStartupEnable;
     private Set<String> splashActivities;
     private long coldStartupThresholdMs;//默认冷启动阈值
