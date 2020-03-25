@@ -3,6 +3,7 @@ package com.tencent.matrix.trace.tracer;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.tencent.matrix.Matrix;
 import com.tencent.matrix.report.Issue;
@@ -51,7 +52,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
 
     private static final String TAG = "Matrix.StartupTracer";
     private final TraceConfig config;
-    private long firstScreenCost = 0;
+    private long firstScreenCost = 0;//首屏启动时间
     private long coldCost = 0;
     private int activeActivityCount;//存活activity的数量
     private boolean isWarmStartUp;//是否是暖启动
@@ -148,14 +149,22 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         MatrixLog.i(TAG, "[report] applicationCost:%s firstScreenCost:%s allCost:%s isWarmStartUp:%s", applicationCost, firstScreenCost, allCost, isWarmStartUp);
         long[] data = new long[0];
         if (!isWarmStartUp && allCost >= coldStartupThresholdMs) { //冷启动时间>阈值
+            //获取 AppMethodBeat.sBuffer 中记录的数据
             data = AppMethodBeat.getInstance().copyData(ActivityThreadHacker.sApplicationCreateBeginMethodIndex);
+            //移除 sApplicationCreateBeginMethodIndex 节点
             ActivityThreadHacker.sApplicationCreateBeginMethodIndex.release();
 
         } else if (isWarmStartUp && allCost >= warmStartupThresholdMs) {//暖启动时间>阈值
             data = AppMethodBeat.getInstance().copyData(ActivityThreadHacker.sLastLaunchActivityMethodIndex);
+            //移除 sApplicationCreateBeginMethodIndex 节点
             ActivityThreadHacker.sLastLaunchActivityMethodIndex.release();
         }
 
+        Log.d(TAG, "isWarmStartUp:" + isWarmStartUp);
+        //调试
+        AppMethodBeat.getInstance().printIndexRecord();
+
+        //执行 AnalyseTask
         MatrixHandlerThread.getDefaultHandler().post(new AnalyseTask(data, applicationCost, firstScreenCost, allCost, isWarmStartUp, ActivityThreadHacker.sApplicationCreateScene));
 
     }

@@ -351,7 +351,7 @@ public class AppMethodBeat implements BeatLifecycle {
      * @param isIn     ： 是否是 i 方法
      */
     private static void mergeData(int methodId, int index, boolean isIn) {
-        if (methodId == AppMethodBeat.METHOD_ID_DISPATCH) {//如果是 UIThreadMonitor 的 dispatchBegin 或者 dispatchEnd 方法
+        if (methodId == AppMethodBeat.METHOD_ID_DISPATCH) {//如果是 handler 的 dispatchMessage 方法
             sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
         }
 
@@ -387,6 +387,7 @@ public class AppMethodBeat implements BeatLifecycle {
 
     /**
      * 创建一个链表的头，或者新建一个节点插入到链表的尾部
+     *
      * @param source
      * @return
      */
@@ -462,6 +463,7 @@ public class AppMethodBeat implements BeatLifecycle {
         public boolean isValid = true;
         public String source;
 
+        //标记为不可用，并从链表中移除
         public void release() {
             isValid = false;
             IndexRecord record = sIndexRecordHead;
@@ -500,11 +502,14 @@ public class AppMethodBeat implements BeatLifecycle {
                 int start = Math.max(0, startRecord.index);
                 int end = Math.max(0, endRecord.index);
 
-                if (end > start) {
+                Log.d(TAG, "start=" + start + " end= " + end);
+
+                //计算出copy区域的长度和copy
+                if (end > start) {//正常情况下 一次copy
                     length = end - start + 1;
                     data = new long[length];
                     System.arraycopy(sBuffer, start, data, 0, length);
-                } else if (end < start) {
+                } else if (end < start) {// 两次copy
                     length = 1 + end + (sBuffer.length - start);
                     data = new long[length];
                     System.arraycopy(sBuffer, start, data, 0, sBuffer.length - start);

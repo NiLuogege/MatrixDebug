@@ -26,9 +26,19 @@ public class TraceDataUtils {
         void fallback(List<MethodItem> stack, int size);
     }
 
+    /**
+     *
+     * 根据之前 data 查到的 methodId ，拿到对应插桩函数的执行时间、执行深度，将每个函数的信息封装成 MethodItem，然后存储到 stack 链表当中
+     *
+     * @param buffer
+     * @param result
+     * @param isStrict
+     * @param endTime
+     */
     public static void structuredDataToStack(long[] buffer, LinkedList<MethodItem> result, boolean isStrict, long endTime) {
         long lastInId = 0L;
         int depth = 0;
+        //是个链表
         LinkedList<Long> rawData = new LinkedList<>();
         boolean isBegin = !isStrict;
 
@@ -36,6 +46,7 @@ public class TraceDataUtils {
             if (0 == trueId) {
                 continue;
             }
+            //是严格模式
             if (isStrict) {
                 if (isIn(trueId) && AppMethodBeat.METHOD_ID_DISPATCH == getMethodId(trueId)) {
                     isBegin = true;
@@ -47,21 +58,28 @@ public class TraceDataUtils {
                 }
 
             }
+
+            //如果是 i 方法记录的数据
             if (isIn(trueId)) {
+                //获取methodId
                 lastInId = getMethodId(trueId);
-                if (lastInId == AppMethodBeat.METHOD_ID_DISPATCH) {
+                if (lastInId == AppMethodBeat.METHOD_ID_DISPATCH) { //如果是 handler 的 dispatchMessage 方法 depth 置为0
                     depth = 0;
                 }
                 depth++;
+                //加入到链表中
                 rawData.push(trueId);
-            } else {
+            } else {// 如果是 0 方法记录的数据
+                //获取methodId
                 int outMethodId = getMethodId(trueId);
                 if (!rawData.isEmpty()) {
+                    //拿到i 方法中记录的数据
                     long in = rawData.pop();
                     depth--;
                     int inMethodId;
                     LinkedList<Long> tmp = new LinkedList<>();
                     tmp.add(in);
+                    //如果  inMethodId 不能与 outMethodId
                     while ((inMethodId = getMethodId(in)) != outMethodId && !rawData.isEmpty()) {
                         MatrixLog.w(TAG, "pop inMethodId[%s] to continue match ouMethodId[%s]", inMethodId, outMethodId);
                         in = rawData.pop();
@@ -69,6 +87,7 @@ public class TraceDataUtils {
                         tmp.add(in);
                     }
 
+                    //如果是 handler的 dispatchMessage方法
                     if (inMethodId != outMethodId && inMethodId == AppMethodBeat.METHOD_ID_DISPATCH) {
                         MatrixLog.e(TAG, "inMethodId[%s] != outMethodId[%s] throw this outMethodId!", inMethodId, outMethodId);
                         rawData.addAll(tmp);
@@ -76,8 +95,11 @@ public class TraceDataUtils {
                         continue;
                     }
 
+                    //获取到 方法执行完的时间
                     long outTime = getTime(trueId);
+                    // 获取方法开始执行的时间
                     long inTime = getTime(in);
+                    //该方法执行时间
                     long during = outTime - inTime;
                     if (during < 0) {
                         MatrixLog.e(TAG, "[structuredDataToStack] trace during invalid:%d", during);
@@ -85,6 +107,7 @@ public class TraceDataUtils {
                         result.clear();
                         return;
                     }
+                    //创建一个 methodItem 并加入
                     MethodItem methodItem = new MethodItem(outMethodId, (int) during, depth);
                     addMethodItem(result, methodItem);
                 } else {
@@ -108,19 +131,25 @@ public class TraceDataUtils {
             addMethodItem(result, methodItem);
         }
         TreeNode root = new TreeNode(null, null);
+        //将链表转为树 进行整理数据，root是根节点
         stackToTree(result, root);
+        //清空 result
         result.clear();
+        //将 整理过的 数据 保存到 result中
         treeToStack(root, result);
     }
 
+    //是否是 i 方法记录的
     private static boolean isIn(long trueId) {
         return ((trueId >> 63) & 0x1) == 1;
     }
 
+    //获取 时间戳
     private static long getTime(long trueId) {
         return trueId & 0x7FFFFFFFFFFL;
     }
 
+    //获取methodid
     private static int getMethodId(long trueId) {
         return (int) ((trueId >> 43) & 0xFFFFFL);
     }
@@ -131,13 +160,14 @@ public class TraceDataUtils {
         }
         MethodItem last = null;
         if (!resultStack.isEmpty()) {
+            //获取第一个元素
             last = resultStack.peek();
         }
-        if (null != last && last.methodId == item.methodId && last.depth == item.depth && 0 != item.depth) {
+        if (null != last && last.methodId == item.methodId && last.depth == item.depth && 0 != item.depth) {//合并相同方法
             item.durTime = item.durTime == Constants.DEFAULT_ANR ? last.durTime : item.durTime;
             last.mergeMore(item.durTime);
             return last.durTime;
-        } else {
+        } else {//添加到链表中
             resultStack.push(item);
             return item.durTime;
         }
@@ -170,6 +200,8 @@ public class TraceDataUtils {
 
     /**
      * Structured the method stack as a tree Data structure
+     *
+     * 将链表转化为数
      *
      * @param resultStack
      * @return

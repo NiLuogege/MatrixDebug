@@ -72,7 +72,7 @@ public class ActivityThreadHacker {
         return ActivityThreadHacker.sApplicationCreateEndTime - ActivityThreadHacker.sApplicationCreateBeginTime;
     }
 
-    //记录的应该是 APP进程孵化时间，看到这个方法命令，不得不说大厂程序员文化程度真高啊。
+    //记录的应该是 Application启动时间 ，看到这个方法名（蛋碎时间），不得不说大厂程序员文化程度真高啊。
     public static long getEggBrokenTime() {
         return ActivityThreadHacker.sApplicationCreateBeginTime;
     }
@@ -111,6 +111,7 @@ public class ActivityThreadHacker {
                 MatrixLog.i(TAG, "[handleMessage] msg.what:%s begin:%s isLaunchActivity:%s", msg.what, SystemClock.uptimeMillis(), isLaunchActivity);
                 hasPrint--;
             }
+            //打开一次activity，就记录一次数据
             if (isLaunchActivity) {
                 ActivityThreadHacker.sLastLaunchActivityTime = SystemClock.uptimeMillis();
                 ActivityThreadHacker.sLastLaunchActivityMethodIndex = AppMethodBeat.getInstance().maskIndex("LastLaunchActivityMethodIndex");
