@@ -58,7 +58,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
     private boolean isWarmStartUp;//是否是暖启动
     private boolean hasShowSplashActivity;//是否已经展示了 splashActivity
     private boolean isStartupEnable;
-    private Set<String> splashActivities;
+    private Set<String> splashActivities;//虽然可以设置多个，但是只有第一个有效
     private long coldStartupThresholdMs;//默认冷启动阈值
     private long warmStartupThresholdMs;//默认暖启动阈值
 
@@ -97,7 +97,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
     //当有activity可以获取焦点（可操作） 时调用
     @Override
     public void onActivityFocused(String activity) {
-        if (isColdStartup()) {
+        if (isColdStartup()) {//判断条件是 coldCost == 0 所以只会进来一次
             if (firstScreenCost == 0) {
                 //首屏启动时间=当前时间点-APP启动时间点
                 this.firstScreenCost = uptimeMillis() - ActivityThreadHacker.getEggBrokenTime();
@@ -160,9 +160,9 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
             ActivityThreadHacker.sLastLaunchActivityMethodIndex.release();
         }
 
-        Log.d(TAG, "isWarmStartUp:" + isWarmStartUp);
-        //调试
-        AppMethodBeat.getInstance().printIndexRecord();
+//        Log.d(TAG, "isWarmStartUp:" + isWarmStartUp);
+//        //调试
+//        AppMethodBeat.getInstance().printIndexRecord();
 
         //执行 AnalyseTask
         MatrixHandlerThread.getDefaultHandler().post(new AnalyseTask(data, applicationCost, firstScreenCost, allCost, isWarmStartUp, ActivityThreadHacker.sApplicationCreateScene));

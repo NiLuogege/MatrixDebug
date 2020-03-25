@@ -41,7 +41,7 @@ public class TraceConfig implements IDefaultConfig {
     public boolean defaultAnrEnable;
     public boolean isDebug;
     public boolean isDevEnv;
-    public String splashActivities;//可配置多个用 ; 隔开
+    public String splashActivities;//可配置多个用 ; 隔开，但是生效的还是只有第一个
     public Set<String> splashActivitiesSet;
 
 
