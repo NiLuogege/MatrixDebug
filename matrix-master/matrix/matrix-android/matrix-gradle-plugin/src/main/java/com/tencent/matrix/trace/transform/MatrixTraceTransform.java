@@ -397,18 +397,6 @@ public class MatrixTraceTransform extends Transform {
             }
 
 
-            //这里有bug 不能在这里一股脑的全部删除掉，因为在增量更新的情况下，会直接去使用为改变的文件
-            // 所以我们应该在应该也来判断是否是增量更新
-            //修改以后的代码为
-//            if (!isIncremental) {
-//                if (!dirInput.exists() && dirOutput.exists()) {
-//                    if (dirOutput.isDirectory()) {
-//                        FileUtils.deleteFolder(dirOutput);
-//                    } else {
-//                        FileUtils.delete(dirOutput);
-//                    }
-//                }
-
             if (!dirInput.exists() && dirOutput.exists()) {
                 if (dirOutput.isDirectory()) {
                     FileUtils.deleteFolder(dirOutput);
