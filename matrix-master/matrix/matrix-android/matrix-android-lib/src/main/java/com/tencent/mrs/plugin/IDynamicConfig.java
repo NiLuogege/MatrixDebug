@@ -25,7 +25,7 @@ public interface IDynamicConfig {
     enum ExptEnum {
         // trace
         clicfg_matrix_trace_fps_enable,
-        clicfg_matrix_trace_care_scene_set,
+        clicfg_matrix_trace_care_scene_set,//SplashActivitie 配置，可配置多个 用 ; 隔开
         clicfg_matrix_trace_fps_time_slice,
         clicfg_matrix_trace_evil_method_threshold,
 
