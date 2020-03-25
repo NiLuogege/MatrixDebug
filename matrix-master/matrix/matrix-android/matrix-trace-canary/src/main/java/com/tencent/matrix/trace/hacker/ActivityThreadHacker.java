@@ -51,15 +51,19 @@ public class ActivityThreadHacker {
             Class<?> forName = Class.forName("android.app.ActivityThread");
             Field field = forName.getDeclaredField("sCurrentActivityThread");
             field.setAccessible(true);
+            //获得 ActivityThread 对象
             Object activityThreadValue = field.get(forName);
             Field mH = forName.getDeclaredField("mH");
             mH.setAccessible(true);
+            //获得handler对象
             Object handler = mH.get(activityThreadValue);
             Class<?> handlerClass = handler.getClass().getSuperclass();
             Field callbackField = handlerClass.getDeclaredField("mCallback");
             callbackField.setAccessible(true);
+            //获得 Handler.Callback 对象
             Handler.Callback originalCallback = (Handler.Callback) callbackField.get(handler);
             HackCallback callback = new HackCallback(originalCallback);
+            //设置新的callback对象
             callbackField.set(handler, callback);
             MatrixLog.i(TAG, "hook system handler completed. start:%s SDK_INT:%s", sApplicationCreateBeginTime, Build.VERSION.SDK_INT);
         } catch (Exception e) {
