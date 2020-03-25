@@ -179,8 +179,8 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         int scene;
 
         /**
-         * @param data: ActivityThreadHacker.sApplicationCreateBeginMethodIndex 或者
-         *            ActivityThreadHacker.sLastLaunchActivityMethodIndex 的 AppMethodBeat.IndexRecord 对象
+         * @param data:            ActivityThreadHacker.sApplicationCreateBeginMethodIndex 或者
+         *                         ActivityThreadHacker.sLastLaunchActivityMethodIndex 的 AppMethodBeat.IndexRecord 对象
          * @param applicationCost: application启动用时
          * @param firstScreenCost: 首屏启动时间
          * @param allCost          ：冷启动耗时 或者 暖启动耗时
@@ -202,21 +202,24 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
             if (data.length > 0) {
                 //根据之前 data 查到的 methodId ，拿到对应插桩函数的执行时间、执行深度，将每个函数的信息封装成 MethodItem，然后存储到 stack 集合当中
                 TraceDataUtils.structuredDataToStack(data, stack, false, -1);
-                //根据 stack 集合数据，分析出是哪个方法是慢函数，并回调给 fallback 打印出来
+                //根据规则 裁剪 stack 中的数据，
                 TraceDataUtils.trimStack(stack, Constants.TARGET_EVIL_METHOD_STACK, new TraceDataUtils.IStructuredDataFilter() {
                     @Override
                     public boolean isFilter(long during, int filterCount) {
+                        //如果 耗时小于 预设值 则进行裁剪
                         return during < filterCount * Constants.TIME_UPDATE_CYCLE_MS;
                     }
 
                     @Override
                     public int getFilterMaxCount() {
+                        //最大方法裁剪数 60
                         return Constants.FILTER_STACK_MAX_COUNT;
                     }
 
                     @Override
-                    public void fallback(List<MethodItem> stack, int size) {
+                    public void fallback(List<MethodItem> stack, int size) {//降级策略
                         MatrixLog.w(TAG, "[fallback] size:%s targetSize:%s stack:%s", size, Constants.TARGET_EVIL_METHOD_STACK, stack);
+                        //循环删除 多余的shuju8
                         Iterator iterator = stack.listIterator(Math.min(size, Constants.TARGET_EVIL_METHOD_STACK));
                         while (iterator.hasNext()) {
                             iterator.next();
@@ -229,10 +232,12 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
 
             StringBuilder reportBuilder = new StringBuilder();
             StringBuilder logcatBuilder = new StringBuilder();
+            //获取最大的启动时间
             long stackCost = Math.max(allCost, TraceDataUtils.stackToString(stack, reportBuilder, logcatBuilder));
+            //查询出最耗时的 方法id
             String stackKey = TraceDataUtils.getTreeKey(stack, stackCost);
 
-            // for logcat
+            // 如果超过阈值 打印log
             if ((allCost > coldStartupThresholdMs && !isWarmStartUp)
                     || (allCost > warmStartupThresholdMs && isWarmStartUp)) {
                 MatrixLog.w(TAG, "stackKey:%s \n%s", stackKey, logcatBuilder.toString());
@@ -242,6 +247,15 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
             report(applicationCost, firstScreenCost, reportBuilder, stackKey, stackCost, isWarmStartUp, scene);
         }
 
+        /**
+         * @param applicationCost：Application 启动时间
+         * @param firstScreenCost：首屏启动时间
+         * @param reportBuilder：需要上报的         method信息
+         * @param stackKey                    ：主要耗时方法id
+         * @param allCost:                    冷启动耗时 或者 暖启动耗时
+         * @param isWarmStartUp：是否是           暖启动
+         * @param scene：app                   启动时的场景（可分为 activity ，service ，brodcast ）
+         */
         private void report(long applicationCost, long firstScreenCost, StringBuilder reportBuilder, String stackKey,
                             long allCost, boolean isWarmStartUp, int scene) {
 
@@ -249,23 +263,32 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
             if (null == plugin) {
                 return;
             }
+            //上报正常启动信息
             try {
                 JSONObject costObject = new JSONObject();
+                //添加设备信息
                 costObject = DeviceUtil.getDeviceInfo(costObject, Matrix.with().getApplication());
+                //Application 启动时间
                 costObject.put(SharePluginInfo.STAGE_APPLICATION_CREATE, applicationCost);
+                //Application 启动场景
                 costObject.put(SharePluginInfo.STAGE_APPLICATION_CREATE_SCENE, scene);
+                //首屏启动时间
                 costObject.put(SharePluginInfo.STAGE_FIRST_ACTIVITY_CREATE, firstScreenCost);
+                //冷启动时间 或者 暖启动时间
                 costObject.put(SharePluginInfo.STAGE_STARTUP_DURATION, allCost);
+                //冷启动 or 暖启动
                 costObject.put(SharePluginInfo.ISSUE_IS_WARM_START_UP, isWarmStartUp);
                 Issue issue = new Issue();
                 issue.setTag(SharePluginInfo.TAG_PLUGIN_STARTUP);
                 issue.setContent(costObject);
+                //上报
                 plugin.onDetectIssue(issue);
             } catch (JSONException e) {
                 MatrixLog.e(TAG, "[JSONException for StartUpReportTask error: %s", e);
             }
 
 
+            //上报 启动速度超过预设阈值的信息
             if ((allCost > coldStartupThresholdMs && !isWarmStartUp)
                     || (allCost > warmStartupThresholdMs && isWarmStartUp)) {
 

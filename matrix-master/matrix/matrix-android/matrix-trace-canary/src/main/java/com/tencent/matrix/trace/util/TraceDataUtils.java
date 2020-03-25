@@ -237,6 +237,7 @@ public class TraceDataUtils {
     }
 
 
+    //链表转为 string
     public static long stackToString(LinkedList<MethodItem> stack, StringBuilder reportBuilder, StringBuilder logcatBuilder) {
         logcatBuilder.append("|*\t\tTraceStack:").append("\n");
         logcatBuilder.append("|*\t\t\t[id count cost]").append("\n");
@@ -325,7 +326,7 @@ public class TraceDataUtils {
             ListIterator<MethodItem> iterator = stack.listIterator(stack.size());
             while (iterator.hasPrevious()) {
                 MethodItem item = iterator.previous();
-                if (filter.isFilter(item.durTime, filterCount)) {
+                if (filter.isFilter(item.durTime, filterCount)) {//是否要过滤
                     iterator.remove();
                     curStackSize--;
                     if (curStackSize <= targetCount) {
@@ -340,6 +341,7 @@ public class TraceDataUtils {
             }
         }
         int size = stack.size();
+        //如果 stack的 容量还是 大于 阈值，则使用降级策略
         if (size > targetCount) {
             filter.fallback(stack, size);
         }
@@ -376,18 +378,21 @@ public class TraceDataUtils {
         return ss.toString();
     }
 
+    //获取主要 耗时 方法id
     public static String getTreeKey(List<MethodItem> stack, long stackCost) {
         StringBuilder ss = new StringBuilder();
         long allLimit = (long) (stackCost * Constants.FILTER_STACK_KEY_ALL_PERCENT);
 
         LinkedList<MethodItem> sortList = new LinkedList<>();
 
+        //过滤出主要耗时方法
         for (MethodItem item : stack) {
             if (item.durTime >= allLimit) {
                 sortList.add(item);
             }
         }
 
+        //排序
         Collections.sort(sortList, new Comparator<MethodItem>() {
             @Override
             public int compare(MethodItem o1, MethodItem o2) {
@@ -395,13 +400,14 @@ public class TraceDataUtils {
             }
         });
 
-        if (sortList.isEmpty() && !stack.isEmpty()) {
+        if (sortList.isEmpty() && !stack.isEmpty()) {//没有主要的耗时方法，就用第一个代替
             MethodItem root = stack.get(0);
             sortList.add(root);
-        } else if (sortList.size() > 1 && sortList.peek().methodId == AppMethodBeat.METHOD_ID_DISPATCH) {
+        } else if (sortList.size() > 1 && sortList.peek().methodId == AppMethodBeat.METHOD_ID_DISPATCH) {//如果第一个是 handler.dipatchMessage 那就去掉
             sortList.removeFirst();
         }
 
+        //拼接字符串
         for (MethodItem item : sortList) {
             ss.append(item.methodId + "|");
             break;
