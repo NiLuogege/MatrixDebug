@@ -456,7 +456,7 @@ public class AppMethodBeat implements BeatLifecycle {
         IndexRecord indexRecord = sIndexRecordHead;
         //因为在 hackSysHandlerCallback 中已经创建了一个 ApplicationCreateBeginMethodIndex的 IndexRecord 所以这里刚开始的时候不会为空
         while (indexRecord != null) {
-            //如果  或者 是头indexRecord
+            //如果  或者 buffer刚刚装满，进行第二轮装填 ，就过期这些 indexRecord（因为被覆盖了）
             if (indexRecord.index == index || (indexRecord.index == -1 && sLastIndex == Constants.BUFFER_SIZE - 1)) {
                 indexRecord.isValid = false;
                 MatrixLog.w(TAG, "[checkPileup] %s", indexRecord.toString());
