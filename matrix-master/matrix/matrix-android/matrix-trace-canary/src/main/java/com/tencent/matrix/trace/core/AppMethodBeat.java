@@ -454,12 +454,13 @@ public class AppMethodBeat implements BeatLifecycle {
     //处理堆积状态，也就是 处理 sBuffer装满后 数据被覆盖的情况
     private static void checkPileup(int index) {
         IndexRecord indexRecord = sIndexRecordHead;
-        //因为在 hackSysHandlerCallback 中已经创建了一个 ApplicationCreateBeginMethodIndex的 IndexRecord 所以这里刚开始的时候不会为空
         while (indexRecord != null) {
-            //如果  或者 buffer刚刚装满，进行第二轮装填 ，就过期这些 indexRecord（因为被覆盖了）
+            //如果 indexRecord记录的index和 当前index 相等了  或者 buffer刚刚装满，进行第二轮装填 ，就过期这些 indexRecord（因为被覆盖了）
             if (indexRecord.index == index || (indexRecord.index == -1 && sLastIndex == Constants.BUFFER_SIZE - 1)) {
+                //置为不可用
                 indexRecord.isValid = false;
                 MatrixLog.w(TAG, "[checkPileup] %s", indexRecord.toString());
+                //从链表中移除
                 sIndexRecordHead = indexRecord = indexRecord.next;
             } else {
                 break;
