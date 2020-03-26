@@ -509,6 +509,7 @@ public class AppMethodBeat implements BeatLifecycle {
         }
     }
 
+    //获取从 startRecord 到结束的 所有 IndexRecord
     public long[] copyData(IndexRecord startRecord) {
         return copyData(startRecord, new IndexRecord(sIndex - 1));
     }
@@ -529,7 +530,7 @@ public class AppMethodBeat implements BeatLifecycle {
                     length = end - start + 1;
                     data = new long[length];
                     System.arraycopy(sBuffer, start, data, 0, length);
-                } else if (end < start) {// 两次copy
+                } else if (end < start) {// 两次copy(后半截+前半截)
                     length = 1 + end + (sBuffer.length - start);
                     data = new long[length];
                     System.arraycopy(sBuffer, start, data, 0, sBuffer.length - start);
@@ -538,7 +539,7 @@ public class AppMethodBeat implements BeatLifecycle {
                 return data;
             }
             return data;
-        } catch (OutOfMemoryError e) {
+        } catch (OutOfMemoryError e) {//这里还捕获 OutOfMemoryError ，大厂程序员真的是细啊
             MatrixLog.e(TAG, e.toString());
             return data;
         } finally {
