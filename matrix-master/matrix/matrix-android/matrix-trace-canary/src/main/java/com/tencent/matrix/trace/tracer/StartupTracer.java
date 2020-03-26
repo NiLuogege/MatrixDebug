@@ -69,7 +69,7 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         this.isStartupEnable = config.isStartupEnable();
         //SplashActivities
         this.splashActivities = config.getSplashActivities();
-        this.coldStartupThresholdMs = 0;
+        this.coldStartupThresholdMs = config.getColdStartupThresholdMs();
         this.warmStartupThresholdMs = config.getWarmStartupThresholdMs();
     }
 
