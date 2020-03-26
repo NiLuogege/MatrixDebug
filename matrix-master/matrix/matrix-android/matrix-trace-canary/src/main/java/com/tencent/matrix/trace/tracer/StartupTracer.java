@@ -149,6 +149,10 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
         MatrixLog.i(TAG, "[report] applicationCost:%s firstScreenCost:%s allCost:%s isWarmStartUp:%s", applicationCost, firstScreenCost, allCost, isWarmStartUp);
         long[] data = new long[0];
         if (!isWarmStartUp && allCost >= coldStartupThresholdMs) { //冷启动时间>阈值
+
+            //调试
+//            AppMethodBeat.getInstance().printIndexRecord();
+
             //获取 AppMethodBeat.sBuffer 中记录的数据
             data = AppMethodBeat.getInstance().copyData(ActivityThreadHacker.sApplicationCreateBeginMethodIndex);
             //移除 sApplicationCreateBeginMethodIndex 节点
@@ -159,6 +163,8 @@ public class StartupTracer extends Tracer implements IAppMethodBeatListener, App
             //移除 sApplicationCreateBeginMethodIndex 节点
             ActivityThreadHacker.sLastLaunchActivityMethodIndex.release();
         }
+
+
 
 //        Log.d(TAG, "isWarmStartUp:" + isWarmStartUp);
 //        //调试
