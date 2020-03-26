@@ -59,7 +59,7 @@ public class AppMethodBeat implements BeatLifecycle {
     private static Set<String> sFocusActivitySet = new HashSet<>();
     private static final HashSet<IAppMethodBeatListener> listeners = new HashSet<>();
     private static final Object updateTimeLock = new Object();
-    private static boolean isPauseUpdateTime = false;
+    private static boolean isPauseUpdateTime = false;//是否暂停更新时间
     private static Runnable checkStartExpiredRunnable = null;
     //可以监控到 massage的执行
     private static LooperMonitor.LooperDispatchListener looperMonitorListener = new LooperMonitor.LooperDispatchListener() {
