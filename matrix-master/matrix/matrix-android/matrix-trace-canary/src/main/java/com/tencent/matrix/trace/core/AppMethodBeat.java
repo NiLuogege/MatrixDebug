@@ -82,6 +82,7 @@ public class AppMethodBeat implements BeatLifecycle {
     };
 
     static {
+        //在 AppMethodBeat 类加载 15s 后，还没有使用（status的状态还是STATUS_DEFAULT），就清空AppMethodBeat 占用的内存
         sHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
