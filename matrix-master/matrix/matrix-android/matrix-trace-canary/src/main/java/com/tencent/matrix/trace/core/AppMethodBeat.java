@@ -106,6 +106,7 @@ public class AppMethodBeat implements BeatLifecycle {
                 while (true) {
                     while (!isPauseUpdateTime && status > STATUS_STOPPED) {
                         sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
+//                        MatrixLog.e(TAG, "Runnable cTime= %s, sCurrentDiffTime=%s", SystemClock.uptimeMillis(),sCurrentDiffTime);
                         SystemClock.sleep(Constants.TIME_UPDATE_CYCLE_MS);
                     }
                     synchronized (updateTimeLock) {
@@ -216,6 +217,8 @@ public class AppMethodBeat implements BeatLifecycle {
         //更新 sCurrentDiffTime
         sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
         isPauseUpdateTime = false;
+
+//        MatrixLog.e(TAG, "dispatchBegin cTime= %s, sCurrentDiffTime=%s", SystemClock.uptimeMillis(),sCurrentDiffTime);
 
         synchronized (updateTimeLock) {
             updateTimeLock.notify();
