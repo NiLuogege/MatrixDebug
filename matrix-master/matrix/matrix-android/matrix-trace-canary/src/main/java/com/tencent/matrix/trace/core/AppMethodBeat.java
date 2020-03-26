@@ -48,7 +48,7 @@ public class AppMethodBeat implements BeatLifecycle {
     private static int sLastIndex = -1;
     private static boolean assertIn = false;
     private volatile static long sCurrentDiffTime = SystemClock.uptimeMillis();
-    private volatile static long sDiffTime = sCurrentDiffTime;
+    private volatile static long sDiffTime = sCurrentDiffTime;//一个固定的时间，就是 AppMethodBeat 类加载的时间
     private static long sMainThreadId = Looper.getMainLooper().getThread().getId();
     private static HandlerThread sTimerUpdateThread = MatrixHandlerThread.getNewHandlerThread("matrix_time_update_thread");
     //子线程 handler
@@ -186,7 +186,7 @@ public class AppMethodBeat implements BeatLifecycle {
     private static void realExecute() {
         MatrixLog.i(TAG, "[realExecute] timestamp:%s", System.currentTimeMillis());
 
-        //当前时间减去上一个 记录的时间
+        //当前时间减去上一个 记录的时间 (更新 sCurrentDiffTime)
         sCurrentDiffTime = SystemClock.uptimeMillis() - sDiffTime;
 
         //清空 sHandler 所有消息

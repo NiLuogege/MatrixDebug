@@ -77,7 +77,7 @@ public class MatrixHandlerThread {
     }
 
     public static HandlerThread getNewHandlerThread(String name) {
-        for (Iterator<HandlerThread> i = handlerThreads.iterator(); i.hasNext();) {
+        for (Iterator<HandlerThread> i = handlerThreads.iterator(); i.hasNext();) {//这是一个无限循环
             HandlerThread element = i.next();
             if (!element.isAlive()) {
                 i.remove();
