@@ -227,7 +227,7 @@ public class AppMethodBeat implements BeatLifecycle {
         LooperMonitor.register(looperMonitorListener);
     }
 
-    //这里 更新 sCurrentDiffTime 应该是为了提高时间戳的精度，因为这个方法调用不频繁，所以这里在这里做精度
+    //这里 更新 sCurrentDiffTime 是因为 dispatchEnd 调用后 ，sUpdateDiffTimeRunnable线程已经停止了更新时间所以这里要刷新时间。
     //而且 考虑到了 多线程的 情况，还是不错的。
     private static void dispatchBegin() {
         //更新 sCurrentDiffTime

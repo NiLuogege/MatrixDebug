@@ -37,6 +37,7 @@ public class TraceDataUtils {
      */
     public static void structuredDataToStack(long[] buffer, LinkedList<MethodItem> result, boolean isStrict, long endTime) {
         long lastInId = 0L;
+        //记录调用栈深度
         int depth = 0;
         //是个链表
         LinkedList<Long> rawData = new LinkedList<>();
@@ -79,7 +80,7 @@ public class TraceDataUtils {
                     int inMethodId;
                     LinkedList<Long> tmp = new LinkedList<>();
                     tmp.add(in);
-                    //如果  inMethodId 不能与 outMethodId
+                    //如果  inMethodId 不等于 outMethodId 调用深度建议
                     while ((inMethodId = getMethodId(in)) != outMethodId && !rawData.isEmpty()) {
                         MatrixLog.w(TAG, "pop inMethodId[%s] to continue match ouMethodId[%s]", inMethodId, outMethodId);
                         in = rawData.pop();
