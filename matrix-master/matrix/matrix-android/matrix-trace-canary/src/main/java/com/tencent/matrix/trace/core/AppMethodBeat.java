@@ -402,7 +402,7 @@ public class AppMethodBeat implements BeatLifecycle {
         }
     }
 
-    private static IndexRecord sIndexRecordHead = null;
+    private static IndexRecord sIndexRecordHead = null;//IndexRecord 链表的头
 
     /**
      * 创建一个链表的头，或者新建一个节点插入到链表的尾部
@@ -424,7 +424,7 @@ public class AppMethodBeat implements BeatLifecycle {
             IndexRecord last = null;
             while (record != null) {
                 Log.d(TAG, "indexRecord.index:" + indexRecord.index + " record.index= " + record.index);
-                if (indexRecord.index <= record.index) {
+                if (indexRecord.index <= record.index) {//遍历到最后一个节点??
                     if (null == last) {
                         IndexRecord tmp = sIndexRecordHead;
                         sIndexRecordHead = indexRecord;
