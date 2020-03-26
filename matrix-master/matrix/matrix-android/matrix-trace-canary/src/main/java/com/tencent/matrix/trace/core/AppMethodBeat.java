@@ -60,7 +60,7 @@ public class AppMethodBeat implements BeatLifecycle {
     private static final HashSet<IAppMethodBeatListener> listeners = new HashSet<>();
     private static final Object updateTimeLock = new Object();
     private static boolean isPauseUpdateTime = false;//是否暂停更新时间
-    private static Runnable checkStartExpiredRunnable = null;
+    private static Runnable checkStartExpiredRunnable = null; //检查 AppMethodBeat 当前状态的 runnable
     //可以监控到 massage的执行
     private static LooperMonitor.LooperDispatchListener looperMonitorListener = new LooperMonitor.LooperDispatchListener() {
         @Override
@@ -129,6 +129,7 @@ public class AppMethodBeat implements BeatLifecycle {
         synchronized (statusLock) {
             //如果没有启动 或者已经过期 则进行启动
             if (status < STATUS_STARTED && status >= STATUS_EXPIRED_START) {
+                //取消 启动过期 检查的 Runnable
                 sHandler.removeCallbacks(checkStartExpiredRunnable);
                 if (sBuffer == null) {
                     throw new RuntimeException(TAG + " sBuffer == null");
@@ -192,9 +193,12 @@ public class AppMethodBeat implements BeatLifecycle {
 
         //清空 sHandler 所有消息
         sHandler.removeCallbacksAndMessages(null);
-        //延迟5 ms 后执行 sUpdateDiffTimeRunnable
+        //延迟5 ms 后执行 sUpdateDiffTimeRunnable ,开始刷新  sCurrentDiffTime
         sHandler.postDelayed(sUpdateDiffTimeRunnable, Constants.TIME_UPDATE_CYCLE_MS);
-        //延迟15 ms 后执行 checkStartExpiredRunnable
+        //延迟15 ms 后执行 checkStartExpiredRunnable (检查 AppMethodBeat 当前状态的 runnable )
+        //也就是 在 realExecute 方法之后后 如果 15ms 内 AppMethodBeat 还没有被启动（onStart）
+        // 就将 AppMethodBeat的状态置为 STATUS_EXPIRED_START（启动过期）
+        // 启动过期 只是一种状态，并不会影响 AppMethodBeat 的运行
         sHandler.postDelayed(checkStartExpiredRunnable = new Runnable() {
             @Override
             public void run() {
