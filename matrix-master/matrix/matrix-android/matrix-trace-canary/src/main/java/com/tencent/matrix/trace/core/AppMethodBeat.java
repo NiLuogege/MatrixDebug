@@ -451,7 +451,7 @@ public class AppMethodBeat implements BeatLifecycle {
         }
     }
 
-    //这是在干啥 ，不太清楚
+    //处理堆积状态，也就是 处理 sBuffer装满后 数据被覆盖的情况
     private static void checkPileup(int index) {
         IndexRecord indexRecord = sIndexRecordHead;
         //因为在 hackSysHandlerCallback 中已经创建了一个 ApplicationCreateBeginMethodIndex的 IndexRecord 所以这里刚开始的时候不会为空
