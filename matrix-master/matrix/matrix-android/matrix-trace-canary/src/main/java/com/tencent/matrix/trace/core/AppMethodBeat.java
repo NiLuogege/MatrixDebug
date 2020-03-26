@@ -30,12 +30,21 @@ public class AppMethodBeat implements BeatLifecycle {
     private static final String TAG = "Matrix.AppMethodBeat";
     public static boolean isDev = false;
     private static AppMethodBeat sInstance = new AppMethodBeat();
+
+
+    //默认状态
     private static final int STATUS_DEFAULT = Integer.MAX_VALUE;
+    //调用onStart()后的状态
     private static final int STATUS_STARTED = 2; //启动
+    //第一次 执行 i 方法后的状态
     private static final int STATUS_READY = 1; // 准备好
+    //调用onStop()后的状态
     private static final int STATUS_STOPPED = -1; //停止
-    private static final int STATUS_EXPIRED_START = -2;// 已过期
+    //启动已过期 当 在 realExecute 方法之后后 如果 15ms 内 AppMethodBeat 还没有被启动（onStart）就会被置为这种状态
+    private static final int STATUS_EXPIRED_START = -2;
+    //在 AppMethodBeat 类加载 15s 后，还没有使用（status的状态还是STATUS_DEFAULT），就会被置为这种状态
     private static final int STATUS_OUT_RELEASE = -3;//已释放
+
 
     private static volatile int status = STATUS_DEFAULT;
     private final static Object statusLock = new Object();
