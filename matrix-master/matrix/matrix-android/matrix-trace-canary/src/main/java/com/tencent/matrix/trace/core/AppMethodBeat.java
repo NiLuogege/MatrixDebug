@@ -423,7 +423,7 @@ public class AppMethodBeat implements BeatLifecycle {
             IndexRecord record = sIndexRecordHead;
             IndexRecord last = null;
             while (record != null) {
-                Log.d(TAG, "indexRecord.index:" + indexRecord.index + " record.index= " + record.index);
+//                Log.d(TAG, "indexRecord.index:" + indexRecord.index + " record.index= " + record.index);
                 if (indexRecord.index <= record.index) {//遍历到最后一个节点??
                     if (null == last) {
                         IndexRecord tmp = sIndexRecordHead;

@@ -131,9 +131,9 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
 
 
     public void testANR(final View view) {
-       /* for (long i = 0; i < 1l; i++) {
+        for (long i = 0; i < 1l; i++) {
             testInnerSleep();
-        }*/
+        }
 
         evilMethod5(true);
     }
@@ -226,7 +226,7 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         return;
     }
 
-    class AssertionArrayException extends  Exception {
+    class AssertionArrayException extends Exception {
 
     }
 
