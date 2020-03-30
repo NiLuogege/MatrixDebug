@@ -53,6 +53,7 @@ task buildResourceCheckJar(type: Copy, dependsOn: [build, jar]) {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //依赖 matrix-resource-canary-common moudle
     implementation project(':matrix-resource-canary:matrix-resource-canary-common')
 
     implementation 'com.squareup.haha:haha:2.0.3'

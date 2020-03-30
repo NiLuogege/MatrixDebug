@@ -23,6 +23,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation 'junit:junit:4.12'
 
+    //依赖 matrix-resource-canary-common moudle
     implementation project(':matrix-resource-canary:matrix-resource-canary-common')
     implementation "com.tencent.tinker:tinker-ziputils:1.9.2"
     implementation project(':matrix-android-lib')
