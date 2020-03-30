@@ -32,6 +32,7 @@ public class EvilMethodTracer extends Tracer {
     private static final String TAG = "Matrix.EvilMethodTracer";
     private final TraceConfig config;
     private AppMethodBeat.IndexRecord indexRecord;
+    //记录各个Type 执行耗时
     private long[] queueTypeCosts = new long[3];
     private long evilThresholdMs;
     private boolean isEvilMethodTraceEnable;
@@ -46,6 +47,7 @@ public class EvilMethodTracer extends Tracer {
     public void onAlive() {
         super.onAlive();
         if (isEvilMethodTraceEnable) {
+            //添加 LooperObserver 监听
             UIThreadMonitor.getMonitor().addObserver(this);
         }
 
@@ -55,6 +57,7 @@ public class EvilMethodTracer extends Tracer {
     public void onDead() {
         super.onDead();
         if (isEvilMethodTraceEnable) {
+            //移除 LooperObserver 监听
             UIThreadMonitor.getMonitor().removeObserver(this);
         }
     }
@@ -63,6 +66,7 @@ public class EvilMethodTracer extends Tracer {
     @Override
     public void dispatchBegin(long beginMs, long cpuBeginMs, long token) {
         super.dispatchBegin(beginMs, cpuBeginMs, token);
+        //记录 "EvilMethodTracer#dispatchBegin" 类型的节点
         indexRecord = AppMethodBeat.getInstance().maskIndex("EvilMethodTracer#dispatchBegin");
     }
 
@@ -81,16 +85,19 @@ public class EvilMethodTracer extends Tracer {
         long start = config.isDevEnv() ? System.currentTimeMillis() : 0;
         try {
             long dispatchCost = endMs - beginMs;
-            if (dispatchCost >= evilThresholdMs) {
+            if (dispatchCost >= evilThresholdMs) {//Looper中一个loop的时间，耗时超过阈值
                 long[] data = AppMethodBeat.getInstance().copyData(indexRecord);
                 long[] queueCosts = new long[3];
                 System.arraycopy(queueTypeCosts, 0, queueCosts, 0, 3);
                 String scene = AppMethodBeat.getVisibleScene();
+                //子线程解析数据
                 MatrixHandlerThread.getDefaultHandler().post(new AnalyseTask(isForeground(), scene, data, queueCosts, cpuEndMs - cpuBeginMs, endMs - beginMs, endMs));
             }
         } finally {
+            //释放资源
             indexRecord.release();
             if (config.isDevEnv()) {
+                //计算主线程的cpu消耗程度
                 String usage = Utils.calculateCpuUsage(cpuEndMs - cpuBeginMs, endMs - beginMs);
                 MatrixLog.v(TAG, "[dispatchEnd] token:%s cost:%sms cpu:%sms usage:%s innerCost:%s",
                         token, endMs - beginMs, cpuEndMs - cpuBeginMs, usage, System.currentTimeMillis() - start);
@@ -111,6 +118,16 @@ public class EvilMethodTracer extends Tracer {
         String scene;
         boolean isForeground;
 
+        /**
+         *
+         * @param isForeground App是否处于前台
+         * @param scene 当前可见Activity名称
+         * @param data 从AppMethodBeat中截取的方法耗时数据
+         * @param queueCost 帧刷新时 记录各个Type 执行耗时
+         * @param cpuCost  主线程运行的毫秒数
+         * @param cost 任务总耗时
+         * @param endMs 任务（dispatch）的结束时间
+         */
         AnalyseTask(boolean isForeground, String scene, long[] data, long[] queueCost, long cpuCost, long cost, long endMs) {
             this.isForeground = isForeground;
             this.scene = scene;
@@ -125,10 +142,13 @@ public class EvilMethodTracer extends Tracer {
 
             // process
             int[] processStat = Utils.getProcessPriority(Process.myPid());
+            MatrixLog.d(TAG,"进程优先级= %s",processStat.toString());
             String usage = Utils.calculateCpuUsage(cpuCost, cost);
             LinkedList<MethodItem> stack = new LinkedList();
             if (data.length > 0) {
+                // 根据之前 data 查到的 methodId ，拿到对应插桩函数的执行时间、执行深度，将每个函数的信息封装成 MethodItem，然后存储到 stack 链表当中
                 TraceDataUtils.structuredDataToStack(data, stack, true, endMs);
+                //根据规则 裁剪 stack 中的数据，
                 TraceDataUtils.trimStack(stack, Constants.TARGET_EVIL_METHOD_STACK, new TraceDataUtils.IStructuredDataFilter() {
                     @Override
                     public boolean isFilter(long during, int filterCount) {
@@ -155,7 +175,9 @@ public class EvilMethodTracer extends Tracer {
 
             StringBuilder reportBuilder = new StringBuilder();
             StringBuilder logcatBuilder = new StringBuilder();
+            //获取最大的启动时间
             long stackCost = Math.max(cost, TraceDataUtils.stackToString(stack, reportBuilder, logcatBuilder));
+            //查询出最耗时的 方法id
             String stackKey = TraceDataUtils.getTreeKey(stack, stackCost);
 
             MatrixLog.w(TAG, "%s", printEvil(scene, processStat, isForeground, logcatBuilder, stack.size(), stackKey, usage, queueCost[0], queueCost[1], queueCost[2], cost)); // for logcat

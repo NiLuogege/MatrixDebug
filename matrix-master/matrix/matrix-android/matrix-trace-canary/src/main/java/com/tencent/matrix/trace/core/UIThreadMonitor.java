@@ -329,7 +329,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
             }
         }
 
-        //记录 当前线程时间
+        //记录 当前线程运行的毫秒数
         dispatchTimeMs[3] = SystemClock.currentThreadTimeMillis();
         // 记录 dispatch 的结束时间
         dispatchTimeMs[1] = SystemClock.uptimeMillis();

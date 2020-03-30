@@ -34,6 +34,12 @@ public class Utils {
         return t.toString();
     }
 
+    /**
+     * 计算cup使用程度 = 线程耗时 / 总耗时
+     * @param threadMs 线程耗时
+     * @param ms 总耗时
+     * @return
+     */
     public static String calculateCpuUsage(long threadMs, long ms) {
         if (threadMs <= 0) {
             return ms > 1000 ? "0%" : "100%";
@@ -50,11 +56,21 @@ public class Utils {
         return null == str || str.equals("");
     }
 
+    /**
+     * 获取进程优先级
+     *
+     * nice（静态优先级）：值越大说明抢占资源的能力越差，优先级越高
+     * priority（动态优先级）：值越小优先级越高
+     *
+     * @param pid 进程id
+     * @return
+     */
     public static int[] getProcessPriority(int pid) {
         String name = String.format("/proc/%s/stat", pid);
         int priority = Integer.MIN_VALUE;
         int nice = Integer.MAX_VALUE;
         try {
+            //获取文件内容
             String content = DeviceUtil.getStringFromFile(name).trim();
             String[] args = content.split(" ");
             if (args.length >= 19) {
