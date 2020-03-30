@@ -30,8 +30,8 @@ public class Constants {
     public static final int DEFAULT_EVIL_METHOD_THRESHOLD_MS = 700;//耗时函数阈值
     public static final int DEFAULT_FPS_TIME_SLICE_ALIVE_MS = 10 * 1000; //10s
     public static final int TIME_MILLIS_TO_NANO = 1000000;
-    public static final int DEFAULT_ANR = 5 * 1000;
-    public static final int DEFAULT_ANR_INVALID = 6 * 1000;
+    public static final int DEFAULT_ANR = 5 * 1000; //5s
+    public static final int DEFAULT_ANR_INVALID = 6 * 1000;//6s
 
     public static final int DEFAULT_DROPPED_NORMAL = 3;//一秒钟 掉帧 3帧 为 NORMAL
     public static final int DEFAULT_DROPPED_MIDDLE = 9;//一秒钟 掉帧 9帧 为 MIDDLE

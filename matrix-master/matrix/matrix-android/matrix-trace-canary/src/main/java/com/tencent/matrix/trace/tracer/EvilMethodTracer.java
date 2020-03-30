@@ -175,7 +175,7 @@ public class EvilMethodTracer extends Tracer {
 
             StringBuilder reportBuilder = new StringBuilder();
             StringBuilder logcatBuilder = new StringBuilder();
-            //获取最大的启动时间
+            //获取最大的耗时时间
             long stackCost = Math.max(cost, TraceDataUtils.stackToString(stack, reportBuilder, logcatBuilder));
             //查询出最耗时的 方法id
             String stackKey = TraceDataUtils.getTreeKey(stack, stackCost);

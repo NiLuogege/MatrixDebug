@@ -47,7 +47,9 @@ public class AnrTracer extends Tracer {
     public void onAlive() {
         super.onAlive();
         if (isAnrTraceEnable) {
+            //添加 LooperObserver 监听
             UIThreadMonitor.getMonitor().addObserver(this);
+            //子线程handler
             this.anrHandler = new Handler(MatrixHandlerThread.getDefaultHandler().getLooper());
         }
     }
@@ -56,10 +58,13 @@ public class AnrTracer extends Tracer {
     public void onDead() {
         super.onDead();
         if (isAnrTraceEnable) {
+            //移除 LooperObserver 监听
             UIThreadMonitor.getMonitor().removeObserver(this);
             if (null != anrTask) {
+                //释放 BeginRecord
                 anrTask.getBeginRecord().release();
             }
+            //anrHandler移除所有消息并退出
             anrHandler.removeCallbacksAndMessages(null);
             anrHandler.getLooper().quit();
         }
@@ -68,10 +73,12 @@ public class AnrTracer extends Tracer {
     @Override
     public void dispatchBegin(long beginMs, long cpuBeginMs, long token) {
         super.dispatchBegin(beginMs, cpuBeginMs, token);
+        //创建 AnrHandleTask
         anrTask = new AnrHandleTask(AppMethodBeat.getInstance().maskIndex("AnrTracer#dispatchBegin"), token);
         if (traceConfig.isDevEnv()) {
             MatrixLog.v(TAG, "* [dispatchBegin] token:%s index:%s", token, anrTask.beginRecord.index);
         }
+        //将anrTask加入到anrHandler的延时队列中，如果超过5s anrTask还没有被移除就会被执行
         anrHandler.postDelayed(anrTask, Constants.DEFAULT_ANR - (SystemClock.uptimeMillis() - token));
     }
 
@@ -91,6 +98,7 @@ public class AnrTracer extends Tracer {
                     token, endMs - beginMs, cpuEndMs - cpuBeginMs, Utils.calculateCpuUsage(cpuEndMs - cpuBeginMs, endMs - beginMs));
         }
         if (null != anrTask) {
+            //将anrTask从anrHandler的延时队列中移除
             anrTask.getBeginRecord().release();
             anrHandler.removeCallbacks(anrTask);
         }
@@ -105,6 +113,11 @@ public class AnrTracer extends Tracer {
             return beginRecord;
         }
 
+        /**
+         *
+         * @param record : "AnrTracer#dispatchBegin" 的 打点
+         * @param token ： dispatch开始时间
+         */
         AnrHandleTask(AppMethodBeat.IndexRecord record, long token) {
             this.beginRecord = record;
             this.token = token;
@@ -112,23 +125,29 @@ public class AnrTracer extends Tracer {
 
         @Override
         public void run() {
+            //当前时间
             long curTime = SystemClock.uptimeMillis();
+            //app 是否处于前台
             boolean isForeground = isForeground();
-            // process
+            // process 优先级
             int[] processStat = Utils.getProcessPriority(Process.myPid());
+            //获取需要分析的方法栈信息
             long[] data = AppMethodBeat.getInstance().copyData(beginRecord);
+            //释放 beginRecord
             beginRecord.release();
+            //当前可见activity
             String scene = AppMethodBeat.getVisibleScene();
 
             // memory
             long[] memoryInfo = dumpMemory();
 
-            // Thread state
+            // 线程状态
             Thread.State status = Looper.getMainLooper().getThread().getState();
+            //堆栈信息
             StackTraceElement[] stackTrace = Looper.getMainLooper().getThread().getStackTrace();
             String dumpStack = Utils.getStack(stackTrace, "|*\t\t", 12);
 
-            // frame
+            // 通过token（dispatchStart时间）获取不同Type 的耗费时间
             UIThreadMonitor monitor = UIThreadMonitor.getMonitor();
             long inputCost = monitor.getQueueCost(UIThreadMonitor.CALLBACK_INPUT, token);
             long animationCost = monitor.getQueueCost(UIThreadMonitor.CALLBACK_ANIMATION, token);
@@ -137,7 +156,9 @@ public class AnrTracer extends Tracer {
             // trace
             LinkedList<MethodItem> stack = new LinkedList();
             if (data.length > 0) {
+                // 根据之前 data 查到的 methodId ，拿到对应插桩函数的执行时间、执行深度，将每个函数的信息封装成 MethodItem，然后存储到 stack 链表当中
                 TraceDataUtils.structuredDataToStack(data, stack, true, curTime);
+                //根据规则 裁剪 stack 中的数据，
                 TraceDataUtils.trimStack(stack, Constants.TARGET_EVIL_METHOD_STACK, new TraceDataUtils.IStructuredDataFilter() {
                     @Override
                     public boolean isFilter(long during, int filterCount) {
@@ -163,14 +184,16 @@ public class AnrTracer extends Tracer {
 
             StringBuilder reportBuilder = new StringBuilder();
             StringBuilder logcatBuilder = new StringBuilder();
+            //获取最大的耗时时间
             long stackCost = Math.max(Constants.DEFAULT_ANR, TraceDataUtils.stackToString(stack, reportBuilder, logcatBuilder));
 
-            // stackKey
+            // 查询出最耗时的 方法id
             String stackKey = TraceDataUtils.getTreeKey(stack, stackCost);
             MatrixLog.w(TAG, "%s \npostTime:%s curTime:%s",
                     printAnr(scene, processStat, memoryInfo, status, logcatBuilder, isForeground, stack.size(),
                             stackKey, dumpStack, inputCost, animationCost, traversalCost, stackCost), token, curTime); // for logcat
 
+            //异常情况判断（当 AnrHandleTask 没有及时执行时会发生）
             if (stackCost >= Constants.DEFAULT_ANR_INVALID) {
                 MatrixLog.w(TAG, "The checked anr task was not executed on time. "
                         + "The possible reason is that the current process has a low priority. just pass this report");
