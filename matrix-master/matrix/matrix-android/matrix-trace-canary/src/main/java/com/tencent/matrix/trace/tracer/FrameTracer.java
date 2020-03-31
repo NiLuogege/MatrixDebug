@@ -103,7 +103,7 @@ public class FrameTracer extends Tracer {
      * @param visibleScene    当前Activity名
      * @param taskCostMs      整个任务耗时
      * @param frameCostMs     该帧耗时
-     * @param isContainsFrame 是否属于一帧
+     * @param isContainsFrame 是否是帧刷新
      */
     private void notifyListener(final String visibleScene, final long taskCostMs, final long frameCostMs, final boolean isContainsFrame) {
         long start = System.currentTimeMillis();
@@ -170,7 +170,7 @@ public class FrameTracer extends Tracer {
          * @param taskCost 整个任务耗时
          * @param frameCostMs 该帧耗时
          * @param droppedFrames 消耗帧数
-         * @param isContainsFrame 是否属于一帧
+         * @param isContainsFrame 是否属于帧刷新
          */
         @Override
         public void doFrameAsync(String visibleScene, long taskCost, long frameCostMs, int droppedFrames, boolean isContainsFrame) {
