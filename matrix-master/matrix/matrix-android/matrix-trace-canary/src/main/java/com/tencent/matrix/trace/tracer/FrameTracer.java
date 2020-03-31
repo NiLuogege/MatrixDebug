@@ -34,7 +34,7 @@ public class FrameTracer extends Tracer {
     private final HashSet<IDoFrameListener> listeners = new HashSet<>();
     private final long frameIntervalMs; //每帧间隔时间 一般就是16.7
     private final TraceConfig config; //配置
-    private long timeSliceMs;// fps 裁剪时间？用来干啥的还不太知道
+    private long timeSliceMs;// fps 的上报时间阈值
     private boolean isFPSEnable;//FPS 监控是否开启
     private long frozenThreshold; //一秒钟 掉帧 42帧 为 FROZEN
     private long highThreshold; //一秒钟 掉帧 24帧 为 HIGH
@@ -43,13 +43,19 @@ public class FrameTracer extends Tracer {
 
     public FrameTracer(TraceConfig config) {
         this.config = config;
-        //将纳秒转为毫秒
+        //每帧间隔时间 一般就是16.7
         this.frameIntervalMs = TimeUnit.MILLISECONDS.convert(UIThreadMonitor.getMonitor().getFrameIntervalNanos(), TimeUnit.NANOSECONDS) + 1;
+        //fps 的上报时间阈值
         this.timeSliceMs = config.getTimeSliceMs();
+        //FPS 监控是否开启
         this.isFPSEnable = config.isFPSEnable();
+        //一秒钟 掉帧 42帧 为 FROZEN
         this.frozenThreshold = config.getFrozenThreshold();
+        //一秒钟 掉帧 24帧 为 HIGH
         this.highThreshold = config.getHighThreshold();
+        //一秒钟 掉帧 3帧 为 NORMAL
         this.normalThreshold = config.getNormalThreshold();
+        //一秒钟 掉帧 9帧 为 MIDDLE
         this.middleThreshold = config.getMiddleThreshold();
 
         MatrixLog.i(TAG, "[init] frameIntervalMs:%s isFPSEnable:%s", frameIntervalMs, isFPSEnable);
