@@ -140,12 +140,14 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
                 return isAlive;
             }
 
+            //主线程Looper分发开始
             @Override
             public void dispatchStart() {
                 super.dispatchStart();
                 UIThreadMonitor.this.dispatchBegin();
             }
 
+            //主线程Looper分发结束
             @Override
             public void dispatchEnd() {
                 super.dispatchEnd();
@@ -199,6 +201,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
                 if (null != method) {
                     //反射执行 CallbackQueue 的 addCallbackLocked 方法 ，并将我们自己的 callback 添加到回到队列中,在一帧绘制完毕后
                     // 会回调当前类的run（）方法
+                    //添加监听以后 Choreographer 会回调这个监听，也就是说 开始刷新了。
                     method.invoke(callbackQueues[type], !isAddHeader ? SystemClock.uptimeMillis() : -1, callback, null);
                     callbackExist[type] = true;
                 }
@@ -286,6 +289,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     // 记录 帧结束
     private void doFrameEnd(long token) {
 
+        //记录 traversal 结束 时间
         doQueueEnd(CALLBACK_TRAVERSAL);//traversal 结束
 
         // 如果有 没有结束的回调 则报错
@@ -301,7 +305,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
         //重置 queueStatus
         queueStatus = new int[CALLBACK_LAST + 1];
 
-        //继续添加  input callback
+        //重新继续添加  input callback 等待下次帧刷新
         addFrameCallback(CALLBACK_INPUT, this, true);
 
         this.isBelongFrame = false;
@@ -311,6 +315,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
 
         //帧刷新结束
         if (isBelongFrame) {
+            //记录 帧刷新结束
             doFrameEnd(token);
         }
 
@@ -324,6 +329,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
             for (LooperObserver observer : observers) {
                 if (observer.isDispatchBegin()) {
                     //参数含义 在 LooperObserver接口中查询
+                    //回调帧来临
                     observer.doFrame(AppMethodBeat.getVisibleScene(), token, SystemClock.uptimeMillis(), isBelongFrame ? end - start : 0, queueCost[CALLBACK_INPUT], queueCost[CALLBACK_ANIMATION], queueCost[CALLBACK_TRAVERSAL]);
                 }
             }
@@ -388,6 +394,7 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
             }
             queueStatus = new int[CALLBACK_LAST + 1];
             queueCost = new long[CALLBACK_LAST + 1];
+            //添加帧监听 ，当帧刷新来临时会调用  本来 run() 方法，
             addFrameCallback(CALLBACK_INPUT, this, true);
         }
     }
@@ -396,23 +403,34 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
     public void run() {
         final long start = System.nanoTime();
         try {
+            //记录帧刷新开始
             doFrameBegin(token);
+            //记录 input 执行开始时间
             doQueueBegin(CALLBACK_INPUT);//input开始
 
+            //添加 ANIMATION 监听
             addFrameCallback(CALLBACK_ANIMATION, new Runnable() {
 
                 @Override
                 public void run() {
+                    //记录 input 结束时间
                     doQueueEnd(CALLBACK_INPUT);//input 结束
+
+                    //记录 ANIMATION 开始时间
                     doQueueBegin(CALLBACK_ANIMATION);//animation 开始
                 }
             }, true);
 
+            //添加 TRAVERSAL 监听
             addFrameCallback(CALLBACK_TRAVERSAL, new Runnable() {
 
                 @Override
                 public void run() {
-                    doQueueEnd(CALLBACK_ANIMATION);//animation 结束
+                    //记录 animation 结束时间
+                    doQueueEnd(CALLBACK_ANIMATION);
+
+                    //记录 traversal 开始时间
+                    // traversal 的结束时间 是在 dispatchEnd 方法中触发的
                     doQueueBegin(CALLBACK_TRAVERSAL);//traversal 开始
                 }
             }, true);

@@ -49,7 +49,7 @@ public class AppMethodBeat implements BeatLifecycle {
     private static volatile int status = STATUS_DEFAULT;
     private final static Object statusLock = new Object();
     public static MethodEnterListener sMethodEnterListener;
-    //long占用8byte 所以 sBuffer 占用内存大小为 8* BUFFER_SIZE(100 * 10000) =7.6
+    //long占用8byte 所以 sBuffer 占用内存大小为 8* BUFFER_SIZE(100 * 10000) =7.6 M
     private static long[] sBuffer = new long[Constants.BUFFER_SIZE];
     //将要向sBuffer 中插入元素 的下标
     private static int sIndex = 0;

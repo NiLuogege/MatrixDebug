@@ -58,6 +58,7 @@ public class LooperMonitor implements MessageQueue.IdleHandler {
         }
     }
 
+    //这玩意儿就是用于监听 主线程Looper工作的 ，用 Printer实现的
     private static final LooperMonitor mainMonitor = new LooperMonitor();
 
     static void register(LooperDispatchListener listener) {

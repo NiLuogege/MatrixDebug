@@ -35,6 +35,7 @@ class MatrixPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        //创建 extension
         project.extensions.create("matrix", MatrixExtension)
         project.matrix.extensions.create("trace", MatrixTraceExtension)
         project.matrix.extensions.create("removeUnusedResources", MatrixDelUnusedResConfiguration)
