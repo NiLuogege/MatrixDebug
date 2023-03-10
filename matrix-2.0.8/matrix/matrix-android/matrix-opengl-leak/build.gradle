@@ -1,0 +1,62 @@
+apply plugin: 'com.android.library'
+
+apply from: rootProject.file('gradle/WeChatNativeDepend.gradle')
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName rootProject.ext.VERSION_NAME
+
+        ndk {
+            abiFilters rootProject.ABI_FILTERS as String[]
+        }
+
+        externalNativeBuild {
+            cmake {
+                arguments = ['-DANDROID_STL=c++_shared', "-DEnableLOG=${gradle.enableLog() ? "ON" : "OFF"}" as String]
+            }
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+            java {
+                srcDir "src/main/java"
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            consumerProguardFiles 'proguard-rules.pro'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+}
+
+apply from: project.file('dependencies.gradle')
+
+group = rootProject.GROUP
+version = rootProject.VERSION_NAME
+
+if("External" == rootProject.ext.PUBLISH_CHANNEL) {
+    apply from: rootProject.file('gradle/android-publish.gradle')
+}
+else {
+    apply from: rootProject.file('gradle/WeChatPublish.gradle')
+    wechatPublish {
+        artifactId = POM_ARTIFACT_ID
+    }
+}

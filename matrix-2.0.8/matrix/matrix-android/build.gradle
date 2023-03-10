@@ -1,0 +1,114 @@
+buildscript {
+
+    repositories {
+
+        mavenLocal()
+        google()
+        mavenCentral()
+
+    }
+
+    gradle.ext.KOTLIN_VERSION = "1.4.32"
+
+    dependencies {
+        // classpath
+        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath 'digital.wup:android-maven-publish:3.6.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
+    }
+
+}
+
+Properties localProperties = new Properties()
+localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+def SigningFromLocalProperties(properties, project, String prop) {
+    if (properties.getProperty(prop)) {
+        project.ext[prop] = properties.getProperty(prop)
+    }
+}
+allprojects {
+    repositories {
+
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+
+    tasks.withType(Javadoc).all {
+        enabled = false // TODO:
+        options.setEncoding('UTF-8')
+    }
+
+    SigningFromLocalProperties(localProperties, project, 'REPOSITORY_USERNAME' as String)
+    SigningFromLocalProperties(localProperties, project, 'REPOSITORY_PASSWORD' as String)
+    SigningFromLocalProperties(localProperties, project, 'signing.keyId' as String)
+    SigningFromLocalProperties(localProperties, project, 'signing.password' as String)
+    SigningFromLocalProperties(localProperties, project, 'signing.secretKeyRingFile' as String)
+
+}
+
+
+ext {
+    // For android sub-projects
+    minSdkVersion = 19
+    targetSdkVersion = 29
+    compileSdkVersion = 31
+    buildToolsVersion = '29.0.2'
+
+    MIN_SDK_VERSION_FOR_HOOK = 21
+
+    VERSION_CODE = 1
+
+    javaVersion = JavaVersion.VERSION_1_8
+
+    GROUP = 'com.tencent.matrix'
+    VERSION_NAME = "${VERSION_NAME_PREFIX}${VERSION_NAME_SUFFIX}"
+    PUBLISH_CHANNEL = "${PUBLISH_CHANNEL}"
+
+    POM_PACKAGING = "pom"
+    POM_NAME = "Matrix for Android"
+    POM_DESCRIPTION = "Matrix is an APM (Application Performance Manage) used in Wechat to monitor, locate and analyse performance problems. It is a plugin style, non-invasive solution and is currently available on iOS, macOS and Android."
+
+    POM_URL = "https://github.com/Tencent/Matrix"
+    POM_SCM_URL = "https://github.com/Tencent/Matrix.git"
+    POM_SCM_COMMIT = ""
+    POM_ISSUE_URL = 'https://github.com/Tencent/Matrix/issues'
+
+    POM_LICENCE_NAME = "BSD License"
+    POM_LICENCE_URL = "https://opensource.org/licenses/BSD-3-Clause"
+    POM_LICENCE_DIST = "repo"
+
+    POM_DEVELOPER_ID = "Tencent Wechat"
+    POM_DEVELOPER_NAME = "Tencent Wechat, Inc."
+
+    BINTRAY_LICENCE = ['BSD 3-Clause']
+    BINTRAY_ORGANIZATION = "matrix"
+
+    ABI_FILTERS = ['armeabi-v7a', 'arm64-v8a']
+    LOGGER_VERSION = 1.1 // fixme logger
+
+    LIFECYCLE_VERSION = '2.3.1'
+}
+
+// Build sample project
+// TODO: Failed on Linux jenkins node, to be fixed later
+task buildSampleProject() {
+    group = "build"
+    doLast {
+        exec {
+            commandLine "${rootDir}/matrix-sample-android/gradlew", "--no-daemon", "-p", "${rootDir}/matrix-sample-android", "assembleRelease"
+        }
+    }
+}
+
+// Generate version.txt automatic
+task generateVersionTxt() {
+    doLast {
+        // Write down to version.txt
+        def file = new File("${buildDir}/outputs/version.txt")
+        file.createNewFile()
+        file.write(rootProject.ext.VERSION_NAME)
+    }
+}
+
+//apply from: file("gradle/bintray-to-maven-central.gradle")

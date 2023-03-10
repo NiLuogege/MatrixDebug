@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            style="@style/Container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            tools:ignore="HardcodedText">
+
+            <Button
+                android:id="@+id/test_trace"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Trace Canary" />
+
+            <TextView
+                style="@style/DescText"
+                android:text="Provide multiple functions like FPS monitor/ANR Catch/Method Tracing and other gadgets to detect some specific problems." />
+
+            <View style="@style/Divider" />
+
+            <Button
+                android:id="@+id/test_leak"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Resource Canary" />
+
+            <TextView
+                style="@style/DescText"
+                android:text="Test Resource canary need Enter and exit the page a few seconds later to get the issue result\nPS:Will only be published once, if you need to publish again, you need to restart the app." />
+
+            <View style="@style/Divider" />
+
+            <Button
+                android:id="@+id/test_hooks"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Matrix Hooks" />
+
+            <TextView
+                style="@style/DescText"
+                android:text="Include allocation hooks, pthread creation hooks and some other hack tools to mitigate 32 bit virtual memory address insufficiency." />
+
+            <View style="@style/Divider" />
+
+            <Button
+                android:id="@+id/test_battery"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Battery Canary" />
+
+            <TextView
+                style="@style/DescText"
+                android:text="Battery Canary detects abnormal usage of thread jiffies." />
+
+            <View style="@style/Divider" />
+
+            <Button
+                android:id="@+id/test_io"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="IO Canary" />
+
+            <Button
+                android:id="@+id/test_sqlite_lint"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SQLite Lint" />
+
+            <Button
+                android:id="@+id/test_traffic_enter"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Network Traffic" />
+
+            <Button
+                android:id="@+id/test_supervisor"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAllCaps="false"
+                android:onClick="testSupervisor"
+                android:text="Start Supervisor"
+                tools:ignore="UsingOnClickInXml" />
+
+            <Button
+                android:id="@+id/test_fg_service"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAllCaps="false"
+                android:onClick="testFgService"
+                android:text="test FgService"
+                tools:ignore="UsingOnClickInXml" />
+
+            <Button
+                android:id="@+id/test_overlay_window"
+                style="@style/EntryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAllCaps="false"
+                android:onClick="testOverlayWindow"
+                android:text="test Overlay Window"
+                tools:ignore="UsingOnClickInXml" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
