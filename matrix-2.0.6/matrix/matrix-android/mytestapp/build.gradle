@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.tencent.matrix-plugin'
 }
 
 android {
@@ -81,4 +82,12 @@ dependencies {
 //        implementation project( ':matrix-opengl-leak:cxx-static')
 //        implementation project( ':matrix-backtrace:cxx-static')
 //    }
+}
+
+matrix {
+    trace {
+        enable = true	//if you don't want to use trace canary, set false
+        baseMethodMapFile = "${project.buildDir}/matrix_output/Debug.methodmap"
+        blackListFile = "${project.projectDir}/matrixTrace/blackMethodList.txt"
+    }
 }
