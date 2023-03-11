@@ -22,7 +22,7 @@ import com.tencent.matrix.util.MatrixLog;
 
 import java.io.File;
 
-public class MyApp  extends Application {
+public class MyApp extends Application {
     private static final String TAG = "MyApp";
     private static Context sContext;
 
@@ -84,12 +84,15 @@ public class MyApp  extends Application {
         //ANR监控是否可用
         boolean signalAnrTraceEnable = dynamicConfig.isSignalAnrTraceEnable();
 
-        File traceFileDir = new File(getApplicationContext().getFilesDir(), "matrix_trace");
+        File traceFileDir = new File(getApplicationContext().getExternalCacheDir(), "matrix_trace");
         if (!traceFileDir.exists()) {
             if (traceFileDir.mkdirs()) {
                 MatrixLog.e(TAG, "failed to create traceFileDir");
             }
         }
+
+        MatrixLog.e(TAG, "traceFileDir=" + traceFileDir.getAbsolutePath());
+
 
         File anrTraceFile = new File(traceFileDir, "anr_trace");    // path : /data/user/0/sample.tencent.matrix/files/matrix_trace/anr_trace
         File printTraceFile = new File(traceFileDir, "print_trace");    // path : /data/user/0/sample.tencent.matrix/files/matrix_trace/print_trace
