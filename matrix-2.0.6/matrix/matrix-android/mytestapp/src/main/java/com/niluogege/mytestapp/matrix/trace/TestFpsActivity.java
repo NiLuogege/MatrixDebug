@@ -51,14 +51,12 @@ import java.util.concurrent.Executor;
 public class TestFpsActivity extends Activity {
     private static final String TAG = "Matrix.TestFpsActivity";
     private ListView mListView;
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
     private static HandlerThread sHandlerThread = new HandlerThread("test");
 
     static {
         sHandlerThread.start();
     }
 
-    private int count;
     private long time = System.currentTimeMillis();
     private IDoFrameListener mDoFrameListener = new IDoFrameListener(new Executor() {
         Handler handler = new Handler(sHandlerThread.getLooper());
@@ -86,7 +84,9 @@ public class TestFpsActivity extends Activity {
 
         IssueFilter.setCurrentFilter(IssueFilter.ISSUE_TRACE);
 
+        //开启监听
         Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().onStartTrace();
+        //注册帧率监听
         Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().addListener(mDoFrameListener);
 
         time = System.currentTimeMillis();
@@ -99,34 +99,21 @@ public class TestFpsActivity extends Activity {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 MatrixLog.i(TAG, "onTouch=" + motionEvent);
+                //每次滚动睡 80ms
                 SystemClock.sleep(80);
                 return false;
             }
         });
-        mListView.setAdapter(new ArrayAdapter(this, android.R.layout.simple_list_item_1, data) {
-            Random random = new Random();
-
-            @NonNull
-            @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-//                mainHandler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        int rand = random.nextInt(10);
-//                        SystemClock.sleep(rand * 4);
-//                    }
-//                });
-                return super.getView(position, convertView, parent);
-            }
-        });
+        mListView.setAdapter(new ArrayAdapter(this, android.R.layout.simple_list_item_1, data));
     }
 
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MatrixLog.i(TAG, "[onDestroy] count:" + count + " time:" + (System.currentTimeMillis() - time) + "");
+        //移除监听
         Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().removeListener(mDoFrameListener);
+        //关闭监听
         Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().onCloseTrace();
     }
 }
