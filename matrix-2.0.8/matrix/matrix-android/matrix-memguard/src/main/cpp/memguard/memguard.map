@@ -1,7 +1,0 @@
-memguard {
-    global:
-        JNI_OnLoad;
-        Java_*;
-    local:
-        *;
-};

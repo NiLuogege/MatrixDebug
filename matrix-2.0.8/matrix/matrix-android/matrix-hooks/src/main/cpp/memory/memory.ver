@@ -1,7 +1,0 @@
-{
-    global:
-        JNI_OnLoad;
-        JNI_OnUnload;
-        Java_*;
-        fake_*;
-};

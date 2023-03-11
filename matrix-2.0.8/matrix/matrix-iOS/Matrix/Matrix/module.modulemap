@@ -1,5 +1,0 @@
-framework module Matrix {
-    umbrella header "MatrixFramework.h"
-    export *
-    module * { export * }
-}

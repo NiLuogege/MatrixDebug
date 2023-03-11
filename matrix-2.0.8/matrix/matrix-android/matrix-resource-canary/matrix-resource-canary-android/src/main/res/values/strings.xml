@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">matrix-memory-canary</string>
-    <string name="resource_canary_wait_for_heapdump_message">Dumping heap snapshot...</string>
-    <string name="resource_canary_leak_tip">leak found! click to show detail</string>
-
-</resources>
