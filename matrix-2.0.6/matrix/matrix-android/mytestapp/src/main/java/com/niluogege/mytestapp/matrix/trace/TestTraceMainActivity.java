@@ -54,11 +54,14 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         setContentView(R.layout.test_trace);
         IssueFilter.setCurrentFilter(IssueFilter.ISSUE_TRACE);
 
+        //开启TracePlugin
         Plugin plugin = Matrix.with().getPluginByClass(TracePlugin.class);
         if (!plugin.isPluginStarted()) {
             MatrixLog.i(TAG, "plugin-trace start");
             plugin.start();
         }
+
+        //这个就是那个悬浮的帧显示器
         decorator = FrameDecorator.getInstance(this);
         if (!canDrawOverlays()) {
             requestWindowPermission();

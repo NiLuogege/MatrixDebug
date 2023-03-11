@@ -46,6 +46,8 @@ import java.util.concurrent.Executor;
 
 /**
  * Created by caichongyang on 2017/11/14.
+ *
+ * 这个demo主要是 教我们怎么去在Matrix框架下监听帧率
  */
 
 public class TestFpsActivity extends Activity {
