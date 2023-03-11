@@ -14,6 +14,10 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
+        }
     }
 
     buildTypes {
@@ -29,6 +33,8 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+
 }
 
 dependencies {
@@ -41,7 +47,46 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
-    implementation project(':matrix-android-lib')
-    implementation project(':matrix-android-commons')
-    implementation project(':matrix-resource-canary:matrix-resource-canary-android')
+
+
+
+// Components
+    implementation project( ':matrix-android-lib')
+    implementation project( ':matrix-android-commons')
+    implementation project( ':matrix-trace-canary')
+    implementation project( ':matrix-resource-canary:matrix-resource-canary-android')
+//    implementation project( ':matrix-commons')
+//    implementation project( ':matrix-resource-canary:matrix-resource-canary-common')
+//    implementation project( ':matrix-resource-canary:matrix-resource-canary-analyzer')
+//    implementation project( ':matrix-resource-canary:matrix-resource-canary-analyzer-cli')
+//    implementation project( ':matrix-apk-canary')
+//    implementation project( ':matrix-io-canary')
+//    implementation project( ':matrix-sqlite-lint:matrix-sqlite-lint-android-sdk')
+//    implementation project( ':matrix-battery-canary')
+//    implementation project( ':matrix-arscutil')
+//    implementation project( ':matrix-opengl-leak')
+//    implementation project( ':matrix-traffic')
+
+// Components for memory hook
+//    implementation project( ':matrix-backtrace')
+//    implementation project( ':matrix-hooks')
+//    implementation project( ':matrix-memguard')
+//    implementation project( ':matrix-jectl')
+//    implementation project( ':matrix-fd')
+//
+//// Benchmark
+//    implementation project( ':test:matrix-backtrace-benchmark')
+//
+//// TEST
+//    implementation project( ':test:test-backtrace')
+//    implementation project( ':test:test-memoryhook')
+//    implementation project( ':test:test-openglhook')
+//    implementation project( ':matrix-memory-canary')
+//
+//    if (gradle.staticLinkCXX()) {
+//        implementation project( ':matrix-hooks:cxx-static')
+//        implementation project( ':matrix-opengl-leak:cxx-static')
+//        implementation project( ':matrix-backtrace:cxx-static')
+//    }
+
 }
