@@ -48,8 +48,10 @@ dependencies {
     implementation project( ':matrix-resource-canary:matrix-resource-canary-common')
     implementation project( ':matrix-io-canary')
     implementation project( ':matrix-battery-canary')
+    implementation project( ':matrix-backtrace')
+
+    //下面这些打开可能会导致项目编译报错，所以先不打开
 //    implementation project( ':matrix-hooks')
-//    implementation project( ':matrix-backtrace')
 //    implementation project( ':matrix-sqlite-lint:matrix-sqlite-lint-android-sdk')
 
     //    implementation project( ':matrix-commons')
