@@ -7,7 +7,7 @@ import android.os.Build;
 
 import com.niluogege.mytestapp.matrix.battery.BatteryCanaryInitHelper;
 import com.niluogege.mytestapp.matrix.config.DynamicConfigImplDemo;
-import com.niluogege.mytestapp.matrix.config.TestPluginListener;
+import com.niluogege.mytestapp.matrix.listener.TestPluginListener;
 import com.niluogege.mytestapp.matrix.resource.ManualDumpActivity;
 import com.tencent.matrix.Matrix;
 import com.tencent.matrix.batterycanary.BatteryMonitorPlugin;
@@ -44,6 +44,7 @@ public class MyApp  extends Application {
         Matrix.Builder builder = new Matrix.Builder(this);
 
         // Reporter. Matrix will callback this listener when found issue then emitting it.
+//        builder.pluginListener(new TestPluginListener(this));
         builder.pluginListener(new TestPluginListener(this));
 
         // Configure trace canary.

@@ -47,6 +47,10 @@ public class TestEnterActivity extends Activity {
             data[i] = "MatrixTrace:" + i;
         }
         listView.setAdapter(new ArrayAdapter(this, android.R.layout.simple_list_item_1, data));
+        //这里延时了三秒 ，
+        // Matrix检测到耗时方法的话 如果是debug环境会在控制台输出日志 具体的代码位置是 EvilMethodTracer.analyse 方法中
+        // 如果用户配置了 pluginListener 监听则也会回到到监听的 onDetectIssue 方法中，
+        //对于 本项目而言就是 TestPluginListener ，他的处理是跳转到 IssuesListActivity中，它里面会显示本次app运行期间所有的上报信息
         SystemClock.sleep(3000);
     }
 }
