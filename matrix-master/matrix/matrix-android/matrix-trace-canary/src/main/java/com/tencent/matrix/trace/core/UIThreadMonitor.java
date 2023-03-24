@@ -330,7 +330,13 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
                 if (observer.isDispatchBegin()) {
                     //参数含义 在 LooperObserver接口中查询
                     //回调帧来临
-                    observer.doFrame(AppMethodBeat.getVisibleScene(), token, SystemClock.uptimeMillis(), isBelongFrame ? end - start : 0, queueCost[CALLBACK_INPUT], queueCost[CALLBACK_ANIMATION], queueCost[CALLBACK_TRAVERSAL]);
+                    observer.doFrame(AppMethodBeat.getVisibleScene(),
+                            token,
+                            SystemClock.uptimeMillis(),
+                            isBelongFrame ? end - start : 0,
+                            queueCost[CALLBACK_INPUT],
+                            queueCost[CALLBACK_ANIMATION],
+                            queueCost[CALLBACK_TRAVERSAL]);
                 }
             }
         }

@@ -22,7 +22,7 @@ public abstract class LooperObserver  {
      * @param focusedActivityName 当前activity的名字
      * @param start looper dispatch 的起始时间
      * @param end looper dispatch 的结束时间
-     * @param frameCostMs 该帧耗时
+     * @param frameCostMs 该帧总耗时
      * @param inputCostNs input 花费 时间
      * @param animationCostNs animation 花费 时间
      * @param traversalCostNs traversal 花费 时间

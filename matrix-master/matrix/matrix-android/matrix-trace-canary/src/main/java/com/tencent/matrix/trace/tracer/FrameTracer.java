@@ -101,8 +101,8 @@ public class FrameTracer extends Tracer {
 
     /**
      * @param visibleScene    当前Activity名
-     * @param taskCostMs      整个任务耗时
-     * @param frameCostMs     该帧耗时
+     * @param taskCostMs      这一帧在主线程looper中执行的时间 其实也就是这一帧花费的时间
+     * @param frameCostMs     该帧耗时 在Looper中的小时是帧刷新是  taskCostMs 其实是 等于 frameCostMs 的
      * @param isContainsFrame 是否是帧刷新
      */
     private void notifyListener(final String visibleScene, final long taskCostMs, final long frameCostMs, final boolean isContainsFrame) {
@@ -113,7 +113,7 @@ public class FrameTracer extends Tracer {
                     if (config.isDevEnv()) {
                         listener.time = SystemClock.uptimeMillis();
                     }
-                    //当前事件 消耗的帧数
+                    //当前事件 消耗的帧数 其实也就是掉帧数
                     final int dropFrame = (int) (taskCostMs / frameIntervalMs);
                     //同步 回调 doFrameSync 方法
                     listener.doFrameSync(visibleScene, taskCostMs, frameCostMs, dropFrame, isContainsFrame);
@@ -169,7 +169,7 @@ public class FrameTracer extends Tracer {
          * @param visibleScene 当前Activity名
          * @param taskCost 整个任务耗时
          * @param frameCostMs 该帧耗时
-         * @param droppedFrames 消耗帧数
+         * @param droppedFrames 消耗帧数 其实也就是掉帧数
          * @param isContainsFrame 是否属于帧刷新
          */
         @Override
