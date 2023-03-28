@@ -405,6 +405,10 @@ public class UIThreadMonitor implements BeatLifecycle, Runnable {
         }
     }
 
+    /**
+     *Choreographer 中监听到有帧刷新会回调这个run方法因为 我们插入的回调时Runnable类型，
+     * 具体为  addFrameCallback(CALLBACK_INPUT, this, true);
+     */
     @Override
     public void run() {
         final long start = System.nanoTime();
