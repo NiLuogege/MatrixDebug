@@ -244,14 +244,19 @@ public class ActivityRefWatcher extends FilePublisher implements Watcher, IAppFo
                 return Status.RETRY;
             }
 
+            //添加一个哨兵 ，如果这个哨兵被回收了那么其他的肯定会被回收
             final WeakReference<Object> sentinelRef = new WeakReference<>(new Object());
+            //请求gc
             triggerGc();
+            //sentinelRef.get() != null 说明系统没有进行gc
             if (sentinelRef.get() != null) {
                 // System ignored our gc request, we will retry later.
                 MatrixLog.d(TAG, "system ignore our gc request, wait for next detection.");
                 return Status.RETRY;
             }
 
+
+            //能走到这里 都说明了 系统gc过了，没被回收的就是内存泄漏的
             final Iterator<DestroyedActivityInfo> infoIt = mDestroyedActivityInfos.iterator();
 
             while (infoIt.hasNext()) {
@@ -261,6 +266,8 @@ public class ActivityRefWatcher extends FilePublisher implements Watcher, IAppFo
                     infoIt.remove();
                     continue;
                 }
+
+                //说明被回收了
                 if (destroyedActivityInfo.mActivityRef.get() == null) {
                     // The activity was recycled by a gc triggered outside.
                     MatrixLog.v(TAG, "activity with key [%s] was already recycled.", destroyedActivityInfo.mKey);

@@ -27,6 +27,8 @@ import android.os.Looper;
  * Some modification was done in order to executeInBackground task with fixed delay and support
  * custom HeapDumpHandler and HandlerThread support.
  * e.g. Some framework needs to wrap default handler class for monitoring.
+ *
+ * 这是通过 HandlerThread来进行 子线程检测，然后通过循环消息达到循环检测的目的。
  */
 
 public class RetryableTaskExecutor {
