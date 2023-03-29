@@ -273,6 +273,7 @@ public final class CLIMain {
 
             // Then do analyzing works and output into directory or zip according to the option. Besides,
             // store extra info into the result json by the way.
+            // 从 result.info 文件中拿到 hprof 文件、sdkVersion 等信息，接着开始分析
             analyzeAndStoreResult(tempHprofFile, sdkVersion, manufacturer, leakedActivityKey, extraInfo);
         } finally {
             if (tempHprofFile != null) {
@@ -287,9 +288,11 @@ public final class CLIMain {
                                               String leakedActivityKey, JSONObject extraInfo) throws IOException {
         final HeapSnapshot heapSnapshot = new HeapSnapshot(hprofFile);
         final ExcludedRefs excludedRefs = AndroidExcludedRefs.createAppDefaults(sdkVersion, manufacturer).build();
+        // 分析 Activity 内存泄漏
         final ActivityLeakResult activityLeakResult
                 = new ActivityLeakAnalyzer(leakedActivityKey, excludedRefs).analyze(heapSnapshot);
 
+        // 分析重复 Bitmap
         DuplicatedBitmapResult duplicatedBmpResult = DuplicatedBitmapResult.noDuplicatedBitmap(0);
         if (sdkVersion < 26) {
             final ExcludedBmps excludedBmps = AndroidExcludedBmpRefs.createDefaults().build();
@@ -363,6 +366,7 @@ public final class CLIMain {
             }
             PrintWriter resultJsonPW = null;
             try {
+                // 生成 result.json 文件并写入结果
                 final File resultJsonFile = new File(outputDir, resultJsonName);
                 resultJsonPW = new PrintWriter(new BufferedWriter(new FileWriter(resultJsonFile)));
                 final JSONObject resultJson = new JSONObject();
@@ -391,6 +395,7 @@ public final class CLIMain {
             }
             final List<DuplicatedBitmapEntry> duplicatedBmpEntries = duplicatedBmpResult.getDuplicatedBitmapEntries();
             final int duplicatedBmpEntryCount = duplicatedBmpEntries.size();
+            // 输出重复的 Bitmap 图像
             for (int i = 0; i < duplicatedBmpEntryCount; ++i) {
                 final DuplicatedBitmapEntry entry = duplicatedBmpEntries.get(i);
                 final BufferedImage img = BitmapDecoder.getBitmap(

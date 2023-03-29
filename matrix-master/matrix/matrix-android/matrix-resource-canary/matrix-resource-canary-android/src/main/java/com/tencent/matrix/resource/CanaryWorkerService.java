@@ -87,10 +87,12 @@ public class CanaryWorkerService extends MatrixJobIntentService {
         ZipOutputStream zos = null;
         try {
             long startTime = System.currentTimeMillis();
+            // 裁剪 hprof 文件
             new HprofBufferShrinker().shrink(hprofFile, shrinkedHProfFile);
             MatrixLog.i(TAG, "shrink hprof file %s, size: %dk to %s, size: %dk, use time:%d",
                     hprofFile.getPath(), hprofFile.length() / 1024, shrinkedHProfFile.getPath(), shrinkedHProfFile.length() / 1024, (System.currentTimeMillis() - startTime));
 
+            // 压缩裁剪后的 hprof 文件
             zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipResFile)));
 
             final ZipEntry resultInfoEntry = new ZipEntry("result.info");
@@ -110,11 +112,13 @@ public class CanaryWorkerService extends MatrixJobIntentService {
             copyFileToStream(shrinkedHProfFile, zos);
             zos.closeEntry();
 
+            // 删除旧文件
             shrinkedHProfFile.delete();
             hprofFile.delete();
 
             MatrixLog.i(TAG, "process hprof file use total time:%d", (System.currentTimeMillis() - startTime));
 
+            // 上报结果
             CanaryResultService.reportHprofResult(this, zipResFile.getAbsolutePath(), heapDump.getActivityName());
         } catch (IOException e) {
             MatrixLog.printErrStackTrace(TAG, e, "");
