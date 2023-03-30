@@ -393,7 +393,10 @@ public class HprofBufferShrinker {
                 public void visitHeapDumpPrimitiveArray(int tag, ID id, int stackId, int numElements, int typeId, byte[] elements) {
                     final ID deduplicatedID = mBmpBufferIdToDeduplicatedIdMap.get(id);
                     // Discard non-bitmap or duplicated bitmap buffer but keep reference key.
+                    // 为null的情况：不是buffer数据；或者是独一份的buffer数据
+                    // ID不相等的情况：buffer A与buffer B md5一致，但保留起来的是A，这里id却为B，因此B应该要被替换为A，B的数据要被删除
                     if (deduplicatedID == null || !id.equals(deduplicatedID)) {
+                        // 该id不是String value的id，也就是说字符串的文字应该得到保留
                         if (!mStringValueIds.contains(id)) {
                             return;
                         }

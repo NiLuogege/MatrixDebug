@@ -30,12 +30,19 @@ public final class ResourceConfig {
     public static final int FORK_DUMP_SUPPORTED_API_GUARD = 31; // Now is Android 12 (S).
 
     public enum DumpMode {
+        //直接对内存泄露阶段检测到的泄露项名称进行上报，不进行引用链的分析，自然就不需要dump hprof。
         NO_DUMP, // report only
+        //检测到内存泄露之后，先dump并到子进程中进行hprof文件裁剪，最后将泄露项名称、裁剪后的hprof等信息打成zip进行上报
         AUTO_DUMP, // auto dump hprof
+        //检测到内存泄露之后，发送通知。用户点击通知之后进行dump、分析。这里dump与分析都是发生在fork出来的进程中。
         MANUAL_DUMP, // notify only
+        //锁屏时进行dump、分析
         SILENCE_ANALYSE, // dump and analyse hprof when screen off
+        //fork出子进程，在子进程中进行dump，然后进行裁剪上报。
         FORK_DUMP, // fork dump hprof immediately
+        //先 fork dump，然后在fork出来的进程中进行分析。
         FORK_ANALYSE, // fork dump and analyse hprof immediately
+        //先 fork dump，然后在锁屏时进行分析。
         LAZY_FORK_ANALYZE, // fork dump immediately but analyze hprof until the screen is off
     }
 
