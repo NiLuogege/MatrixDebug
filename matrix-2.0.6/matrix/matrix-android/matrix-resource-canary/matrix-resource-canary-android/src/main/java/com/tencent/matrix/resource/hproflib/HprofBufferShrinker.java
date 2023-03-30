@@ -161,12 +161,20 @@ public class HprofBufferShrinker {
         }
     }
 
+    /**
+     * 进行裁剪
+     * @param hprofIn 源文件
+     * @param hprofOut 裁剪后的文件
+     * @throws IOException
+     */
     public void shrink(File hprofIn, File hprofOut) throws IOException {
         FileInputStream is = null;
         OutputStream os = null;
         try {
             is = new FileInputStream(hprofIn);
             os = new BufferedOutputStream(new FileOutputStream(hprofOut));
+
+            //通过访问者模式进行裁剪 类似于 AMS
             final HprofReader reader = new HprofReader(new BufferedInputStream(is));
             reader.accept(new HprofInfoCollectVisitor());
             // Reset.

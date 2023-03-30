@@ -296,6 +296,7 @@ public class ActivityRefWatcher extends FilePublisher implements Watcher {
                 }
 
                 triggerGc();
+                //对泄漏对象进行内存分析
                 if (mLeakProcessor.process(destroyedActivityInfo)) {
                     MatrixLog.i(TAG, "the leaked activity [%s] with key [%s] has been processed. stop polling", destroyedActivityInfo.mActivityName, destroyedActivityInfo.mKey);
                     infoIt.remove();

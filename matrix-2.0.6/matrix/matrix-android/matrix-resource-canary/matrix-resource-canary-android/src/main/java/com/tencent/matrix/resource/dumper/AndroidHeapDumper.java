@@ -59,6 +59,7 @@ public class AndroidHeapDumper {
         mMainHandler = mainHandler;
     }
 
+    //进行dumpHeap 操作 生成 .hprof 文件
     public File dumpHeap(boolean isShowToast) {
         final File hprofFile = mDumpStorageManager.newHprofFile();
 

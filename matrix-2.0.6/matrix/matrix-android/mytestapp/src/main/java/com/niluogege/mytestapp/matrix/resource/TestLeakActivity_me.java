@@ -49,6 +49,11 @@ public class TestLeakActivity_me extends Activity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        SharedPreferences sharedPreferences = getSharedPreferences("memory" + MatrixUtil.getProcessName(TestLeakActivity_me.this), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.commit();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test_leak);
         MyApp.linkActivity=this;

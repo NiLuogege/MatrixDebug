@@ -53,10 +53,16 @@ public class CanaryWorkerService extends MatrixJobIntentService {
     private static final String ACTION_SHRINK_HPROF = "com.tencent.matrix.resource.worker.action.SHRINK_HPROF";
     private static final String EXTRA_PARAM_HEAPDUMP = "com.tencent.matrix.resource.worker.param.HEAPDUMP";
 
+    /**
+     * @param heapDump 内部包含了 dump下来的内存快照和 泄漏的activity 类名
+     */
     public static void shrinkHprofAndReport(Context context, HeapDump heapDump) {
         final Intent intent = new Intent(context, CanaryWorkerService.class);
+        //代表要裁剪hprof文件
         intent.setAction(ACTION_SHRINK_HPROF);
         intent.putExtra(EXTRA_PARAM_HEAPDUMP, heapDump);
+        // 通过 CanaryWorkerService 来裁剪 .hprof 文件
+        // 这会通过 JobScheduler 进行后台任务进行执行  ,这里我们不用关心 JobScheduler ,只需要知道会执行 CanaryWorkerService.onHandleWork方法 就行
         enqueueWork(context, CanaryWorkerService.class, JOB_ID, intent);
     }
 
@@ -64,11 +70,14 @@ public class CanaryWorkerService extends MatrixJobIntentService {
     protected void onHandleWork(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
+            //代表要裁剪hprof文件
             if (ACTION_SHRINK_HPROF.equals(action)) {
                 try {
                     intent.setExtrasClassLoader(this.getClassLoader());
+                    //获取 HeapDump 对象
                     final HeapDump heapDump = (HeapDump) intent.getSerializableExtra(EXTRA_PARAM_HEAPDUMP);
                     if (heapDump != null) {
+                        //进行裁剪
                         doShrinkHprofAndReport(heapDump);
                     } else {
                         MatrixLog.e(TAG, "failed to deserialize heap dump, give up shrinking and reporting.");
@@ -81,13 +90,18 @@ public class CanaryWorkerService extends MatrixJobIntentService {
     }
 
     private void doShrinkHprofAndReport(HeapDump heapDump) {
+        //获取 .hprof 文件 的父文件夹
         final File hprofDir = heapDump.getHprofFile().getParentFile();
+        //创建裁剪后 .hprof 文件对象
         final File shrinkedHProfFile = new File(hprofDir, getShrinkHprofName(heapDump.getHprofFile()));
+        //创建 最终上报的压缩文件对象 路径 如：dump_result_10305_20230330152524.zip
         final File zipResFile = new File(hprofDir, getResultZipName("dump_result_" + android.os.Process.myPid()));
+        //获取原始 .hprof 文件
         final File hprofFile = heapDump.getHprofFile();
         ZipOutputStream zos = null;
         try {
             long startTime = System.currentTimeMillis();
+            //真正的进行裁剪，源文件是 hprofFile ，裁剪后的文件是 shrinkedHProfFile
             new HprofBufferShrinker().shrink(hprofFile, shrinkedHProfFile);
             MatrixLog.i(TAG, "shrink hprof file %s, size: %dk to %s, size: %dk, use time:%d",
                     hprofFile.getPath(), hprofFile.length() / 1024, shrinkedHProfFile.getPath(), shrinkedHProfFile.length() / 1024, (System.currentTimeMillis() - startTime));
@@ -124,6 +138,7 @@ public class CanaryWorkerService extends MatrixJobIntentService {
         }
     }
 
+    //创建裁剪后 .hprof 文件路径
     private String getShrinkHprofName(File origHprof) {
         final String origHprofName = origHprof.getName();
         final int extPos = origHprofName.indexOf(DumpStorageManager.HPROF_EXT);
@@ -131,6 +146,8 @@ public class CanaryWorkerService extends MatrixJobIntentService {
         return namePrefix + "_shrink" + DumpStorageManager.HPROF_EXT;
     }
 
+    //创建 最终上报的压缩文件 路径 如：
+    //dump_result_10305_20230330152524.zip
     private String getResultZipName(String prefix) {
         StringBuilder sb = new StringBuilder();
         sb.append(prefix).append('_')
