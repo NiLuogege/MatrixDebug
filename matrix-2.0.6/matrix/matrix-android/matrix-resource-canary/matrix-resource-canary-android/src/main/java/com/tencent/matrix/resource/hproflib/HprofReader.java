@@ -460,7 +460,7 @@ public class HprofReader {
     }
 
     /**
-     *
+     * 主要是描述一个对象
      *
      ID:object ID
      u4:stack trace serial number
@@ -473,6 +473,7 @@ public class HprofReader {
         final int stackId = IOUtil.readBEInt(mStreamIn);
         final ID typeId = IOUtil.readID(mStreamIn, mIdSize);
         final int remaining = IOUtil.readBEInt(mStreamIn);
+        //instanceData 就是这个类在内存中的具体内容
         final byte[] instanceData = new byte[remaining];
         IOUtil.readFully(mStreamIn, instanceData, 0, remaining);
         hdv.visitHeapDumpInstance(id, stackId, typeId, instanceData);

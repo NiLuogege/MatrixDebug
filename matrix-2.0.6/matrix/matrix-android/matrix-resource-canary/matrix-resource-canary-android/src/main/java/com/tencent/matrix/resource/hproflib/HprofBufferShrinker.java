@@ -62,7 +62,9 @@ public class HprofBufferShrinker {
     private ID mBitmapClassNameStringId    = null;
     //Bitmap class 对象 id
     private ID mBmpClassId                 = null;
+    //代表 mBuffer 字段
     private ID mMBufferFieldNameStringId   = null;
+    //代表 mRecycled 字段
     private ID mMRecycledFieldNameStringId = null;
 
     private ID mStringClassNameStringId = null;
@@ -72,7 +74,9 @@ public class HprofBufferShrinker {
 
     private int     mIdSize                    = 0;
     private ID      mNullBufferId              = null;
+    //Bitmap 类中成员变量集合
     private Field[] mBmpClassInstanceFields    = null;
+    //String 类中成员变量集合
     private Field[] mStringClassInstanceFields = null;
 
     public static boolean addExtraInfo(File shrinkResultFile, Properties properties) {
@@ -285,9 +289,11 @@ public class HprofBufferShrinker {
                 @Override
                 public void visitHeapDumpInstance(ID id, int stackId, ID typeId, byte[] instanceData) {
                     try {
+                        //当访问到的是一个 Bitmap对象
                         if (mBmpClassId != null && mBmpClassId.equals(typeId)) {
                             ID bufferId = null;
                             Boolean isRecycled = null;
+                            //将这个类的内容从 byte[] 转为 流
                             final ByteArrayInputStream bais = new ByteArrayInputStream(instanceData);
                             for (Field field : mBmpClassInstanceFields) {
                                 final ID fieldNameStringId = field.nameId;
@@ -296,8 +302,10 @@ public class HprofBufferShrinker {
                                     throw new IllegalStateException("visit bmp instance failed, lost type def of typeId: " + field.typeId);
                                 }
                                 if (mMBufferFieldNameStringId.equals(fieldNameStringId)) {
+                                    //获取mBuffer数组的 id
                                     bufferId = (ID) IOUtil.readValue(bais, fieldType, mIdSize);
                                 } else if (mMRecycledFieldNameStringId.equals(fieldNameStringId)) {
+                                    //获取 isRecycled 的值
                                     isRecycled = (Boolean) IOUtil.readValue(bais, fieldType, mIdSize);
                                 } else if (bufferId == null || isRecycled == null) {
                                     IOUtil.skipValue(bais, fieldType, mIdSize);
@@ -308,9 +316,12 @@ public class HprofBufferShrinker {
                             bais.close();
                             final boolean reguardAsNotRecycledBmp = (isRecycled == null || !isRecycled);
                             if (bufferId != null && reguardAsNotRecycledBmp && !bufferId.equals(mNullBufferId)) {
+                                //将需要对比的 buffer 数组手机起来，也就是需要对比这些Bitmap
                                 mBmpBufferIds.add(bufferId);
                             }
-                        } else if (mStringClassId != null && mStringClassId.equals(typeId)) {
+                        }
+                        //当访问到的是一个 String 对象
+                        else if (mStringClassId != null && mStringClassId.equals(typeId)) {
                             ID strValueId = null;
                             final ByteArrayInputStream bais = new ByteArrayInputStream(instanceData);
                             for (Field field : mStringClassInstanceFields) {
