@@ -175,12 +175,13 @@ public class HprofBufferShrinker {
             os = new BufferedOutputStream(new FileOutputStream(hprofOut));
 
             //通过访问者模式进行裁剪 类似于 AMS
+            //下面通过三个不同的 访问者 进行不同的操作
             final HprofReader reader = new HprofReader(new BufferedInputStream(is));
             reader.accept(new HprofInfoCollectVisitor());
-            // Reset.
+            // Reset. 对流进行重置
             is.getChannel().position(0);
             reader.accept(new HprofKeptBufferCollectVisitor());
-            // Reset.
+            // Reset. 对流进行重置
             is.getChannel().position(0);
             reader.accept(new HprofBufferShrinkVisitor(new HprofWriter(os)));
         } finally {
@@ -207,12 +208,14 @@ public class HprofBufferShrinker {
             super(null);
         }
 
+        //访问到了 header
         @Override
         public void visitHeader(String text, int idSize, long timestamp) {
             mIdSize = idSize;
             mNullBufferId = ID.createNullID(idSize);
         }
 
+        //访问到了 Record
         @Override
         public void visitStringRecord(ID id, String text, int timestamp, long length) {
             if (mBitmapClassNameStringId == null && "android.graphics.Bitmap".equals(text)) {
