@@ -27,6 +27,8 @@ import java.io.OutputStream;
 
 /**
  * Created by tangyinsheng on 2017/6/27.
+ *
+ * 这里会进行边读编写，然后将不需要的部分进行过滤
  */
 
 public class HprofWriter extends HprofVisitor {

@@ -106,11 +106,14 @@ public class CanaryWorkerService extends MatrixJobIntentService {
             MatrixLog.i(TAG, "shrink hprof file %s, size: %dk to %s, size: %dk, use time:%d",
                     hprofFile.getPath(), hprofFile.length() / 1024, shrinkedHProfFile.getPath(), shrinkedHProfFile.length() / 1024, (System.currentTimeMillis() - startTime));
 
+            //创建zip流
             zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipResFile)));
 
+            //创建信息文件
             final ZipEntry resultInfoEntry = new ZipEntry("result.info");
             final ZipEntry shrinkedHProfEntry = new ZipEntry(shrinkedHProfFile.getName());
 
+            //信息文件写入内容，并压缩到 压缩文件中
             zos.putNextEntry(resultInfoEntry);
             final PrintWriter pw = new PrintWriter(new OutputStreamWriter(zos, Charset.forName("UTF-8")));
             pw.println("# Resource Canary Result Infomation. THIS FILE IS IMPORTANT FOR THE ANALYZER !!");
@@ -130,6 +133,7 @@ public class CanaryWorkerService extends MatrixJobIntentService {
 
             MatrixLog.i(TAG, "process hprof file use total time:%d", (System.currentTimeMillis() - startTime));
 
+            //上报
             CanaryResultService.reportHprofResult(this, zipResFile.getAbsolutePath(), heapDump.getActivityName());
         } catch (IOException e) {
             MatrixLog.printErrStackTrace(TAG, e, "");

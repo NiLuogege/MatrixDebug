@@ -55,6 +55,7 @@ public class HprofBufferShrinker {
     private static final String PROPERTY_NAME = "extra.info";
 
     private final Set<ID>         mBmpBufferIds                   = new HashSet<>();
+    //保存原始数组数据
     private final Map<ID, byte[]> mBufferIdToElementDataMap       = new HashMap<>();
     private final Map<ID, ID>     mBmpBufferIdToDeduplicatedIdMap = new HashMap<>();
     private final Set<ID>         mStringValueIds                 = new HashSet<>();
@@ -187,9 +188,12 @@ public class HprofBufferShrinker {
             reader.accept(new HprofInfoCollectVisitor());
             // Reset. 对流进行重置
             is.getChannel().position(0);
+            //这里主要是收集 需要对比的Bitmap的 mBuffer byte数组 id ，和 String 的 value char数组 id
             reader.accept(new HprofKeptBufferCollectVisitor());
             // Reset. 对流进行重置
             is.getChannel().position(0);
+            //这里是进行裁剪，裁剪的是 PRIMITIVE ARRAY DUMP 这个区域，里面只保留String类型数据 和 为重复的图片数据。像一些int数组，Boolean数组都会被裁掉
+            //这里是边读别写
             reader.accept(new HprofBufferShrinkVisitor(new HprofWriter(os)));
         } finally {
             if (os != null) {
@@ -276,6 +280,10 @@ public class HprofBufferShrinker {
         }
     }
 
+    /**
+     * 这里主要是收集 需要对比的Bitmap的 mBuffer byte数组 id ，和 String 的 value char数组 id
+     * 并将重复Bitmap保存到 mBmpBufferIdToDeduplicatedIdMap 中
+     */
     private class HprofKeptBufferCollectVisitor extends HprofVisitor {
 
         HprofKeptBufferCollectVisitor() {
@@ -331,6 +339,7 @@ public class HprofBufferShrinker {
                                     throw new IllegalStateException("visit string instance failed, lost type def of typeId: " + field.typeId);
                                 }
                                 if (mValueFieldNameStringId.equals(fieldNameStringId)) {
+                                    //记录String对象的value成员变量
                                     strValueId = (ID) IOUtil.readValue(bais, fieldType, mIdSize);
                                 } else if (strValueId == null) {
                                     IOUtil.skipValue(bais, fieldType, mIdSize);
@@ -340,6 +349,7 @@ public class HprofBufferShrinker {
                             }
                             bais.close();
                             if (strValueId != null && !strValueId.equals(mNullBufferId)) {
+                                //将String保存起来
                                 mStringValueIds.add(strValueId);
                             }
                         }
@@ -350,6 +360,7 @@ public class HprofBufferShrinker {
 
                 @Override
                 public void visitHeapDumpPrimitiveArray(int tag, ID id, int stackId, int numElements, int typeId, byte[] elements) {
+                    //保存原始数组数据 ,这里面应该会有Bitmap的 mBuffer byte数组 和 String的value char数组
                     mBufferIdToElementDataMap.put(id, elements);
                 }
             };
@@ -357,21 +368,26 @@ public class HprofBufferShrinker {
 
         @Override
         public void visitEnd() {
+            //遍历原始数组
             final Set<Map.Entry<ID, byte[]>> idDataSet = mBufferIdToElementDataMap.entrySet();
             final Map<String, ID> duplicateBufferFilterMap = new HashMap<>();
             for (Map.Entry<ID, byte[]> idDataPair : idDataSet) {
                 final ID bufferId = idDataPair.getKey();
                 final byte[] elementData = idDataPair.getValue();
+                //说明要保存这个数据 跳过
                 if (!mBmpBufferIds.contains(bufferId)) {
                     // Discard non-bitmap buffer.
                     continue;
                 }
+                //对数据进行MD5 ，如果没保存过就添加到 duplicateBufferFilterMap 中
+                //如果保持过就说明有重复的图片了
                 final String buffMd5 = DigestUtil.getMD5String(elementData);
                 final ID mergedBufferId = duplicateBufferFilterMap.get(buffMd5);
                 if (mergedBufferId == null) {
                     duplicateBufferFilterMap.put(buffMd5, bufferId);
                 } else {
                     mBmpBufferIdToDeduplicatedIdMap.put(mergedBufferId, mergedBufferId);
+                    //这里就是有重复的图片了 ，将重复的数据替换成前一个
                     mBmpBufferIdToDeduplicatedIdMap.put(bufferId, mergedBufferId);
                 }
             }
@@ -389,9 +405,11 @@ public class HprofBufferShrinker {
         @Override
         public HprofHeapDumpVisitor visitHeapDumpRecord(int tag, int timestamp, long length) {
             return new HprofHeapDumpVisitor(super.visitHeapDumpRecord(tag, timestamp, length)) {
+                //当读到对象是会走这里
                 @Override
                 public void visitHeapDumpInstance(ID id, int stackId, ID typeId, byte[] instanceData) {
                     try {
+                        //如果是bitmap对象
                         if (typeId.equals(mBmpClassId)) {
                             ID bufferId = null;
                             int bufferIdPos = 0;
@@ -409,6 +427,7 @@ public class HprofBufferShrinker {
                                     bufferIdPos += IOUtil.skipValue(bais, fieldType, mIdSize);
                                 }
                             }
+                            //这里就在合并数据
                             if (bufferId != null) {
                                 final ID deduplicatedId = mBmpBufferIdToDeduplicatedIdMap.get(bufferId);
                                 if (deduplicatedId != null && !bufferId.equals(deduplicatedId) && !bufferId.equals(mNullBufferId)) {
@@ -428,6 +447,10 @@ public class HprofBufferShrinker {
                     bBuf.put(newId.getBytes());
                 }
 
+                /**
+                 * 这里就是在裁剪，只保留String类型数据 和 为重复的图片数据。
+                 * 像一些int数组，Boolean数组都会被裁掉
+                 */
                 @Override
                 public void visitHeapDumpPrimitiveArray(int tag, ID id, int stackId, int numElements, int typeId, byte[] elements) {
                     final ID deduplicatedID = mBmpBufferIdToDeduplicatedIdMap.get(id);
