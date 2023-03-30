@@ -20,7 +20,11 @@ public class AutoDumpProcessor extends BaseLeakProcessor {
 
     @Override
     public boolean process(DestroyedActivityInfo destroyedActivityInfo) {
+        // dumpHeap 文件
         final File hprofFile = getHeapDumper().dumpHeap(true);
+
+        MatrixLog.i(TAG, "class: " + destroyedActivityInfo.mActivityName + " 泄露了 文件地址为= " + hprofFile.getAbsolutePath());
+
         if (hprofFile != null) {
             getWatcher().markPublished(destroyedActivityInfo.mActivityName);
             getWatcher().triggerGc();
