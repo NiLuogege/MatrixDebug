@@ -60,11 +60,13 @@ public class HprofBufferShrinker {
     private final Set<ID>         mStringValueIds                 = new HashSet<>();
 
     private ID mBitmapClassNameStringId    = null;
+    //Bitmap class 对象 id
     private ID mBmpClassId                 = null;
     private ID mMBufferFieldNameStringId   = null;
     private ID mMRecycledFieldNameStringId = null;
 
     private ID mStringClassNameStringId = null;
+    //String class 对象 的id
     private ID mStringClassId           = null;
     private ID mValueFieldNameStringId  = null;
 
@@ -177,6 +179,7 @@ public class HprofBufferShrinker {
             //通过访问者模式进行裁剪 类似于 AMS
             //下面通过三个不同的 访问者 进行不同的操作
             final HprofReader reader = new HprofReader(new BufferedInputStream(is));
+            //这个visiter主要是收集信息，收集 Bitmap和String对象 并记录他们的成员变量 为下面做分析做准备
             reader.accept(new HprofInfoCollectVisitor());
             // Reset. 对流进行重置
             is.getChannel().position(0);
@@ -202,6 +205,9 @@ public class HprofBufferShrinker {
         }
     }
 
+    /**
+     * 这个visiter主要是收集信息，收集 Bitmap和String对象 并记录他们的成员变量 为下面做分析做准备
+     */
     private class HprofInfoCollectVisitor extends HprofVisitor {
 
         HprofInfoCollectVisitor() {
@@ -218,14 +224,19 @@ public class HprofBufferShrinker {
         //访问到了 Record
         @Override
         public void visitStringRecord(ID id, String text, int timestamp, long length) {
+            //记录 android.graphics.Bitmap 这个字符串的 id
             if (mBitmapClassNameStringId == null && "android.graphics.Bitmap".equals(text)) {
                 mBitmapClassNameStringId = id;
+            //    记录 mBuffer 这个字符串的 id
             } else if (mMBufferFieldNameStringId == null && "mBuffer".equals(text)) {
                 mMBufferFieldNameStringId = id;
+             //记录 mRecycled 这个字符串的 id
             } else if (mMRecycledFieldNameStringId == null && "mRecycled".equals(text)) {
                 mMRecycledFieldNameStringId = id;
+                //记录 java.lang.String 这个字符串的 id
             } else if (mStringClassNameStringId == null && "java.lang.String".equals(text)) {
                 mStringClassNameStringId = id;
+                //记录value 这个字符串的 id
             } else if (mValueFieldNameStringId == null && "value".equals(text)) {
                 mValueFieldNameStringId = id;
             }
@@ -233,9 +244,12 @@ public class HprofBufferShrinker {
 
         @Override
         public void visitLoadClassRecord(int serialNumber, ID classObjectId, int stackTraceSerial, ID classNameStringId, int timestamp, long length) {
+            //通过上面记录的 mBitmapClassNameStringId 定位到 Bitmap class对象的 id ,并记录下来 。这里就能感觉到字节码文件对象内存中只有一份
             if (mBmpClassId == null && mBitmapClassNameStringId != null && mBitmapClassNameStringId.equals(classNameStringId)) {
                 mBmpClassId = classObjectId;
-            } else if (mStringClassId == null && mStringClassNameStringId != null && mStringClassNameStringId.equals(classNameStringId)) {
+            }
+            //和Bitmap同理 记录 String class 对象 的id
+            else if (mStringClassId == null && mStringClassNameStringId != null && mStringClassNameStringId.equals(classNameStringId)) {
                 mStringClassId = classObjectId;
             }
         }
@@ -245,9 +259,12 @@ public class HprofBufferShrinker {
             return new HprofHeapDumpVisitor(null) {
                 @Override
                 public void visitHeapDumpClass(ID id, int stackSerialNumber, ID superClassId, ID classLoaderId, int instanceSize, Field[] staticFields, Field[] instanceFields) {
+                    //这里是找到 Bitmap对象 ，然后将它的成员变量记录起来, 可以看到这里mBmpClassInstanceFields只赋值一次也就是 我们只需要一份
                     if (mBmpClassInstanceFields == null && mBmpClassId != null && mBmpClassId.equals(id)) {
                         mBmpClassInstanceFields = instanceFields;
-                    } else if (mStringClassInstanceFields == null && mStringClassId != null && mStringClassId.equals(id)) {
+                    }
+                    //这里是找到 String对象 ，然后将它的成员变量记录起来, 可以看到这里 mStringClassInstanceFields 只赋值一次也就是 我们只需要一份
+                    else if (mStringClassInstanceFields == null && mStringClassId != null && mStringClassId.equals(id)) {
                         mStringClassInstanceFields = instanceFields;
                     }
                 }

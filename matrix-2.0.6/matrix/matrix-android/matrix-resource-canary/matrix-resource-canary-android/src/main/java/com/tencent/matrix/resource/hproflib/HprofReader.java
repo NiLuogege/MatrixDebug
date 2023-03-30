@@ -159,8 +159,8 @@ public class HprofReader {
         final ID classNameStringId = IOUtil.readID(mStreamIn, mIdSize);
         hv.visitLoadClassRecord(serialNumber, classObjectId, stackTraceSerial, classNameStringId, timestamp, length);
 
-        MatrixLog.i(TAG, "acceptRecord acceptLoadClassRecord serialNumber=%d ,classObjectId=%s, stackTraceSerial=%d, classNameStringId=%s",
-                serialNumber, classObjectId.toString(), stackTraceSerial, classNameStringId.toString());
+//        MatrixLog.i(TAG, "acceptRecord acceptLoadClassRecord serialNumber=%d ,classObjectId=%s, stackTraceSerial=%d, classNameStringId=%s",
+//                serialNumber, classObjectId.toString(), stackTraceSerial, classNameStringId.toString());
     }
 
     /**
@@ -181,8 +181,8 @@ public class HprofReader {
         final int serial = IOUtil.readBEInt(mStreamIn);
         final int lineNumber = IOUtil.readBEInt(mStreamIn);
         hv.visitStackFrameRecord(id, methodNameId, methodSignatureId, sourceFileId, serial, lineNumber, timestamp, length);
-        MatrixLog.i(TAG, "acceptRecord acceptStackFrameRecord id=%s ,methodNameId=%s, methodSignatureId=%s, sourceFileId=%s, serial=%d, lineNumber=%d",
-                id.toString(), methodNameId.toString(), methodSignatureId.toString(), sourceFileId.toString(), serial, lineNumber);
+//        MatrixLog.i(TAG, "acceptRecord acceptStackFrameRecord id=%s ,methodNameId=%s, methodSignatureId=%s, sourceFileId=%s, serial=%d, lineNumber=%d",
+//                id.toString(), methodNameId.toString(), methodSignatureId.toString(), sourceFileId.toString(), serial, lineNumber);
     }
 
     /**
@@ -202,8 +202,8 @@ public class HprofReader {
             frameIds[i] = IOUtil.readID(mStreamIn, mIdSize);
         }
         hv.visitStackTraceRecord(serialNumber, threadSerialNumber, frameIds, timestamp, length);
-        MatrixLog.i(TAG, "acceptRecord acceptStackTraceRecord serialNumber=%d ,threadSerialNumber=%d, numFrames=%d ，frameIds=" + frameIds,
-                serialNumber, threadSerialNumber, numFrames);
+//        MatrixLog.i(TAG, "acceptRecord acceptStackTraceRecord serialNumber=%d ,threadSerialNumber=%d, numFrames=%d ，frameIds=" + frameIds,
+//                serialNumber, threadSerialNumber, numFrames);
     }
 
     /**
@@ -399,19 +399,24 @@ public class HprofReader {
     }
 
     /**
-     * 这个格式太长了就不贴了
+     * 这个格式太长了就不贴了 ,不过这里很重要
+     *
+     * 这里标识的是一个类对象 在内存中标识，包含了静态变量，成员变量，继承关系 等等信息
      */
     private int acceptClassDump(HprofHeapDumpVisitor hdv) throws IOException {
         final ID id = IOUtil.readID(mStreamIn, mIdSize);
         final int stackSerialNumber = IOUtil.readBEInt(mStreamIn);
+        //父类 id
         final ID superClassId = IOUtil.readID(mStreamIn, mIdSize);
+        //class loader id
         final ID classLoaderId = IOUtil.readID(mStreamIn, mIdSize);
         IOUtil.skip(mStreamIn, (mIdSize << 2));
         final int instanceSize = IOUtil.readBEInt(mStreamIn);
 
         int bytesRead = (7 * mIdSize) + 4 + 4;
 
-        //  Skip over the constant pool
+
+        //  Skip over the constant pool  常量池直接跳过
         int numEntries = IOUtil.readBEShort(mStreamIn);
         bytesRead += 2;
         for (int i = 0; i < numEntries; ++i) {
@@ -419,7 +424,7 @@ public class HprofReader {
             bytesRead += 2 + skipValue();
         }
 
-        //  Static fields
+        //  Static fields Static field的个数
         numEntries = IOUtil.readBEShort(mStreamIn);
         Field[] staticFields = new Field[numEntries];
         bytesRead += 2;
@@ -435,17 +440,20 @@ public class HprofReader {
             bytesRead += mIdSize + 1 + type.getSize(mIdSize);
         }
 
-        //  Instance fields
+        //  Instance fields  Instance fields的 个数
         numEntries = IOUtil.readBEShort(mStreamIn);
         final Field[] instanceFields = new Field[numEntries];
         bytesRead += 2;
         for (int i = 0; i < numEntries; i++) {
+            //引用名称 ID
             final ID nameId = IOUtil.readID(mStreamIn, mIdSize);
+            //引用类型 ID
             final int typeId = mStreamIn.read();
             instanceFields[i] = new Field(typeId, nameId, null);
             bytesRead += mIdSize + 1;
         }
 
+        //上面会收集 这个类的所有信息，然后在调用这个方法
         hdv.visitHeapDumpClass(id, stackSerialNumber, superClassId, classLoaderId, instanceSize, staticFields, instanceFields);
 
         return bytesRead;
