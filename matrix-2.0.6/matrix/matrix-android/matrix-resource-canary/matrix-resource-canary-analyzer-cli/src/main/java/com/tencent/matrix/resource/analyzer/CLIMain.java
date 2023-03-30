@@ -409,6 +409,13 @@ public final class CLIMain {
         }
     }
 
+    /**
+     * 使用方式是 在运行时添加参数 指明输入文件和输出文件 ，
+     *  输入文件就是我们通过Matrix dump下来的压缩包
+     *  输出文件就是运行后结果存储的位置 如下：
+     *
+     * -i C:\Users\niluogege\Desktop\1\dump_result_31668_20230330140043.zip -o C:\Users\niluogege\Desktop\1\result.txt
+     */
     public static void main(String[] args) {
         if (args.length == 0) {
             printUsage(System.out);

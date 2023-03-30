@@ -20,9 +20,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 
+import com.niluogege.mytestapp.MyApp;
 import com.niluogege.mytestapp.R;
 import com.niluogege.mytestapp.matrix.issue.IssueFilter;
 import com.tencent.matrix.Matrix;
@@ -40,37 +43,18 @@ import java.util.Set;
  * Created by zhangshaowen on 17/6/13.
  */
 
-public class TestLeakActivity extends Activity {
-    private static final String TAG = "Matrix.TestLeakActivity";
-
-    private static Set<Activity> testLeaks = new HashSet<>();
+public class TestLeakActivity_me extends Activity {
 
     private static ArrayList<Bitmap> bitmaps = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences sharedPreferences = getSharedPreferences("memory" + MatrixUtil.getProcessName(TestLeakActivity.this), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
-        editor.commit();
-
-        testLeaks.add(this);
-        Plugin plugin = Matrix.with().getPluginByClass(ResourcePlugin.class);
-        if (!plugin.isPluginStarted()) {
-            MatrixLog.i(TAG, "plugin-resource start");
-            plugin.start();
-        }
-
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inSampleSize = 2;
-//        bitmaps.add(BitmapFactory.decodeResource(getResources(), R.drawable.welcome_bg, options));
-        MatrixLog.i(TAG, "test leak activity size: %d, bitmaps size: %d", testLeaks.size(), bitmaps.size());
-
         setContentView(R.layout.test_leak);
+        MyApp.linkActivity=this;
 
-        IssueFilter.setCurrentFilter(IssueFilter.ISSUE_LEAK);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 2;
+        bitmaps.add(BitmapFactory.decodeResource(getResources(), R.drawable.welcome_bg, options));
     }
-
-
 }

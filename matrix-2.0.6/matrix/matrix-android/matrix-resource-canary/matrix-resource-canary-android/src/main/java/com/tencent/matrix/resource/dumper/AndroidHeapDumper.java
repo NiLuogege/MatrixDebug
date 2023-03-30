@@ -78,6 +78,7 @@ public class AndroidHeapDumper {
             return null;
         }
 
+        //判断磁盘是否还有足够的空间来存储 dump出来的文件，这里判断的是至少还有 1.5个G 才进行dump
         if (hprofDir.getFreeSpace() < 1.5 * 1024 * 1024 * 1024) {
             MatrixLog.w(TAG, "hprof file path: %s free space not enough", hprofDir.getAbsolutePath());
             return null;
@@ -92,6 +93,7 @@ public class AndroidHeapDumper {
                 return null;
             }
             try {
+                //进行dump
                 Debug.dumpHprofData(hprofFile.getAbsolutePath());
                 cancelToast(waitingForToast.get());
                 return hprofFile;

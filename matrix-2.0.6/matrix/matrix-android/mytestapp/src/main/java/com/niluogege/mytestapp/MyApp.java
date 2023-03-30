@@ -1,5 +1,6 @@
 package com.niluogege.mytestapp;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import java.io.File;
 public class MyApp extends Application {
     private static final String TAG = "MyApp";
     private static Context sContext;
+    public static Activity linkActivity;
 
     @Override
     public void onCreate() {
@@ -67,10 +69,13 @@ public class MyApp extends Application {
         BatteryMonitorPlugin batteryMonitorPlugin = configureBatteryCanary();
         builder.plugin(batteryMonitorPlugin);
 
-        Matrix.init(builder.build());
+        Matrix matrix = Matrix.init(builder.build());
+//        matrix.startAllPlugins();
 
         // Trace Plugin need call start() at the beginning.
-        tracePlugin.start();
+        //todo 为了调试先不启动 tracePlugin
+//        tracePlugin.start();
+        resourcePlugin.start();
 
         MatrixLog.i(TAG, "Matrix configurations done.");
     }
@@ -137,7 +142,7 @@ public class MyApp extends Application {
 
     private ResourcePlugin configureResourcePlugin(DynamicConfigImplDemo dynamicConfig) {
         Intent intent = new Intent();
-        ResourceConfig.DumpMode mode = ResourceConfig.DumpMode.MANUAL_DUMP;
+        ResourceConfig.DumpMode mode = ResourceConfig.DumpMode.AUTO_DUMP;
         MatrixLog.i(TAG, "Dump Activity Leak Mode=%s", mode);
         intent.setClassName(this.getPackageName(), "com.tencent.mm.ui.matrix.ManualDumpActivity");
         ResourceConfig resourceConfig = new ResourceConfig.Builder()
@@ -145,6 +150,7 @@ public class MyApp extends Application {
                 .setAutoDumpHprofMode(mode)
                 .setManualDumpTargetActivity(ManualDumpActivity.class.getName())
                 .setManufacture(Build.MANUFACTURER)
+                .setDetectDebuger(true)//设置在debug环境可用
                 .build();
         ResourcePlugin.activityLeakFixer(this);
 

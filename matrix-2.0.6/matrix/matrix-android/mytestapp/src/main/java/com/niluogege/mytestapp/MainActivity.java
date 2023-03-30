@@ -34,6 +34,7 @@ import com.niluogege.mytestapp.matrix.battery.TestBatteryActivity;
 import com.niluogege.mytestapp.matrix.io.TestIOActivity;
 import com.niluogege.mytestapp.matrix.issue.IssuesMap;
 import com.niluogege.mytestapp.matrix.resource.TestLeakActivity;
+import com.niluogege.mytestapp.matrix.resource.TestLeakActivity_me;
 import com.niluogege.mytestapp.matrix.trace.TestTraceMainActivity;
 
 
@@ -73,7 +74,8 @@ public class MainActivity extends AppCompatActivity {
         testLeak.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TestLeakActivity.class);
+//                Intent intent = new Intent(MainActivity.this, TestLeakActivity.class);
+                Intent intent = new Intent(MainActivity.this, TestLeakActivity_me.class);
                 startActivity(intent);
             }
         });

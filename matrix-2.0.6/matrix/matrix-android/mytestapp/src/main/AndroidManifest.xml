@@ -33,6 +33,8 @@
         <activity
             android:name=".matrix.resource.TestLeakActivity"
             android:process=":leaktest" />
+        <activity
+            android:name=".matrix.resource.TestLeakActivity_me" />
         <activity android:name=".matrix.trace.TestTraceMainActivity" />
         <activity android:name=".matrix.trace.TestTraceFragmentActivity" />
         <activity android:name=".matrix.trace.TestEnterActivity" />
