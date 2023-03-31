@@ -174,7 +174,9 @@ public final class CLIMain {
         pw.flush();
     }
 
+    //获取 输入和输出参数
     private static void parseArguments(CommandLine cmdline) throws ParseException {
+        //获取到 -i 参数的值，也就是我们要分析的Matrix 生成的 dumpHprof 压缩文件
         final String inputPath = cmdline.getOptionValue(OPTION_INPUT.mOption.getLongOpt());
         mInputFile = new File(inputPath);
 
@@ -182,6 +184,7 @@ public final class CLIMain {
             mCompressOutput = true;
         }
 
+        //获取到 -o 参数的值，也就是我们分析的结果
         String outputPath = cmdline.getOptionValue(OPTION_OUTPUT.mOption.getLongOpt());
         if (mCompressOutput && !outputPath.endsWith(".zip") && !outputPath.endsWith(".jar")) {
             outputPath += ".zip";
@@ -194,16 +197,30 @@ public final class CLIMain {
         }
     }
 
+    //进行分析
     private static void doAnalyze() throws IOException {
         ZipFile zf = null;
         BufferedReader br = null;
         File tempHprofFile = null;
         try {
+            //输入文件读到内存中
             zf = new ZipFile(mInputFile);
+            //输入文件的一部分
             final ZipEntry canaryResultInfoEntry = new ZipEntry("result.info");
+            //用于存储 result.info 中信息的 key value 映射关系
             final Map<String, String> resultInfoMap = new HashMap<>();
             br = new BufferedReader(new InputStreamReader(zf.getInputStream(canaryResultInfoEntry)));
             String confLine = null;
+            /**
+             * 这里是读取 result.info 文件中的数据 ，主要包含了系统版本好，手机品牌，泄漏点，.hprof文件名称。如下
+             *
+             *  # Resource Canary Result Infomation. THIS FILE IS IMPORTANT FOR THE ANALYZER !!
+             *  sdkVersion=29
+             *  manufacturer=HUAWEI
+             *  hprofEntry=dump_com_niluogege_mytestapp_10077_20230330152522_shrink.hprof
+             *  leakedActivityKey=MATRIX_RESCANARY_REFKEY_com.niluogege.mytestapp.matrix.resource.TestLeakActivity_me_ee425cf9a45b43edb367794ad4e83e3b
+             */
+
             while ((confLine = br.readLine()) != null) {
                 if (confLine.startsWith("#")) {
                     // Skip comment.
@@ -219,33 +236,40 @@ public final class CLIMain {
                 resultInfoMap.put(key, value);
             }
 
+            //获取 result.info 文件中记录的 版本号
             final String sdkVersionStr = resultInfoMap.get("sdkVersion");
             if (sdkVersionStr == null) {
                 throw new IllegalStateException("sdkVersion is absent in result.info.");
             }
             final int sdkVersion = Integer.parseInt(sdkVersionStr);
 
+            //获取 result.info 文件中记录的 手机品牌
             final String manufacturer = resultInfoMap.get("manufacturer");
             if (manufacturer == null) {
                 throw new IllegalStateException("manufacturer is absent in result.info.");
             }
 
+            //获取 result.info 文件中记录的 .hprof 文件名称
             final String hprofEntryName = resultInfoMap.get("hprofEntry");
             if (hprofEntryName == null) {
                 throw new IllegalStateException("hprofEntry is absent in result.info.");
             }
             final ZipEntry hprofEntry = new ZipEntry(hprofEntryName);
 
+            //获取 result.info 文件中记录的 泄漏点
             final String leakedActivityKey = resultInfoMap.get("leakedActivityKey");
             if (leakedActivityKey == null) {
                 throw new IllegalStateException("leakedActivityKey is absent in result.info.");
             }
 
             // We would extract hprof entry into a temporary file.
+            //创建一个临时文件用于存储 压缩文件中的 .hprof 文件
             tempHprofFile = new File(new File("").getAbsoluteFile(), "temp_" + System.currentTimeMillis() + ".hprof");
+            //解压到临时文件中
             StreamUtil.extractZipEntry(zf, hprofEntry, tempHprofFile);
 
             // Parse extra info if exists.
+            //解析额外信息文件 ，一般是不存在的
             final JSONObject extraInfo = new JSONObject();
             final ZipEntry extraInfoEntry = zf.getEntry(EXTRA_INFO_NAME);
             if (extraInfoEntry != null) {
@@ -273,6 +297,7 @@ public final class CLIMain {
 
             // Then do analyzing works and output into directory or zip according to the option. Besides,
             // store extra info into the result json by the way.
+            //开始分析
             analyzeAndStoreResult(tempHprofFile, sdkVersion, manufacturer, leakedActivityKey, extraInfo);
         } finally {
             if (tempHprofFile != null) {
@@ -283,6 +308,15 @@ public final class CLIMain {
         }
     }
 
+    /**
+     * 真正的开始分析了
+     * @param hprofFile 解压后的 .hprof文件
+     * @param sdkVersion 内存泄漏的系统版本号
+     * @param manufacturer 内存泄漏的品牌
+     * @param leakedActivityKey 泄漏点
+     * @param extraInfo 额外信息，一般没有
+     * @throws IOException
+     */
     private static void analyzeAndStoreResult(File hprofFile, int sdkVersion, String manufacturer,
                                               String leakedActivityKey, JSONObject extraInfo) throws IOException {
         final HeapSnapshot heapSnapshot = new HeapSnapshot(hprofFile);
@@ -423,13 +457,15 @@ public final class CLIMain {
         }
         try {
             final CommandLine cmdline = new DefaultParser().parse(sOptions, args);
-            if (cmdline.hasOption(OPTION_HELP.mOption.getLongOpt())) {
+            if (cmdline.hasOption(OPTION_HELP.mOption.getLongOpt())) {//输入了 -h
                 printUsage(System.out);
                 System.exit(ERROR_SUCCESS);
             }
 
+            //解析传进来的参数
             parseArguments(cmdline);
 
+            //进行分析
             doAnalyze();
 
             System.exit(ERROR_SUCCESS);
