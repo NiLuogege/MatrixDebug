@@ -231,6 +231,7 @@ public final class ShortestPathFinder {
     public Result findPath(Snapshot snapshot, Instance targetReference) {
         final List<Instance> targetRefList = new ArrayList<>();
         targetRefList.add(targetReference);
+        //调用 重载方法 进行查找
         final Map<Instance, Result> results = findPath(snapshot, targetRefList);
         if (results == null || results.isEmpty()) {
             return new Result(null, false);
@@ -238,7 +239,12 @@ public final class ShortestPathFinder {
             return results.get(targetReference);
         }
     }
-
+    /**
+     * 查找最短引用链
+     * @param snapshot
+     * @param targetReferences
+     * @return
+     */
     public Map<Instance, Result> findPath(Snapshot snapshot, Collection<Instance> targetReferences) {
         final Map<Instance, Result> results = new HashMap<>();
 
@@ -246,9 +252,11 @@ public final class ShortestPathFinder {
             return results;
         }
 
+        //重置状态
         clearState();
         enqueueGcRoots(snapshot);
 
+        //是否可以忽略String
         canIgnoreStrings = true;
         for (Instance targetReference : targetReferences) {
             if (isString(targetReference)) {
@@ -306,6 +314,10 @@ public final class ShortestPathFinder {
         visitedSet.clear();
     }
 
+    /**
+     * 将需要分析的Gc root 加入到
+     * @param snapshot
+     */
     private void enqueueGcRoots(Snapshot snapshot) {
         for (RootObj rootObj : snapshot.getGCRoots()) {
             switch (rootObj.getRootType()) {
@@ -455,6 +467,14 @@ public final class ShortestPathFinder {
         }
     }
 
+    /**
+     *
+     * @param exclusion
+     * @param parent
+     * @param child 子引用
+     * @param referenceName
+     * @param referenceType
+     */
     private void enqueue(Exclusion exclusion, ReferenceNode parent, Instance child, String referenceName,
                          ReferenceTraceElement.Type referenceType) {
         if (child == null) {
