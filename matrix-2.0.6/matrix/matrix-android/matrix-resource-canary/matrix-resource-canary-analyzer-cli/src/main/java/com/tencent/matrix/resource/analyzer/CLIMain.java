@@ -327,6 +327,7 @@ public final class CLIMain {
         final ActivityLeakResult activityLeakResult
                 = new ActivityLeakAnalyzer(leakedActivityKey, excludedRefs).analyze(heapSnapshot);
 
+
         DuplicatedBitmapResult duplicatedBmpResult = DuplicatedBitmapResult.noDuplicatedBitmap(0);
         if (sdkVersion < 26) {
             final ExcludedBmps excludedBmps = AndroidExcludedBmpRefs.createDefaults().build();

@@ -59,7 +59,7 @@ public class ActivityLeakAnalyzer implements HeapSnapshotAnalyzer<ActivityLeakRe
     }
 
     /**
-     * 开始进行分析
+     * 开始进行分析 ，并返回泄漏链
      */
     @Override
     public ActivityLeakResult analyze(HeapSnapshot heapSnapshot) {
@@ -71,7 +71,7 @@ public class ActivityLeakAnalyzer implements HeapSnapshotAnalyzer<ActivityLeakRe
      * and then computes the shortest strong reference path from the leaked activity that instance holds
      * to the GC roots.
      *
-     * 通过 refKey 查找到 它对应的 DestroyedActivityInfo
+     * 通过 refKey 查找到 它对应的 DestroyedActivityInfo 并返回引用链
      */
     private ActivityLeakResult checkForLeak(HeapSnapshot heapSnapshot, String refKey) {
         long analysisStartNanoTime = System.nanoTime();
@@ -88,7 +88,7 @@ public class ActivityLeakAnalyzer implements HeapSnapshotAnalyzer<ActivityLeakRe
                 return ActivityLeakResult.noLeak(AnalyzeUtil.since(analysisStartNanoTime));
             }
 
-            //查找最短引用
+            //查找最短引用 ，并返回结果
             return findLeakTrace(analysisStartNanoTime, snapshot, leakingRef);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -152,15 +152,18 @@ public class ActivityLeakAnalyzer implements HeapSnapshotAnalyzer<ActivityLeakRe
         ShortestPathFinder.Result result = pathFinder.findPath(snapshot, leakingRef);
 
         // False alarm, no strong reference path to GC Roots.
+        //异常流程不用太关心
         if (result.referenceChainHead == null) {
             return ActivityLeakResult.noLeak(AnalyzeUtil.since(analysisStartNanoTime));
         }
 
+        //构建引用链
         final ReferenceChain referenceChain = result.buildReferenceChain();
         final String className = leakingRef.getClassObj().getClassName();
         if (result.excludingKnown || referenceChain.isEmpty()) {
             return ActivityLeakResult.noLeak(AnalyzeUtil.since(analysisStartNanoTime));
         } else {
+            //返回泄漏点引用链 查找结果
             return ActivityLeakResult.leakDetected(false, className, referenceChain,
                     AnalyzeUtil.since(analysisStartNanoTime));
         }

@@ -90,6 +90,7 @@ public final class ShortestPathFinder {
     }
 
     public static final class Result {
+        //引用链的头结点
         public final ReferenceNode referenceChainHead;
         public final boolean excludingKnown;
 
@@ -98,6 +99,7 @@ public final class ShortestPathFinder {
             this.excludingKnown = excludingKnown;
         }
 
+        //构建引用链
         public ReferenceChain buildReferenceChain() {
             List<ReferenceTraceElement> elements = new ArrayList<>();
             // We iterate from the leak to the GC root
@@ -225,7 +227,7 @@ public final class ShortestPathFinder {
     /**
      * 查找最短引用链
      * @param snapshot
-     * @param targetReference
+     * @param targetReference 泄漏的Activity的 Instance 对象
      * @return
      */
     public Result findPath(Snapshot snapshot, Instance targetReference) {
@@ -240,9 +242,12 @@ public final class ShortestPathFinder {
         }
     }
     /**
-     * 查找最短引用链
+     * 查找最短引用链 ，核心思想是
+     * 通过所有的Gcroot开始查找 泄漏点 ，直到找到泄漏位置
+     *
+     *
      * @param snapshot
-     * @param targetReferences
+     * @param targetReferences 一般只有一个泄漏的Activity的 Instance 对象
      * @return
      */
     public Map<Instance, Result> findPath(Snapshot snapshot, Collection<Instance> targetReferences) {
@@ -254,11 +259,13 @@ public final class ShortestPathFinder {
 
         //重置状态
         clearState();
+        //将gcroot 添加到 引用链集合中
         enqueueGcRoots(snapshot);
 
-        //是否可以忽略String
+        //是否可以忽略String，一般都是可以忽略的
         canIgnoreStrings = true;
         for (Instance targetReference : targetReferences) {
+            //如果泄漏点是String 则不忽略String类型 ，一般泄漏点都不是String
             if (isString(targetReference)) {
                 canIgnoreStrings = false;
                 break;
@@ -269,7 +276,9 @@ public final class ShortestPathFinder {
 
         while (!toVisitQueue.isEmpty() || !toVisitIfNoPathQueue.isEmpty()) {
             ReferenceNode node;
+            //拿到一个引用，第一次取的话就是GCRoot
             if (!toVisitQueue.isEmpty()) {
+                //从队列头取出一个
                 node = toVisitQueue.poll();
             } else {
                 node = toVisitIfNoPathQueue.poll();
@@ -279,25 +288,30 @@ public final class ShortestPathFinder {
             }
 
             // Termination
+            // 引用链已经触及到 泄漏点了，可以终止了
             if (targetRefSet.contains(node.instance)) {
+                //找到了 泄漏点，这个已经保存了整个引用链了
                 results.put(node.instance, new Result(node, node.exclusion != null));
+                //删除泄漏点
                 targetRefSet.remove(node.instance);
                 if (targetRefSet.isEmpty()) {
                     break;
                 }
             }
 
+            //避免重复记录
             if (checkSeen(node)) {
                 continue;
             }
 
-            if (node.instance instanceof RootObj) {
+
+            if (node.instance instanceof RootObj) {//处理 gcRoot
                 visitRootObj(node);
-            } else if (node.instance instanceof ClassObj) {
+            } else if (node.instance instanceof ClassObj) {//处理字节码对象
                 visitClassObj(node);
-            } else if (node.instance instanceof ClassInstance) {
+            } else if (node.instance instanceof ClassInstance) {//处理类实例对象
                 visitClassInstance(node);
-            } else if (node.instance instanceof ArrayInstance) {
+            } else if (node.instance instanceof ArrayInstance) {//处理数组对象
                 visitArrayInstance(node);
             } else {
                 throw new IllegalStateException("Unexpected type for " + node.instance);
@@ -315,7 +329,7 @@ public final class ShortestPathFinder {
     }
 
     /**
-     * 将需要分析的Gc root 加入到
+     * 将需要分析的Gc root 加入到 引用链集合中
      * @param snapshot
      */
     private void enqueueGcRoots(Snapshot snapshot) {
@@ -337,6 +351,7 @@ public final class ShortestPathFinder {
                 case UNKNOWN:
                     // An object that is in a queue, waiting for a finalizer to run.
                 case FINALIZING:
+                    //上面这些不做分析
                     break;
                 case SYSTEM_CLASS:
                 case VM_INTERNAL:
@@ -353,6 +368,7 @@ public final class ShortestPathFinder {
                     // Input or output parameters in native code.
                 case NATIVE_STACK:
                 case JAVA_STATIC:
+                    //上面这些 直接加入到队列
                     enqueue(null, null, rootObj, null, null);
                     break;
                 default:
@@ -365,10 +381,14 @@ public final class ShortestPathFinder {
         return !visitedSet.add(node.instance);
     }
 
+    //将 Gcroot 依赖的对象加入到引用链队列中
     private void visitRootObj(ReferenceNode node) {
         RootObj rootObj = (RootObj) node.instance;
+//        System.out.println("visitRootObj "+rootObj.toString());
+        //获取到被gcroot 引用的 对象
         Instance child = rootObj.getReferredInstance();
 
+        //如果是 java本地栈 类型则会排除一些东西，不过这都不重要，重要的是将 Gcroot 依赖的对象加入到引用链队列中
         if (rootObj.getRootType() == RootType.JAVA_LOCAL) {
             Instance holder = HahaSpy.allocatingThread(rootObj);
             // We switch the parent node with the thread instance that holds
@@ -384,8 +404,10 @@ public final class ShortestPathFinder {
         }
     }
 
+    //将字节码文件的静态变量对象加入到引用链队列中
     private void visitClassObj(ReferenceNode node) {
         ClassObj classObj = (ClassObj) node.instance;
+//        System.out.println("visitClassObj "+classObj.getClassName());
         Map<String, Exclusion> ignoredStaticFields =
                 excludedRefs.staticFieldNameByClassName.get(classObj.getClassName());
         for (Map.Entry<Field, Object> entry : classObj.getStaticFieldValues().entrySet()) {
@@ -414,8 +436,10 @@ public final class ShortestPathFinder {
         }
     }
 
+    //将实例对象 加入到引用链队列中
     private void visitClassInstance(ReferenceNode node) {
         ClassInstance classInstance = (ClassInstance) node.instance;
+//        System.out.println("visitClassInstance "+classInstance.toString());
         Map<String, Exclusion> ignoredFields = new LinkedHashMap<>();
         ClassObj superClassObj = classInstance.getClassObj();
         Exclusion classExclusion = null;
@@ -455,8 +479,10 @@ public final class ShortestPathFinder {
         }
     }
 
+    //将对象数组加入到 引用链队列中
     private void visitArrayInstance(ReferenceNode node) {
         ArrayInstance arrayInstance = (ArrayInstance) node.instance;
+//        System.out.println("visitArrayInstance "+arrayInstance.toString());
         Type arrayType = arrayInstance.getArrayType();
         if (arrayType == Type.OBJECT) {
             Object[] values = arrayInstance.getValues();
@@ -497,9 +523,12 @@ public final class ShortestPathFinder {
         if (visitedSet.contains(child)) {
             return;
         }
+        //创建一个引用节点
         ReferenceNode childNode = new ReferenceNode(exclusion, child, parent, referenceName, referenceType);
+        //添加到 引用链集合中
         if (visitNow) {
             toVisitSet.add(child);
+            //放到队列尾部
             toVisitQueue.add(childNode);
         } else {
             toVisitIfNoPathSet.add(child);

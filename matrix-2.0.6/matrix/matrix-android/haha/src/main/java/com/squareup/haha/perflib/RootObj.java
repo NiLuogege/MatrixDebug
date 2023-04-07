@@ -19,6 +19,7 @@ package com.squareup.haha.perflib;
 import com.squareup.haha.annotations.NonNull;
 import com.squareup.haha.annotations.Nullable;
 
+//这个对象就是GCRoot
 public class RootObj extends Instance {
     public static final String UNDEFINED_CLASS_NAME = "no class defined!!";
 
