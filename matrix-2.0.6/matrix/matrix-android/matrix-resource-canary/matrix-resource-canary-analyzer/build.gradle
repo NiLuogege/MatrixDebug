@@ -14,8 +14,9 @@ targetCompatibility = JavaVersion.VERSION_1_7
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':matrix-resource-canary:matrix-resource-canary-common')
-
-    api 'com.squareup.haha:haha:2.0.3'
+    //替换成 项目依赖方便源码阅读
+//    api 'com.squareup.haha:haha:2.0.3'
+    api project(':haha')
     compileOnly 'org.json:json:20180813'
 }
 
