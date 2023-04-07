@@ -319,8 +319,11 @@ public final class CLIMain {
      */
     private static void analyzeAndStoreResult(File hprofFile, int sdkVersion, String manufacturer,
                                               String leakedActivityKey, JSONObject extraInfo) throws IOException {
+        //这一步就已经对 .hprof 文件做了分析结果存在他的成员变量 mSnapshot 中
         final HeapSnapshot heapSnapshot = new HeapSnapshot(hprofFile);
+        //这里收集常见不同品牌的 不同SDK版本号的 系统泄漏点，后面分析的时候会规避掉。
         final ExcludedRefs excludedRefs = AndroidExcludedRefs.createAppDefaults(sdkVersion, manufacturer).build();
+        //对传入泄漏点的引用链进行分析并返回 ActivityLeakResult
         final ActivityLeakResult activityLeakResult
                 = new ActivityLeakAnalyzer(leakedActivityKey, excludedRefs).analyze(heapSnapshot);
 

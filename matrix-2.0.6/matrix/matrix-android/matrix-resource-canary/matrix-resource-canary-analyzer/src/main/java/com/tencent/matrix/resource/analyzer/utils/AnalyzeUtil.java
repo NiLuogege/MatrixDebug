@@ -33,20 +33,25 @@ public final class AnalyzeUtil {
 
     /**
      * Pruning duplicates reduces memory pressure from hprof bloat added in Marshmallow.
+     *  对棉花糖系统做优化，不是核心流程
      */
     public static void deduplicateGcRoots(Snapshot snapshot) {
         // THashMap has a smaller memory footprint than HashMap.
         final THashMap<String, RootObj> uniqueRootMap = new THashMap<>();
 
+        //获取到 GC roots
         final Collection<RootObj> gcRoots = snapshot.getGCRoots();
+        //这里是 一个GCroot 只要一份 ， 对棉花糖系统做优化，不是核心流程
         for (RootObj root : gcRoots) {
             String key = generateRootKey(root);
+//            System.out.println("GcRoot="+root.toString() + " key= " + key);
             if (!uniqueRootMap.containsKey(key)) {
                 uniqueRootMap.put(key, root);
             }
         }
 
         // Repopulate snapshot with unique GC roots.
+        //重新设置 gcRoot
         gcRoots.clear();
         uniqueRootMap.forEach(new TObjectProcedure<String>() {
             @Override

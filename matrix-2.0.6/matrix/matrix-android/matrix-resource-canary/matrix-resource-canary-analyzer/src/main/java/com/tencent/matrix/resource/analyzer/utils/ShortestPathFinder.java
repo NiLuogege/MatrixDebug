@@ -68,6 +68,7 @@ import static com.tencent.matrix.resource.analyzer.model.ReferenceTraceElement.T
 public final class ShortestPathFinder {
     private static final String ANONYMOUS_CLASS_NAME_PATTERN = "^.+\\$\\d+$";
 
+    //可忽略的引用链
     private final ExcludedRefs excludedRefs;
     private final Queue<ReferenceNode> toVisitQueue;
     private final Queue<ReferenceNode> toVisitIfNoPathQueue;
@@ -76,6 +77,9 @@ public final class ShortestPathFinder {
     private final Set<Instance> visitedSet;
     private boolean canIgnoreStrings;
 
+    /**
+     * @param excludedRefs 可忽略的引用链
+     */
     public ShortestPathFinder(ExcludedRefs excludedRefs) {
         this.excludedRefs = excludedRefs;
         toVisitQueue = new LinkedList<>();
@@ -218,6 +222,12 @@ public final class ShortestPathFinder {
         }
     }
 
+    /**
+     * 查找最短引用链
+     * @param snapshot
+     * @param targetReference
+     * @return
+     */
     public Result findPath(Snapshot snapshot, Instance targetReference) {
         final List<Instance> targetRefList = new ArrayList<>();
         targetRefList.add(targetReference);

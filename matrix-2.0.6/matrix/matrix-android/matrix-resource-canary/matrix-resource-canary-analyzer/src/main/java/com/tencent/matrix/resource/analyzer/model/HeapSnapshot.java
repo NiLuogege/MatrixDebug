@@ -59,7 +59,7 @@ public class HeapSnapshot {
         //自己调试的方法，先注释掉
 //        testDump(result);
 
-        //这里是对 gcroot 进行修整？以减小内存占用？？
+        //这里是对 gcroot 进行修整 ,这是对 棉花糖系统做优化，不是核心流程
         AnalyzeUtil.deduplicateGcRoots(result);
         return result;
     }

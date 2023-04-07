@@ -49,11 +49,18 @@ public class ActivityLeakAnalyzer implements HeapSnapshotAnalyzer<ActivityLeakRe
     private final String mRefKey;
     private final ExcludedRefs mExcludedRefs;
 
+    /**
+     * @param refKey 泄漏点
+     * @param excludedRefs 可忽略的引用链
+     */
     public ActivityLeakAnalyzer(String refKey, ExcludedRefs excludedRefs) {
         mRefKey = refKey;
         mExcludedRefs = excludedRefs;
     }
 
+    /**
+     * 开始进行分析
+     */
     @Override
     public ActivityLeakResult analyze(HeapSnapshot heapSnapshot) {
         return checkForLeak(heapSnapshot, mRefKey);
@@ -63,19 +70,25 @@ public class ActivityLeakAnalyzer implements HeapSnapshotAnalyzer<ActivityLeakRe
      * Searches the heap dump for a <code>DestroyedActivityInfo</code> instance with the corresponding key,
      * and then computes the shortest strong reference path from the leaked activity that instance holds
      * to the GC roots.
+     *
+     * 通过 refKey 查找到 它对应的 DestroyedActivityInfo
      */
     private ActivityLeakResult checkForLeak(HeapSnapshot heapSnapshot, String refKey) {
         long analysisStartNanoTime = System.nanoTime();
 
         try {
+            //获取到 .hprof 文件的解析结果
             final Snapshot snapshot = heapSnapshot.getSnapshot();
+            //查找泄漏了的 Activity 的 Instance 对象
             final Instance leakingRef = findLeakingReference(refKey, snapshot);
 
             // False alarm, weak reference was cleared in between key check and heap dump.
+            //异常情况，堆转储的时候 泄漏点被gc 了
             if (leakingRef == null) {
                 return ActivityLeakResult.noLeak(AnalyzeUtil.since(analysisStartNanoTime));
             }
 
+            //查找最短引用
             return findLeakTrace(analysisStartNanoTime, snapshot, leakingRef);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -83,22 +96,37 @@ public class ActivityLeakAnalyzer implements HeapSnapshotAnalyzer<ActivityLeakRe
         }
     }
 
+    /**
+     *
+     * @param key 泄漏点标识
+     * @param snapshot
+     * @return 返回的是泄漏了的 Activity 的 Instance 对象
+     */
     private Instance findLeakingReference(String key, Snapshot snapshot) {
+        //获取到 com.tencent.matrix.resource.analyzer.model.DestroyedActivityInfo 的字节码对象
+        // 这个就是我们再Activity onDestory的时候将Activity引用封装的对象
         final ClassObj infoClass = snapshot.findClass(DESTROYED_ACTIVITY_INFO_CLASSNAME);
         if (infoClass == null) {
             throw new IllegalStateException("Unabled to find destroy activity info class with name: "
                     + DESTROYED_ACTIVITY_INFO_CLASSNAME);
         }
         List<String> keysFound = new ArrayList<>();
+        //获取这个字节码文件所有的实例
         for (Instance infoInstance : infoClass.getInstancesList()) {
+            //获取所有成员变量的信息 并封装到FieldValue 对象中，，里面包含了 变量名和变量值
             final List<ClassInstance.FieldValue> values = classInstanceValues(infoInstance);
+            //获取成员变量名为 mKey 的值
             final String keyCandidate = asString(fieldValue(values, ACTIVITY_REFERENCE_KEY_FIELDNAME));
+            //当值和我们传入的泄漏点 key ，一致的时候就说明找到了 泄露对象
             if (keyCandidate.equals(key)) {
+                //获取包装Activity的 弱引用对象
                 final Instance weakRefObj = fieldValue(values, ACTIVITY_REFERENCE_FIELDNAME);
                 if (weakRefObj == null) {
                     continue;
                 }
+                //获取弱引用对象的 所有成员变量的信息 并封装到FieldValue 对象中，，里面包含了 变量名和变量值
                 final List<ClassInstance.FieldValue> activityRefs = classInstanceValues(weakRefObj);
+                //获取到 弱引用的referent成员变量中保存的对象，其实就是那个泄漏了的 Activity ，并返回
                 return fieldValue(activityRefs, "referent");
             }
             keysFound.add(keyCandidate);
@@ -107,10 +135,20 @@ public class ActivityLeakAnalyzer implements HeapSnapshotAnalyzer<ActivityLeakRe
                 "Could not find weak reference with key " + key + " in " + keysFound);
     }
 
+    /**
+     * 查找最短引用链并 返回结果
+     *
+     * @param analysisStartNanoTime
+     * @param snapshot
+     * @param leakingRef 泄漏的Activity的 Instance 对象
+     * @return
+     */
     private ActivityLeakResult findLeakTrace(long analysisStartNanoTime, Snapshot snapshot,
                                          Instance leakingRef) {
 
+        //创建最短引用查找器，并传入可忽略的引用链
         ShortestPathFinder pathFinder = new ShortestPathFinder(mExcludedRefs);
+        //查找最短引用链并 返回结果
         ShortestPathFinder.Result result = pathFinder.findPath(snapshot, leakingRef);
 
         // False alarm, no strong reference path to GC Roots.
