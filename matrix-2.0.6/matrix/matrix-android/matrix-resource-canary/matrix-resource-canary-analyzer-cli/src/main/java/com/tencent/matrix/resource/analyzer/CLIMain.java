@@ -328,6 +328,7 @@ public final class CLIMain {
                 = new ActivityLeakAnalyzer(leakedActivityKey, excludedRefs).analyze(heapSnapshot);
 
 
+        //当系统sdk版本小于 26 的时候进行 重复图片的分析
         DuplicatedBitmapResult duplicatedBmpResult = DuplicatedBitmapResult.noDuplicatedBitmap(0);
         if (sdkVersion < 26) {
             final ExcludedBmps excludedBmps = AndroidExcludedBmpRefs.createDefaults().build();
@@ -336,6 +337,7 @@ public final class CLIMain {
             System.err.println("\n ! SDK version of target device is larger or equal to 26, "
                     + "which is not supported by DuplicatedBitmapAnalyzer.");
         }
+        //准备输出结果了
         final String resultJsonName = "result.json";
         final String bufferContentsRootDirName = "buffer_contents";
         final String extralInfoKey = "extraInfo";

@@ -84,6 +84,7 @@ public final class ActivityLeakResult extends AnalyzeResult {
         this.mAnalysisDurationMs = mAnalysisDurationMs;
     }
 
+    //构件成 JSON格式
     @Override
     public void encodeToJSON(JSONObject jsonObject) throws JSONException {
         final JSONArray leakTraceJSONArray = new JSONArray();

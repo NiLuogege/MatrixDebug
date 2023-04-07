@@ -47,9 +47,12 @@ import static com.tencent.matrix.resource.analyzer.utils.ShortestPathFinder.Resu
 
 /**
  * Created by tangyinsheng on 2017/6/6.
+ *
+ * 重复图片分析器
  */
 
 public class DuplicatedBitmapAnalyzer implements HeapSnapshotAnalyzer<DuplicatedBitmapResult> {
+    //需要对比重复图片的最小尺寸
     private final int mMinBmpLeakSize;
     private final ExcludedBmps mExcludedBmps;
     private Field mMStackField = null;
@@ -61,6 +64,7 @@ public class DuplicatedBitmapAnalyzer implements HeapSnapshotAnalyzer<Duplicated
         mExcludedBmps = excludedBmps;
     }
 
+    //重复图片的分析
     @Override
     public DuplicatedBitmapResult analyze(HeapSnapshot heapSnapshot) {
         final long analysisStartNanoTime = System.nanoTime();
@@ -68,6 +72,7 @@ public class DuplicatedBitmapAnalyzer implements HeapSnapshotAnalyzer<Duplicated
         try {
             final Snapshot snapshot = heapSnapshot.getSnapshot();
             new ShortestDistanceVisitor().doVisit(snapshot.getGCRoots());
+            //重复图片的分析
             return findDuplicatedBitmap(analysisStartNanoTime, snapshot);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -75,6 +80,7 @@ public class DuplicatedBitmapAnalyzer implements HeapSnapshotAnalyzer<Duplicated
         }
     }
 
+    //重复图片的分析
     private DuplicatedBitmapResult findDuplicatedBitmap(long analysisStartNanoTime, Snapshot snapshot) {
         final ClassObj bitmapClass = snapshot.findClass("android.graphics.Bitmap");
         if (bitmapClass == null) {
@@ -90,6 +96,7 @@ public class DuplicatedBitmapAnalyzer implements HeapSnapshotAnalyzer<Duplicated
                 continue;
             }
 
+            //拿到所有的 Bitmap 对象
             final List<Instance> bitmapInstances = bitmapClass.getHeapInstances(heap.getId());
             for (Instance bitmapInstance : bitmapInstances) {
                 if (bitmapInstance.getDistanceToGcRoot() == Integer.MAX_VALUE) {
@@ -98,6 +105,7 @@ public class DuplicatedBitmapAnalyzer implements HeapSnapshotAnalyzer<Duplicated
                 reachableInstances.add(bitmapInstance);
             }
             for (Instance bitmapInstance : reachableInstances) {
+                //拿到 Bitmap对象中的 mBuffer数组
                 ArrayInstance buffer = HahaHelper.fieldValue(((ClassInstance) bitmapInstance).getValues(), "mBuffer");
                 if (buffer != null) {
                     // sizeof(byte) * bufferLength -> bufferSize
